@@ -1,14 +1,14 @@
 #
 # Makefile for CS452 Kernel
 #
-XDIR=/u/cs452/public/gnuarm-4.0.2
+XDIR=/u/cs452/public/xdev
 XBINDIR=$(XDIR)/bin
-XLIBDIR1=$(XDIR)/arm-elf/lib
-XLIBDIR2=$(XDIR)/lib/gcc/arm-elf/4.0.2
-CC = $(XBINDIR)/arm-elf-gcc
-AR = $(XBINDIR)/arm-elf-ar
-AS = $(XBINDIR)/arm-elf-as
-LD = $(XBINDIR)/arm-elf-ld
+XLIBDIR1=$(XDIR)/arm-none-eabi/lib
+XLIBDIR2=$(XDIR)/lib/gcc/arm-none-eabi/9.2.0
+CC = $(XBINDIR)/arm-none-eabi-gcc
+AR = $(XBINDIR)/arm-none-eabi-ar
+AS = $(XBINDIR)/arm-none-eabi-as
+LD = $(XBINDIR)/arm-none-eabi-ld
 
 # List of object files
 OBJECTS = tasks.o main.o
@@ -30,7 +30,7 @@ ARFLAGS = crs
 # -e: set entry point
 # -nmagic: no page alignment
 # -T: use linker script
-LDFLAGS = -static -e kmain -nmagic -T linker.ld -L . -L ../lib -L $(XLIBDIR2)
+LDFLAGS = -static -e kmain -nmagic -T linker.ld -L . -L ../lib -L $(XLIBDIR1) -L $(XLIBDIR2)
 
 all: libbwio.a main.elf
 
@@ -41,7 +41,7 @@ libbwio.a: bwio.o
 	$(AR) $(ARFLAGS) $@ bwio.o
 
 main.elf: $(OBJECTS)
-	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -lgcc
+	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -lc -lgcc
 
 clean:
 	-rm -f *.s *.o *.a *.elf
