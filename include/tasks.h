@@ -1,8 +1,9 @@
 /*
- * tasks.h
+ * tasks.h - provides APIs for the tasks.
  */
 
-#include<kernel.h>
+#ifndef __TASKS_H__
+#define __TASKS_H__
 
 typedef struct {
     int TID;
@@ -30,3 +31,5 @@ int MyParentTid();
 void Yield();
 
 void Exit();
+
+#endif // __TASKS_H__
