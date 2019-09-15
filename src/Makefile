@@ -1,5 +1,5 @@
 #
-# Makefile for Assignment 0
+# Makefile for CS452 Kernel
 #
 XDIR=/u/cs452/public/gnuarm-4.0.2
 XBINDIR=$(XDIR)/bin
@@ -10,14 +10,16 @@ AR = $(XBINDIR)/arm-elf-ar
 AS = $(XBINDIR)/arm-elf-as
 LD = $(XBINDIR)/arm-elf-ld
 
+# List of object files
+OBJECTS = tasks.o main.o
+
 # -g: include debug information for gdb
 # -O0: disable any optimization for gcc
-# -S: only compile and emit assembly
 # -fPIC: emit position-independent code
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -g -O0 -S -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I../include
+CFLAGS = -g -O0 -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I../include
 
 # c: create archive, if necessary
 # r: insert with replacement
@@ -32,14 +34,11 @@ LDFLAGS = -static -e main -nmagic -T linker.ld -L ../lib -L $(XLIBDIR2)
 
 all: main.elf
 
-main.s: main.c
-	$(CC) -S $(CFLAGS) main.c
+%.s: %.c
+	$(CC) -S $(CFLAGS) $^
 
-main.o: main.s
-	$(AS) $(ASFLAGS) -o main.o main.s
-
-main.elf: main.o
-	$(LD) $(LDFLAGS) -o $@ main.o -lgcc
+main.elf: $(OBJECTS)
+	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lgcc
 
 clean:
 	-rm -f *.s *.o *.a *.elf
