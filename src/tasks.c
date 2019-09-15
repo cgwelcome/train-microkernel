@@ -26,7 +26,7 @@ int Create(unsigned int priority, void (*function)()) {
     Task new_task = {
         .status = Ready,
         .tid = available_tid,
-        .ptid = MyParentTid(),
+        .ptid = MyTid(),
         .runtime = 0,
         .priority = priority,
         .code = function,
