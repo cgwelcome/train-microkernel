@@ -15,7 +15,7 @@ typedef struct {
     unsigned int ptid;
     unsigned int runtime;
     unsigned int priority;
-    void *code;
+    void (*code)();
     void *stack;
 } Task;
 
@@ -25,15 +25,15 @@ typedef struct {
     unsigned int total_priority;
 } TaskGroup;
 
-int Create(int priority, void (*function)());
+int Create(unsigned int priority, void (*function)());
 
-int Schedule();
+unsigned int Schedule();
 
-int Activate(int TID);
+int Activate(unsigned int tid);
 
-int MyTid();
+unsigned int MyTid();
 
-int MyParentTid();
+unsigned int MyParentTid();
 
 void Yield();
 

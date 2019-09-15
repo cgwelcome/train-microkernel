@@ -12,8 +12,7 @@ void initialize() {
     // Initialize k_tasks
     k_tasks.alive_count = 0;
     k_tasks.total_priority = 0;
-    unsigned int tid = 0;
-    for (tid = 0; tid < MAX_TASK_NUM; tid++) {
+    for (unsigned int tid = 0; tid < MAX_TASK_NUM; tid++) {
         k_tasks.tasks[tid].status = Unused;
     }
     // Create first user task
@@ -23,7 +22,7 @@ void initialize() {
 void kmain() {
     initialize();  // includes starting the first user task
     for (;;) {
-        int nextTID = Schedule();
+        unsigned int nextTID = Schedule();
         int request = Activate(nextTID);
         switch (request) {
         default:
