@@ -5,6 +5,8 @@
 
 extern TaskGroup k_tasks;
 
+int Create(int priority, void (*function)());
+
 int Schedule() {
     unsigned int ret_tid;
 
@@ -27,3 +29,11 @@ int Schedule() {
 int Activate(int TID) {
     return 0;
 }
+
+int MyTid();
+
+int MyParentTid();
+
+void Yield();
+
+void Exit();
