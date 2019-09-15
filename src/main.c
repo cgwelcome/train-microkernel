@@ -2,14 +2,14 @@
 #include <kernel.h>
 #include <tasks.h>
 
+TaskGroup tasks;
+
 void initialize() {
   // TODO: create first user task
   return;
 }
 
 void kmain() {
-  struct TaskGroup tasks;
-
   initialize();  // includes starting the first user task
   for (;;) {
     int nextTID = Schedule(&tasks);

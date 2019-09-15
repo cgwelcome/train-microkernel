@@ -4,21 +4,22 @@
 
 #include<kernel.h>
 
-struct Task {
+typedef struct {
     int TID;
+    int PTID;
     void *code;
     void *stack;
-};
+} Task;
 
-struct TaskGroup {
+typedef struct {
     int size;
+    Task tasks[MAX_TASK_NUM];
     int total_priority;
-    struct Task tasks[NUM_TASK];
-};
+} TaskGroup;
 
 int Create(int priority, void (*function)());
 
-int Schedule(struct TaskGroup *tasks);
+int Schedule();
 
 int Activate(int TID);
 

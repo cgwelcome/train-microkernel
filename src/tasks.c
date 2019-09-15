@@ -1,7 +1,9 @@
 #include <ts7200.h>
 #include <tasks.h>
 
-int Schedule(struct TaskGroup *tasks) {
+extern TaskGroup tasks;
+
+int Schedule() {
     return 0;
 }
 
