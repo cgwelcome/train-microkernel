@@ -1,0 +1,4 @@
+#define NUM_TASK 256
+
+#define TASK_DEFAULT_PRIORITY 10
+#define TASK_STACK_SIZE 1024
