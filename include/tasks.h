@@ -5,17 +5,24 @@
 #ifndef __TASKS_H__
 #define __TASKS_H__
 
+#include <kernel.h>
+
+typedef enum{Unused, Active, Ready, Zombie} TaskStatus;
+
 typedef struct {
-    int TID;
-    int PTID;
+    TaskStatus status;
+    unsigned int tid;
+    unsigned int ptid;
+    unsigned int runtime;
+    unsigned int priority;
     void *code;
     void *stack;
 } Task;
 
 typedef struct {
-    int size;
     Task tasks[MAX_TASK_NUM];
-    int total_priority;
+    unsigned int alive_count;
+    unsigned int total_priority;
 } TaskGroup;
 
 int Create(int priority, void (*function)());
