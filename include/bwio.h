@@ -2,8 +2,8 @@
  * bwio.h - provides busy-wait I/O operations.
  */
 
-#ifndef __BASE_BWIO_H__
-#define __BASE_BWIO_H__
+#ifndef __BWIO_H__
+#define __BWIO_H__
 
 typedef char *va_list;
 
@@ -41,4 +41,4 @@ void bwputw( int channel, int n, char fc, char *bf );
 
 void bwprintf( int channel, char *format, ... );
 
-#endif // __BASE_BWIO_H__
+#endif // __BWIO_H__
