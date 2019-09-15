@@ -30,15 +30,18 @@ ARFLAGS = crs
 # -e: set entry point
 # -nmagic: no page alignment
 # -T: use linker script
-LDFLAGS = -static -e kmain -nmagic -T linker.ld -L ../lib -L $(XLIBDIR2)
+LDFLAGS = -static -e kmain -nmagic -T linker.ld -L . -L ../lib -L $(XLIBDIR2)
 
-all: main.elf
+all: libbwio.a main.elf
 
 %.s: %.c
 	$(CC) -S $(CFLAGS) $^
 
+libbwio.a: bwio.o
+	$(AR) $(ARFLAGS) $@ bwio.o
+
 main.elf: $(OBJECTS)
-	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lgcc
+	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -lgcc
 
 clean:
 	-rm -f *.s *.o *.a *.elf
