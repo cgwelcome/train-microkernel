@@ -13,14 +13,14 @@ LD = $(XBINDIR)/arm-none-eabi-ld
 # List of object files
 OBJECTS = kern/tasks.o user/tasks.o main.o
 
-# -std=c99: use C99 standard
+# -std=gnu99: use C99 standard with asm support
 # -g: include debug information for gdb
 # -O0: disable any optimization for gcc
 # -fPIC: emit position-independent code
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -std=c99 -g -O0 -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I../include
+CFLAGS = -std=gnu99 -g -O0 -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I../include
 
 # c: create archive, if necessary
 # r: insert with replacement

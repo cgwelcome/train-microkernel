@@ -15,13 +15,14 @@ void initialize() {
     task_create(-1, 0, &task_main);
 }
 
-void syscall_handle(int request) {
+void syscall_handle(int tid, int request) {
     switch (request) {
     case SYSCALL_TASK_CREATE:
         break;
     case SYSCALL_TASK_YIELD:
         break;
     case SYSCALL_TASK_EXIT:
+        task_kill(tid);
         break;
     default:
         break;
@@ -34,6 +35,6 @@ void kmain() {
         unsigned int nextTID = task_schedule();
         if (nextTID == -1) break;
         int request = task_activate(nextTID);
-        syscall_handle(request);
+        syscall_handle(nextTID, request);
     }
 }
