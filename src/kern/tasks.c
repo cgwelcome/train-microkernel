@@ -8,7 +8,7 @@ Task tasks[MAX_TASK_NUM];
 void task_init() {
     alive_task_count = 0;
     total_priority = 0;
-    for (unsigned int tid = 0; tid < MAX_TASK_NUM; tid++) {
+    for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
         tasks[tid].status = Unused;
     }
 }
@@ -18,15 +18,14 @@ int task_create(int ptid, unsigned int priority, void (*function)()) {
         return -1; // invalid priority
     }
 
-    unsigned int available_tid = MAX_TASK_NUM;
-    for (unsigned int tid = 0; tid < MAX_TASK_NUM; tid++) {
-        if (tasks[tid].status == Unused) {
+    int available_tid = -1;
+    for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
+        if (tasks[tid].status == Unused || tasks[tid].status == Zombie) {
             available_tid = tid;
             break;
         }
-        // TODO: reuse Zombie tasks in the future
     }
-    if (available_tid == MAX_TASK_NUM) {
+    if (available_tid == -1) {
         return -2; // out of task descriptors.
     }
 
@@ -38,6 +37,7 @@ int task_create(int ptid, unsigned int priority, void (*function)()) {
         .priority = priority,
         .code = function,
         .stack = (void *) (ADDR_KERNEL_STACK_TOP - available_tid * TASK_STACK_SIZE),
+        .return_value = 0,
     };
     alive_task_count += 1;
     total_priority += priority;
@@ -46,11 +46,11 @@ int task_create(int ptid, unsigned int priority, void (*function)()) {
 }
 
 int task_schedule() {
-    if (alive_task_count == 0) return MAX_TASK_NUM;
+    if (alive_task_count == 0) return -1;
 
-    unsigned int ret_tid;
+    int ret_tid;
     double min_vtime = DBL_MAX;
-    for (unsigned int tid = 0; tid < MAX_TASK_NUM; tid++) {
+    for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
         if (tasks[tid].status == Unused) continue;
         if (tasks[tid].status == Zombie) continue;
         unsigned int time = tasks[tid].runtime;
@@ -66,6 +66,14 @@ int task_schedule() {
 
 int task_activate(int tid) { return 0; }
 
-void task_yield(int tid) {}
+void task_kill(int tid) {
+    // Set related status
+    tasks[tid].status = Zombie;
+    alive_task_count -= 1;
+    total_priority -= tasks[tid].priority;
 
-void task_exit(int tid) {}
+    // Abandon the children
+    for (unsigned int i = 0; i < MAX_TASK_NUM; i++) {
+        if (tasks[i].ptid == tid) tasks[i].ptid = -1;
+    }
+}

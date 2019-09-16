@@ -12,7 +12,7 @@ void initialize() {
     // Initialize variables related to task APIs.
     task_init();
     // Create first user task.
-    task_create(MAX_TASK_NUM, 0, &task_main);
+    task_create(-1, 0, &task_main);
 }
 
 void syscall_handle(int request) {
@@ -23,7 +23,7 @@ void kmain() {
     initialize();  // includes starting the first user task
     for (;;) {
         unsigned int nextTID = task_schedule();
-        if (nextTID == MAX_TASK_NUM) break; // no alive tasks
+        if (nextTID == -1) break;
         int request = task_activate(nextTID);
         syscall_handle(request);
     }

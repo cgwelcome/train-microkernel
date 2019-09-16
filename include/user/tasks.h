@@ -3,9 +3,9 @@
 
 int Create(unsigned int priority, void (*function)());
 
-unsigned int MyTid();
+int MyTid();
 
-unsigned int MyParentTid();
+int MyParentTid();
 
 void Yield();
 
