@@ -2,9 +2,7 @@
 #include <kernel.h>
 #include <kern/tasks.h>
 
-void task_main() {
-    return;
-}
+extern void task_main();
 
 void initialize() {
     // TODO: turn off interrupts in the ICU

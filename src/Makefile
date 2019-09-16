@@ -11,7 +11,7 @@ AS = $(XBINDIR)/arm-none-eabi-as
 LD = $(XBINDIR)/arm-none-eabi-ld
 
 # List of object files
-OBJECTS = kern/tasks.o user/tasks.o main.o
+OBJECTS = kern/tasks.o user/tasks.o application.o kernel.o
 
 # -std=gnu99: use C99 standard with asm support
 # -g: include debug information for gdb
@@ -45,4 +45,4 @@ main.elf: libbwio.a $(OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -lc -lgcc
 
 clean:
-	-rm -f *.s *.o *.a *.elf
+	-rm -f kern/*.o user/*.o *.s *.o *.a *.elf
