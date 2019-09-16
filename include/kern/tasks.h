@@ -11,7 +11,7 @@ typedef struct {
     int ptid;
     unsigned int runtime;
     unsigned int priority;
-    void (*code)();
+    void (*entry)();
     void *stack;
     int return_value;
 } Task;

@@ -19,7 +19,7 @@ void task_init() {
     current_tid = -1; current_ptid = -1;
 }
 
-int task_create(int ptid, unsigned int priority, void (*function)()) {
+int task_create(int ptid, unsigned int priority, void (*entry)()) {
     if (priority == 0 || priority > MAX_TASK_PRIORITY) {
         return -1; // invalid priority
     }
@@ -41,7 +41,7 @@ int task_create(int ptid, unsigned int priority, void (*function)()) {
         .ptid = ptid,
         .runtime = 0,
         .priority = priority,
-        .code = function,
+        .entry = entry,
         .stack = (void *) (ADDR_KERNEL_STACK_TOP - available_tid * TASK_STACK_SIZE),
         .return_value = 0,
     };
@@ -70,7 +70,14 @@ int task_schedule() {
     return ret_tid;
 }
 
-int task_activate(int tid) { return 0; }
+void task_zygote(void (*entry)()) {
+    void *swi_handler = (void *)0x28;
+    asm("str lr, %0" : : "m" (swi_handler));
+    // TODO: drop supervisor mode
+    asm("mov r1, %0" : : "r" (entry));
+    asm("bx r1");
+}
+
 
 void task_kill(int tid) {
     tasks[tid].status = Zombie;
