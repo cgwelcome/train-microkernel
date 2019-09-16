@@ -1,14 +1,29 @@
 #ifndef __USER_TASKS_H__
 #define __USER_TASKS_H__
 
+// Create() asks kernel to create a new task.
+// Parameters:
+//   priority: a positive integer from 1 to 1024.
+//   function: a function pointer to the entry of the creating task.
+// Return Values:
+//   tid: the allocated tid if the task has been created successfully.
+//   -1: the priority is invalid.
+//   -2: the kernel is out of task descriptors.
 int Create(unsigned int priority, void (*function)());
 
-int MyTid();
-
-int MyParentTid();
-
+// Yield() skips this time slice, force the kernel to pick next task.
 void Yield();
 
+// Exit() terminates the current running task.
 void Exit();
+
+// MyTid() returns the tid of current task.
+int MyTid();
+
+// MyParentTid() returns the tid of parent task.
+// Return Values:
+//   tid: the tid of the parent task.
+//   -1: the current task is started by kernel.
+int MyParentTid();
 
 #endif // __USER_TASKS_H__

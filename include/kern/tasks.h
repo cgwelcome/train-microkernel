@@ -24,7 +24,7 @@ void task_init();
 //   ptid: parent tid, which is -1 if the task is started by kernel itself.
 //   priority: a positive integer from 1 to 1024.
 //   function: a function pointer to the entry of the creating task.
-// Return values:
+// Return Values:
 //   tid: the allocated tid if the task has been created successfully.
 //   -1: the priority is invalid.
 //   -2: the kernel is out of task descriptors.

@@ -20,7 +20,7 @@ int task_create(int ptid, unsigned int priority, void (*function)()) {
 
     int available_tid = -1;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
-        if (tasks[tid].status == Unused || tasks[tid].status == Zombie) {
+        if (tasks[tid].status == Unused) {
             available_tid = tid;
             break;
         }
@@ -67,13 +67,7 @@ int task_schedule() {
 int task_activate(int tid) { return 0; }
 
 void task_kill(int tid) {
-    // Set related status
     tasks[tid].status = Zombie;
     alive_task_count -= 1;
     total_priority -= tasks[tid].priority;
-
-    // Abandon the children
-    for (unsigned int i = 0; i < MAX_TASK_NUM; i++) {
-        if (tasks[i].ptid == tid) tasks[i].ptid = -1;
-    }
 }
