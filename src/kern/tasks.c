@@ -5,12 +5,18 @@ unsigned int alive_task_count;
 unsigned int total_priority;
 Task tasks[MAX_TASK_NUM];
 
+// TODO: set them in task_activate()
+int current_tid;
+int current_ptid;
+
 void task_init() {
     alive_task_count = 0;
     total_priority = 0;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
         tasks[tid].status = Unused;
     }
+
+    current_tid = -1; current_ptid = -1;
 }
 
 int task_create(int ptid, unsigned int priority, void (*function)()) {

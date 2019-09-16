@@ -1,6 +1,9 @@
 #include <user/tasks.h>
 #include <kernel.h>
 
+extern int current_tid;
+extern int current_ptid;
+
 int Create(unsigned int priority, void (*function)()) {
     int ret;
     asm("mov r1, %0" : : "r" (priority));
@@ -10,10 +13,6 @@ int Create(unsigned int priority, void (*function)()) {
     return ret;
 }
 
-int MyTid() { return 0; }
-
-int MyParentTid() { return 0; }
-
 void Yield() {
     asm("swi %0" : : "I" (SYSCALL_TASK_YIELD));
 }
@@ -21,3 +20,7 @@ void Yield() {
 void Exit() {
     asm("swi %0" : : "I" (SYSCALL_TASK_EXIT));
 }
+
+int MyTid() { return current_tid; }
+
+int MyParentTid() { return current_ptid; }
