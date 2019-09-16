@@ -11,7 +11,7 @@ AS = $(XBINDIR)/arm-none-eabi-as
 LD = $(XBINDIR)/arm-none-eabi-ld
 
 # List of object files
-OBJECTS = tasks.o main.o
+OBJECTS = kern/tasks.o user/tasks.o main.o
 
 # -std=c99: use C99 standard
 # -g: include debug information for gdb
@@ -33,7 +33,7 @@ ARFLAGS = crs
 # -T: use linker script
 LDFLAGS = -static -e kmain -nmagic -T linker.ld -L . -L ../lib -L $(XLIBDIR1) -L $(XLIBDIR2)
 
-all: libbwio.a main.elf
+all: main.elf
 
 %.s: %.c
 	$(CC) -S $(CFLAGS) $^
@@ -41,7 +41,7 @@ all: libbwio.a main.elf
 libbwio.a: bwio.o
 	$(AR) $(ARFLAGS) $@ bwio.o
 
-main.elf: $(OBJECTS)
+main.elf: libbwio.a $(OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -lc -lgcc
 
 clean:

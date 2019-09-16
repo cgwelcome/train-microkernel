@@ -1,32 +1,30 @@
 #include <ts7200.h>
 #include <kernel.h>
-#include <tasks.h>
+#include <kern/tasks.h>
 
-TaskGroup k_tasks;
-
-void empty_task() {
+void task_main() {
     return;
 }
 
 void initialize() {
-    // Initialize k_tasks
-    k_tasks.alive_count = 0;
-    k_tasks.total_priority = 0;
-    for (unsigned int tid = 0; tid < MAX_TASK_NUM; tid++) {
-        k_tasks.tasks[tid].status = Unused;
-    }
-    // Create first user task
-    Create(0, &empty_task);
+    // TODO: turn off interrupts in the ICU
+
+    // Initialize variables related to task APIs.
+    task_init();
+    // Create first user task.
+    task_create(MAX_TASK_NUM, 0, &task_main);
+}
+
+void syscall_handle(int request) {
+    return;
 }
 
 void kmain() {
     initialize();  // includes starting the first user task
     for (;;) {
-        unsigned int nextTID = Schedule();
-        int request = Activate(nextTID);
-        switch (request) {
-        default:
-            break;
-        }
+        unsigned int nextTID = task_schedule();
+        if (nextTID == MAX_TASK_NUM) break; // no alive tasks
+        int request = task_activate(nextTID);
+        syscall_handle(request);
     }
 }
