@@ -16,7 +16,16 @@ void initialize() {
 }
 
 void syscall_handle(int request) {
-    return;
+    switch (request) {
+    case SYSCALL_TASK_CREATE:
+        break;
+    case SYSCALL_TASK_YIELD:
+        break;
+    case SYSCALL_TASK_EXIT:
+        break;
+    default:
+        break;
+    }
 }
 
 void kmain() {

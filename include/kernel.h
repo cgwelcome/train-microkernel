@@ -10,3 +10,10 @@
 
 #define MAX_TASK_NUM 12
 #define MAX_TASK_PRIORITY 1024
+
+/*
+ * The codes for syscalls
+ */
+#define SYSCALL_TASK_CREATE 0x00000001
+#define SYSCALL_TASK_YIELD  0x00000002
+#define SYSCALL_TASK_EXIT   0x00000003
