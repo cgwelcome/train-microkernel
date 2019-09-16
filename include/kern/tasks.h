@@ -13,11 +13,15 @@ typedef struct {
     unsigned int priority;
     void (*entry)();
     void *stack;
+    int syscall_args[5];
     int return_value;
 } Task;
 
 // task_init() initializes the internal variables related to task APIs.
 void task_init();
+
+// task_at() returns a pointer to the specified task.
+Task *task_at(int tid);
 
 // task_create() creates a new task on behalf of the kernel.
 // Parameters:

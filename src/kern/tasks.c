@@ -19,6 +19,10 @@ void task_init() {
     current_tid = -1; current_ptid = -1;
 }
 
+Task *task_at(int tid) {
+    return (tasks + tid);
+}
+
 int task_create(int ptid, unsigned int priority, void (*entry)()) {
     if (priority == 0 || priority > MAX_TASK_PRIORITY) {
         return -1; // invalid priority

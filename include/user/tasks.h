@@ -4,12 +4,12 @@
 // Create() asks kernel to create a new task.
 // Parameters:
 //   priority: a positive integer from 1 to 1024.
-//   function: a function pointer to the entry of the creating task.
+//   entry: a function pointer to the entry of the creating task.
 // Return Values:
 //   tid: the allocated tid if the task has been created successfully.
 //   -1: the priority is invalid.
 //   -2: the kernel is out of task descriptors.
-int Create(unsigned int priority, void (*function)());
+int Create(unsigned int priority, void (*entry)());
 
 // Yield() skips this time slice, force the kernel to pick next task.
 void Yield();
