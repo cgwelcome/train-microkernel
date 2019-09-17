@@ -77,11 +77,20 @@ int task_schedule() {
 void task_zygote(void (*entry)()) {
     void *swi_handler = (void *)0x28;
     asm("str lr, %0" : : "m" (swi_handler));
-    // TODO: drop supervisor mode
+
+    // Switch to user mode
+    asm("mrs r0, CPSR");
+    asm("bic r0, r0, %0": : "r" (CPSR_MODE_MASK));
+    asm("orr r0, r0, %0": : "r" (CPSR_USER_MODE));
+    asm("msr CPSR, r0");
+
     asm("mov r1, %0" : : "r" (entry));
     asm("bx r1");
 }
 
+int task_activate(int tid) {
+    return 0;
+}
 
 void task_kill(int tid) {
     tasks[tid].status = Zombie;
