@@ -1,5 +1,6 @@
 #include <ts7200.h>
 #include <kernel.h>
+#include <kern/io.h>
 #include <kern/tasks.h>
 
 extern void task_main();
@@ -14,6 +15,17 @@ void initialize() {
 }
 
 void syscall_handle(int tid, int request) {
+    if (request == SYSCALL_IO_GETC) {
+        int server = (int) task_at(tid)->syscall_args[0]; // not used for now
+        int uart   = (int) task_at(tid)->syscall_args[1];
+        task_at(tid)->return_value = io_getc(uart);
+    }
+    if (request == SYSCALL_IO_PUTC) {
+        int server = (int) task_at(tid)->syscall_args[0]; // not used for now
+        int uart   = (int) task_at(tid)->syscall_args[1];
+        int ch     = (int) task_at(tid)->syscall_args[2];
+        task_at(tid)->return_value = io_putc(uart, ch);
+    }
     if (request == SYSCALL_TASK_CREATE) {
         unsigned int priority = (unsigned int) task_at(tid)->syscall_args[0];
         void *entry = (void *) task_at(tid)->syscall_args[1];

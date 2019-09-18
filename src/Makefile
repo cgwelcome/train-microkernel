@@ -11,7 +11,7 @@ AS = $(XBINDIR)/arm-none-eabi-as
 LD = $(XBINDIR)/arm-none-eabi-ld
 
 # List of object files
-OBJECTS = kern/tasks.o user/tasks.o application.o kernel.o
+OBJECTS = kern/io.o kern/tasks.o user/io.o user/tasks.o application.o kernel.o
 
 # -std=gnu99: use C99 standard with asm support
 # -g: include debug information for gdb
