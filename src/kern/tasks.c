@@ -47,6 +47,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         .priority = priority,
         .entry = entry,
         .stack = (void *) (ADDR_KERNEL_STACK_TOP - available_tid * TASK_STACK_SIZE),
+        .spsr = SPSR_USER_MODE,
         .return_value = 0,
     };
     alive_task_count += 1;
@@ -74,21 +75,17 @@ int task_schedule() {
     return ret_tid;
 }
 
-void task_zygote(void (*entry)()) {
+void task_zygote(void (*entry)(), unsigned int spsr) {
     void *swi_handler = (void *)0x28;
+
     asm("str lr, %0" : : "m" (swi_handler));
-
-    // Switch to user mode
-    asm("mrs r0, CPSR");
-    asm("bic r0, r0, %0": : "r" (CPSR_MODE_MASK));
-    asm("orr r0, r0, %0": : "r" (CPSR_USER_MODE));
-    asm("msr CPSR, r0");
-
-    asm("mov r1, %0" : : "r" (entry));
-    asm("bx r1");
+    asm("msr spsr, %0" : : "r" (spsr));
+    asm("mov lr, %0" : : "r" (entry));
+    asm("movs pc, lr");
 }
 
 int task_activate(int tid) {
+    task_zygote(task_at(tid)->entry, task_at(tid)->spsr);
     return 0;
 }
 

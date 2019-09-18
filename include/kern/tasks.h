@@ -13,6 +13,7 @@ typedef struct {
     unsigned int priority;
     void (*entry)();
     void *stack;
+    unsigned int spsr;
     int syscall_args[5];
     int return_value;
 } Task;
