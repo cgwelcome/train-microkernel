@@ -1,5 +1,6 @@
 #include <kern/tasks.h>
 #include <float.h>
+#include <bwio.h>
 
 unsigned int alive_task_count;
 unsigned int total_priority;
@@ -76,18 +77,25 @@ int task_schedule() {
 }
 
 void task_zygote(void (*entry)(), unsigned int spsr) {
-    void *swi_handler = (void *)0x28;
+    int *swi_handler = (int *)0x28;
 
-    asm("str lr, %0" : : "m" (swi_handler));
+    spsr = 0xD3;
+    asm("str lr, [%0]" : : "r" (swi_handler));
     asm("mov lr, %0" : : "r" (entry));
     asm("msr spsr, %0" : : "r" (spsr));
     asm("movs pc, lr");
 }
 
 int task_activate(int tid) {
-    // TODO: set sp register
+    unsigned int swi_instruction;
     task_zygote(tasks[tid].entry, tasks[tid].spsr);
+
+    // TODO: set sp register
     // TODO: transfer arguments in r1~r5 to syscall_args.
+    // store kernel sp
+    // store user task sp, restore kernel sp
+    /*asm("ldr %0, [lr, #-4]": "=r" (swi_instruction));*/
+
     return 0;
 }
 
