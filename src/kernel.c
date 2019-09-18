@@ -6,6 +6,7 @@
 extern void task_main();
 
 void initialize() {
+    // TODO: set SPSR_svc to default user mode bits
     // TODO: turn off interrupts in the ICU
 
     // Initialize variables related to task APIs.

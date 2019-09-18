@@ -85,7 +85,9 @@ void task_zygote(void (*entry)(), unsigned int spsr) {
 }
 
 int task_activate(int tid) {
-    task_zygote(task_at(tid)->entry, task_at(tid)->spsr);
+    // TODO: set sp register
+    task_zygote(tasks[tid].entry, tasks[tid].spsr);
+    // TODO: transfer arguments in r1~r5 to syscall_args.
     return 0;
 }
 
