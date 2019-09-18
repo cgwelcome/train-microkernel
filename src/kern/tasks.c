@@ -47,7 +47,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         .priority = priority,
         .entry = entry,
         .stack = (void *) (ADDR_KERNEL_STACK_TOP - available_tid * TASK_STACK_SIZE),
-        .spsr = SPSR_USER_MODE,
+        .spsr = SPSR_USER_MODE | SPSR_FIQ_INTERRUPT | SPSR_IRQ_INTERRUPT,
         .return_value = 0,
     };
     alive_task_count += 1;
@@ -59,7 +59,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
 int task_schedule() {
     if (alive_task_count == 0) return -1;
 
-    int ret_tid;
+    int ret_tid = -1;
     double min_vtime = DBL_MAX;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
         if (tasks[tid].status == Unused) continue;
@@ -79,8 +79,8 @@ void task_zygote(void (*entry)(), unsigned int spsr) {
     void *swi_handler = (void *)0x28;
 
     asm("str lr, %0" : : "m" (swi_handler));
-    asm("msr spsr, %0" : : "r" (spsr));
     asm("mov lr, %0" : : "r" (entry));
+    asm("msr spsr, %0" : : "r" (spsr));
     asm("movs pc, lr");
 }
 
