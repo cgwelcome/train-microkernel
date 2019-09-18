@@ -10,7 +10,7 @@ void initialize() {
     // Initialize variables related to task APIs.
     task_init();
     // Create first user task.
-    task_create(-1, 0, &task_main);
+    task_create(-1, 1, &task_main);
 }
 
 void syscall_handle(int tid, int request) {
