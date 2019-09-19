@@ -75,14 +75,14 @@ int task_schedule() {
     return ret_tid;
 }
 
-void task_zygote(Task *task) {
+void task_zygote() {
     unsigned int *swi_handler = (unsigned int *)0x28;
 
     asm("str lr, [%0]" : : "r" (swi_handler));
-    asm("mov lr, %0" : : "r" (task->pc));
-    asm("mov fp, %0" : : "r" (task->fp));
-    asm("mov sp, %0" : : "r" (task->sp));
-    asm("msr spsr, %0" : : "r" (task->spsr));
+    asm("mov lr, %0" : : "r" (current_task->pc));
+    asm("mov fp, %0" : : "r" (current_task->fp));
+    asm("mov sp, %0" : : "r" (current_task->sp));
+    asm("msr spsr, %0" : : "r" (current_task->spsr));
     asm("movs pc, lr");
 }
 
@@ -94,7 +94,7 @@ int task_activate(int tid) {
     current_task = task_at(tid);
         asm("push {r0-r10}");
             asm("mov %0, fp" : "=r" (kernel_frame));
-                task_zygote(current_task);
+                task_zygote();
                 asm("mov %0, lr" : "=r" (current_task->pc));
                 asm("mov %0, fp" : "=r" (current_task->fp));
                 asm("mov %0, sp" : "=r" (current_task->sp));
