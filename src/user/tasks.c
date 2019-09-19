@@ -1,8 +1,8 @@
+#include <kern/tasks.h>
 #include <user/tasks.h>
 #include <kernel.h>
 
-extern int current_tid;
-extern int current_ptid;
+extern Task *current_task;
 
 int Create(unsigned int priority, void (*entry)()) {
     unsigned int args[2] = { priority, (unsigned int) entry };
@@ -24,6 +24,6 @@ void Exit() {
     asm("swi %0" : : "I" (SYSCALL_TASK_EXIT));
 }
 
-int MyTid() { return current_tid; }
+int MyTid() { return current_task->tid; }
 
-int MyParentTid() { return current_ptid; }
+int MyParentTid() { return current_task->ptid; }

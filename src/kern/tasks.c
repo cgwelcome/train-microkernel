@@ -4,22 +4,18 @@
 
 unsigned int alive_task_count;
 unsigned int total_priority;
+Task *current_task;
 Task tasks[MAX_TASK_NUM];
 
 unsigned int kernel_frame;
 
-// TODO: set them in task_activate()
-int current_tid;
-int current_ptid;
-
 void task_init() {
     alive_task_count = 0;
     total_priority = 0;
+    current_task = 0;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
         tasks[tid].status = Unused;
     }
-
-    current_tid = -1; current_ptid = -1;
 }
 
 Task *task_at(int tid) {
@@ -49,6 +45,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         .runtime = 0,
         .priority = priority,
         .pc = (unsigned int) entry,
+        .fp = (unsigned int) 0,
         .sp = (unsigned int) (ADDR_KERNEL_STACK_TOP - (unsigned int) available_tid * TASK_STACK_SIZE),
         .spsr = SPSR_USER_MODE | SPSR_FIQ_INTERRUPT | SPSR_IRQ_INTERRUPT,
         .return_value = 0,
@@ -78,12 +75,14 @@ int task_schedule() {
     return ret_tid;
 }
 
-void task_zygote(void (*entry)(), unsigned int spsr) {
+void task_zygote(Task *task) {
     unsigned int *swi_handler = (unsigned int *)0x28;
 
     asm("str lr, [%0]" : : "r" (swi_handler));
-    asm("mov lr, %0" : : "r" (entry));
-    asm("msr spsr, %0" : : "r" (spsr));
+    asm("mov lr, %0" : : "r" (task->pc));
+    asm("mov fp, %0" : : "r" (task->fp));
+    asm("mov sp, %0" : : "r" (task->sp));
+    asm("msr spsr, %0" : : "r" (task->spsr));
     asm("movs pc, lr");
 }
 
@@ -92,14 +91,20 @@ int task_activate(int tid) {
     unsigned int swi_argc;
     unsigned int *swi_argv;
 
-    asm("push {r0-r10}");
-    asm("mov %0, fp" : "=r" (kernel_frame));
-    task_zygote((void (*)()) tasks[tid].pc, tasks[tid].spsr);
-    asm("mov fp, %0" : : "r" (kernel_frame));
-    asm("ldr %0, [lr, #-4]": "=r" (swi_instruction));
-    asm("mov %0, r1" : "=r" (swi_argc));
-    asm("mov %0, r2" : "=r" (swi_argv));
-    asm("pop {r0-r10}");
+    current_task = task_at(tid);
+        asm("push {r0-r10}");
+            asm("mov %0, fp" : "=r" (kernel_frame));
+                task_zygote(current_task);
+                asm("mov %0, lr" : "=r" (current_task->pc));
+                asm("mov %0, fp" : "=r" (current_task->fp));
+                asm("mov %0, sp" : "=r" (current_task->sp));
+                asm("mrs %0, spsr" : "=r" (current_task->spsr));
+            asm("mov fp, %0" : : "r" (kernel_frame));
+            asm("ldr %0, [lr, #-4]": "=r" (swi_instruction));
+            asm("mov %0, r1" : "=r" (swi_argc));
+            asm("mov %0, r2" : "=r" (swi_argv));
+        asm("pop {r0-r10}");
+    current_task = 0;
 
     for (unsigned int i = 0; i < swi_argc; i++) {
         tasks[tid].syscall_args[i] = swi_argv[i];
@@ -107,8 +112,6 @@ int task_activate(int tid) {
     swi_instruction = swi_instruction & 0xFFFFFF;
     return swi_instruction;
 }
-// TODO: update pc and sp of the task in activate
-// TODO: update current_tid and current_ptid in activate
 
 void task_kill(int tid) {
     tasks[tid].status = Zombie;
