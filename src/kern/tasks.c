@@ -9,6 +9,7 @@ Task tasks[MAX_TASK_NUM];
 unsigned int kernel_stack;
 
 // TODO: set them in task_activate()
+//
 int current_tid;
 int current_ptid;
 
@@ -107,6 +108,8 @@ int task_activate(int tid) {
     swi_instruction = swi_instruction & 0xFFFFFF;
     return swi_instruction;
 }
+// TODO: update pc and sp in activate
+// TODO: update current_tid and current_ptid in activate
 
 void task_kill(int tid) {
     tasks[tid].status = Zombie;
