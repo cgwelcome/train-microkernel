@@ -6,7 +6,6 @@ unsigned int alive_task_count;
 unsigned int total_priority;
 Task tasks[MAX_TASK_NUM];
 
-// TODO: set them in task_activate()
 int current_tid;
 int current_ptid;
 
@@ -98,6 +97,8 @@ int task_activate(int tid) {
 
     return 0;
 }
+// TODO: update pc and sp in activate
+// TODO: update current_tid and current_ptid in activate
 
 void task_kill(int tid) {
     tasks[tid].status = Zombie;
