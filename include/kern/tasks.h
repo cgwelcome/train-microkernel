@@ -6,14 +6,17 @@
 typedef enum{Unused, Active, Ready, Zombie} TaskStatus;
 
 typedef struct {
+    // Task Properties
     TaskStatus status;
     int tid;
     int ptid;
     unsigned int runtime;
     unsigned int priority;
-    void (*entry)();
-    void *stack;
+    // Cached Registers
+    unsigned int pc;
+    unsigned int sp;
     unsigned int spsr;
+    // Syscall related fields
     int syscall_args[5];
     int return_value;
 } Task;

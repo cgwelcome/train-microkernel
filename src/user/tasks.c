@@ -5,7 +5,7 @@ extern int current_tid;
 extern int current_ptid;
 
 int Create(unsigned int priority, void (*entry)()) {
-    unsigned int args[2] = { priority, entry };
+    unsigned int args[2] = { priority, (unsigned int) entry };
     int ret;
     asm("mov r1, %0" : : "I" (sizeof(args)));
     asm("mov r2, %0" : : "r" (args));
