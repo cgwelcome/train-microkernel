@@ -6,6 +6,8 @@ unsigned int alive_task_count;
 unsigned int total_priority;
 Task tasks[MAX_TASK_NUM];
 
+unsigned int kernel_stack;
+
 // TODO: set them in task_activate()
 int current_tid;
 int current_ptid;
@@ -77,9 +79,8 @@ int task_schedule() {
 }
 
 void task_zygote(void (*entry)(), unsigned int spsr) {
-    int *swi_handler = (int *)0x28;
+    unsigned int *swi_handler = (unsigned int *)0x28;
 
-    spsr = 0xD3;
     asm("str lr, [%0]" : : "r" (swi_handler));
     asm("mov lr, %0" : : "r" (entry));
     asm("msr spsr, %0" : : "r" (spsr));
@@ -88,15 +89,23 @@ void task_zygote(void (*entry)(), unsigned int spsr) {
 
 int task_activate(int tid) {
     unsigned int swi_instruction;
+    unsigned int swi_argc;
+    unsigned int *swi_argv;
+
+    asm("push {r0-r10,r12}");
+    asm("mov %0, r11" : "=r" (kernel_stack));
     task_zygote(tasks[tid].entry, tasks[tid].spsr);
+    asm("mov r11, %0" : : "r" (kernel_stack));
+    asm("ldr %0, [lr, #-4]": "=r" (swi_instruction));
+    asm("mov %0, r1" : "=r" (swi_argc));
+    asm("mov %0, r2" : "=r" (swi_argv));
+    asm("pop {r0-r10,r12}");
 
-    // TODO: set sp register
-    // TODO: transfer arguments in r1~r5 to syscall_args.
-    // store kernel sp
-    // store user task sp, restore kernel sp
-    /*asm("ldr %0, [lr, #-4]": "=r" (swi_instruction));*/
-
-    return 0;
+    for (unsigned int i = 0; i < swi_argc; i++) {
+        tasks[tid].syscall_args[i] = swi_argv[i];
+    }
+    swi_instruction = swi_instruction & 0xFFFFFF;
+    return swi_instruction;
 }
 
 void task_kill(int tid) {
