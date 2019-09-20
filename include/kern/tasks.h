@@ -17,7 +17,7 @@ typedef struct {
     unsigned int sp;
     unsigned int spsr;
     // Syscall related fields
-    int syscall_args[5];
+    int syscall_args[MAX_SYSCALL_ARG_NUM];
     int return_value;
 } Task;
 

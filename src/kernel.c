@@ -3,16 +3,15 @@
 #include <kern/io.h>
 #include <kern/tasks.h>
 
-extern void task_main();
+extern void root_task();
 
 void initialize() {
-    // TODO: set SPSR_svc to default user mode bits
-    // TODO: turn off interrupts in the ICU
-
+    // Initialize IO library
+    io_init();
     // Initialize variables related to task APIs.
     task_init();
     // Create first user task.
-    task_create(-1, 1, &task_main);
+    task_create(-1, 10, &root_task);
 }
 
 void syscall_handle(int tid, int request) {
@@ -40,7 +39,7 @@ void syscall_handle(int tid, int request) {
     }
 }
 
-void kmain() {
+void kernel_entry() {
     initialize();  // includes starting the first user task
     for (;;) {
         unsigned int nextTID = task_schedule();

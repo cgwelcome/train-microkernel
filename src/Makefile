@@ -31,7 +31,7 @@ ARFLAGS = crs
 # -e: set entry point
 # -nmagic: no page alignment
 # -T: use linker script
-LDFLAGS = -static -e kmain -nmagic -T linker.ld -L . -L ../lib -L $(XLIBDIR1) -L $(XLIBDIR2)
+LDFLAGS = -static -e kernel_entry -nmagic -T linker.ld -L . -L ../lib -L $(XLIBDIR1) -L $(XLIBDIR2)
 
 all: main.elf
 
