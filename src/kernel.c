@@ -15,27 +15,34 @@ void initialize() {
 }
 
 void syscall_handle(int tid, int request) {
+    Task *current_task = task_at(tid);
     if (request == SYSCALL_IO_GETC) {
-        int server = (int) task_at(tid)->syscall_args[0]; // not used for now
-        int uart   = (int) task_at(tid)->syscall_args[1];
-        task_at(tid)->return_value = io_getc(uart);
+        int server = (int) current_task->syscall_args[0]; // not used for now
+        int uart   = (int) current_task->syscall_args[1];
+        current_task->return_value = io_getc(uart);
     }
     if (request == SYSCALL_IO_PUTC) {
-        int server = (int) task_at(tid)->syscall_args[0]; // not used for now
-        int uart   = (int) task_at(tid)->syscall_args[1];
-        int ch     = (int) task_at(tid)->syscall_args[2];
-        task_at(tid)->return_value = io_putc(uart, ch);
+        int server = (int) current_task->syscall_args[0]; // not used for now
+        int uart   = (int) current_task->syscall_args[1];
+        int ch     = (int) current_task->syscall_args[2];
+        current_task->return_value = io_putc(uart, ch);
     }
     if (request == SYSCALL_TASK_CREATE) {
-        unsigned int priority = (unsigned int) task_at(tid)->syscall_args[0];
-        void *entry = (void *) task_at(tid)->syscall_args[1];
-        task_at(tid)->return_value = task_create(tid, priority, entry);
+        unsigned int priority = (unsigned int) current_task->syscall_args[0];
+        void *entry = (void *) current_task->syscall_args[1];
+        current_task->return_value = task_create(tid, priority, entry);
     }
     if (request == SYSCALL_TASK_CREATE || request == SYSCALL_TASK_YIELD) {
-        task_at(tid)->status = Ready;
+        current_task->status = Ready;
     }
     if (request == SYSCALL_TASK_EXIT) {
         task_kill(tid);
+    }
+    if (request == SYSCALL_TASK_GETTID) {
+        current_task->return_value = tid;
+    }
+    if (request == SYSCALL_TASK_GETPTID) {
+        current_task->return_value = current_task->ptid;
     }
 }
 

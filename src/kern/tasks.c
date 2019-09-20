@@ -3,14 +3,11 @@
 #include <bwio.h>
 #include <float.h>
 
-int current_tid, current_ptid;
-
 static unsigned int alive_task_count;
 static unsigned int total_priority;
 static Task tasks[MAX_TASK_NUM];
 
 void task_init() {
-    current_tid = -1; current_ptid = -1;
     alive_task_count = 0;
     total_priority = 0;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
@@ -99,24 +96,22 @@ int task_activate(int tid) {
     unsigned int swi_code, swi_argc, *swi_argv;
 
     static unsigned int kernel_stack, kernel_frame;
-    current_tid = tid; current_ptid = current_task->ptid;
-        asm("push {r0-r10}");
-        asm("str sp, %0" : : "m" (kernel_stack));
-            asm("str fp, %0" : : "m" (kernel_frame));
-                task_zygote(current_task);
-                asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
-                    asm("push {r3-r12, lr}");
-            asm("ldr fp, %0" : : "m" (kernel_frame));
-                    asm("str sp, %0" : : "m" (current_task->sp));
-                    asm("str r1, %0" : : "m" (swi_argc));
-                    asm("str r2, %0" : : "m" (swi_argv));
-                asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
-            asm("str lr, %0" : : "m" (current_task->pc));
-            asm("mrs %0, spsr" : "=r" (current_task->spsr));
-            asm("ldr r0, [lr, #-4]"); asm("str r0, %0" : : "m" (swi_code));
-        asm("ldr sp, %0" : : "m" (kernel_stack));
-        asm("pop {r0-r10}");
-    current_tid = -1; current_ptid = -1;
+    asm("push {r0-r10}");
+    asm("str sp, %0" : : "m" (kernel_stack));
+        asm("str fp, %0" : : "m" (kernel_frame));
+            task_zygote(current_task);
+            asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
+                asm("push {r3-r12, lr}");
+        asm("ldr fp, %0" : : "m" (kernel_frame));
+                asm("str sp, %0" : : "m" (current_task->sp));
+                asm("str r1, %0" : : "m" (swi_argc));
+                asm("str r2, %0" : : "m" (swi_argv));
+            asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
+        asm("str lr, %0" : : "m" (current_task->pc));
+        asm("mrs %0, spsr" : "=r" (current_task->spsr));
+        asm("ldr r0, [lr, #-4]"); asm("str r0, %0" : : "m" (swi_code));
+    asm("ldr sp, %0" : : "m" (kernel_stack));
+    asm("pop {r0-r10}");
     current_task->runtime += 1;
 
     if (swi_argc > MAX_SYSCALL_ARG_NUM) swi_argc = MAX_SYSCALL_ARG_NUM;
