@@ -117,6 +117,7 @@ int task_activate(int tid) {
         asm("ldr sp, %0" : : "m" (kernel_stack));
         asm("pop {r0-r10}");
     current_tid = -1; current_ptid = -1;
+    current_task->runtime += 1;
 
     if (swi_argc > MAX_SYSCALL_ARG_NUM) swi_argc = MAX_SYSCALL_ARG_NUM;
     for (unsigned int i = 0; i < swi_argc; i++) {
