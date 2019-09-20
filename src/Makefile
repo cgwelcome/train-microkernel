@@ -43,7 +43,7 @@ utils/lib%.a: utils/%.o
 	$(AR) $(ARFLAGS) $@ $^
 
 main.elf: $(LIBS) $(OBJECTS)
-	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -lc -lgcc
+	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -ltimer -lc -lgcc
 
 clean:
 	-rm -f kern/*.o user/*.o utils/*.o utils/*.a *.o *.elf

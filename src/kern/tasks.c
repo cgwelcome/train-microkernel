@@ -1,6 +1,7 @@
 #include <kern/tasks.h>
 #include <arm.h>
 #include <float.h>
+#include <utils/timer.h>
 
 static unsigned int alive_task_count;
 static unsigned int total_priority;
@@ -94,6 +95,7 @@ int task_activate(int tid) {
     Task *current_task = task_at(tid);
     unsigned int swi_code, swi_argc, *swi_argv;
 
+    unsigned int task_start = timer_read_raw();
     static unsigned int kernel_stack, kernel_frame;
     asm("push {r0-r10}");
     asm("str sp, %0" : : "m" (kernel_stack));
@@ -111,7 +113,7 @@ int task_activate(int tid) {
         asm("ldr r0, [lr, #-4]"); asm("str r0, %0" : : "m" (swi_code));
     asm("ldr sp, %0" : : "m" (kernel_stack));
     asm("pop {r0-r10}");
-    current_task->runtime += 1;
+    current_task->runtime += timer_read_raw() - task_start;
 
     if (swi_argc > MAX_SYSCALL_ARG_NUM) swi_argc = MAX_SYSCALL_ARG_NUM;
     for (unsigned int i = 0; i < swi_argc; i++) {
