@@ -95,24 +95,26 @@ int task_activate(int tid) {
     Task *current_task = task_at(tid);
     unsigned int swi_code, swi_argc, *swi_argv;
 
+    current_task->status = Active;
     unsigned int task_start = timer_read_raw();
-    static unsigned int kernel_stack, kernel_frame;
-    asm("push {r0-r10}");
-    asm("str sp, %0" : : "m" (kernel_stack));
-        asm("str fp, %0" : : "m" (kernel_frame));
-            task_zygote(current_task);
-            asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
-                asm("push {r3-r12, lr}");
-        asm("ldr fp, %0" : : "m" (kernel_frame));
-                asm("str sp, %0" : : "m" (current_task->sp));
-                asm("str r1, %0" : : "m" (swi_argc));
-                asm("str r2, %0" : : "m" (swi_argv));
-            asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
-        asm("str lr, %0" : : "m" (current_task->pc));
-        asm("mrs %0, spsr" : "=r" (current_task->spsr));
-        asm("ldr r0, [lr, #-4]"); asm("str r0, %0" : : "m" (swi_code));
-    asm("ldr sp, %0" : : "m" (kernel_stack));
-    asm("pop {r0-r10}");
+        static unsigned int kernel_stack, kernel_frame;
+        asm("push {r0-r10}");
+        asm("str sp, %0" : : "m" (kernel_stack));
+            asm("str fp, %0" : : "m" (kernel_frame));
+                task_zygote(current_task);
+                asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
+                    asm("push {r3-r12, lr}");
+            asm("ldr fp, %0" : : "m" (kernel_frame));
+                    asm("str sp, %0" : : "m" (current_task->sp));
+                    asm("str r1, %0" : : "m" (swi_argc));
+                    asm("str r2, %0" : : "m" (swi_argv));
+                asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
+            asm("str lr, %0" : : "m" (current_task->pc));
+            asm("mrs %0, spsr" : "=r" (current_task->spsr));
+            asm("ldr r0, [lr, #-4]"); asm("str r0, %0" : : "m" (swi_code));
+        asm("ldr sp, %0" : : "m" (kernel_stack));
+        asm("pop {r0-r10}");
+    current_task->status = Ready;
     current_task->runtime += timer_read_raw() - task_start;
 
     if (swi_argc > MAX_SYSCALL_ARG_NUM) swi_argc = MAX_SYSCALL_ARG_NUM;

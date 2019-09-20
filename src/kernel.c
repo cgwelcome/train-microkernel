@@ -33,9 +33,6 @@ void syscall_handle(int tid, int request) {
         void *entry = (void *) current_task->syscall_args[1];
         current_task->return_value = task_create(tid, priority, entry);
     }
-    if (request == SYSCALL_TASK_CREATE || request == SYSCALL_TASK_YIELD) {
-        current_task->status = Ready;
-    }
     if (request == SYSCALL_TASK_EXIT) {
         task_kill(tid);
     }
