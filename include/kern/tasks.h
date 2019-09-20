@@ -14,7 +14,6 @@ typedef struct {
     unsigned int priority;
     // Cached Registers
     unsigned int pc;
-    unsigned int fp;
     unsigned int sp;
     unsigned int spsr;
     // Syscall related fields

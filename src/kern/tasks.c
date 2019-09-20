@@ -1,18 +1,18 @@
 #include <kern/tasks.h>
-#include <float.h>
+#include <arm.h>
 #include <bwio.h>
+#include <float.h>
 
-unsigned int alive_task_count;
-unsigned int total_priority;
-Task *current_task;
-Task tasks[MAX_TASK_NUM];
+int current_tid, current_ptid;
 
-unsigned int kernel_frame;
+static unsigned int alive_task_count;
+static unsigned int total_priority;
+static Task tasks[MAX_TASK_NUM];
 
 void task_init() {
+    current_tid = -1; current_ptid = -1;
     alive_task_count = 0;
     total_priority = 0;
-    current_task = 0;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
         tasks[tid].status = Unused;
     }
@@ -38,6 +38,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         return -2; // out of task descriptors.
     }
 
+    // Initialize task descriptor
     Task new_task = {
         .status = Ready,
         .tid = available_tid,
@@ -45,11 +46,17 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         .runtime = 0,
         .priority = priority,
         .pc = (unsigned int) entry,
-        .fp = (unsigned int) 0,
         .sp = (unsigned int) (ADDR_KERNEL_STACK_TOP - (unsigned int) available_tid * TASK_STACK_SIZE),
-        .spsr = SPSR_USER_MODE | SPSR_FIQ_INTERRUPT | SPSR_IRQ_INTERRUPT,
+        .spsr = PSR_MODE_USR,
         .return_value = 0,
     };
+    // Initialize task stack
+    asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
+        asm("ldr sp, %0" : : "m" (new_task.sp));
+        asm("mov lr, #0x00"); // assume all the tasks will call Exit at the end.
+        asm("push {r3-r12, lr}");
+        asm("str sp, %0" : : "m" (new_task.sp));
+    asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
     alive_task_count += 1;
     total_priority += priority;
     tasks[available_tid] = new_task;
@@ -75,42 +82,47 @@ int task_schedule() {
     return ret_tid;
 }
 
-void task_zygote() {
-    unsigned int *swi_handler = (unsigned int *)0x28;
-
-    asm("str lr, [%0]" : : "r" (swi_handler));
-    asm("mov lr, %0" : : "r" (current_task->pc));
-    asm("mov fp, %0" : : "r" (current_task->fp));
-    asm("mov sp, %0" : : "r" (current_task->sp));
-    asm("msr spsr, %0" : : "r" (current_task->spsr));
+void task_zygote(Task *task) {
+    asm("mov r1, #0x28"); asm("str lr, [r1]"); // make swi equivalent to task_zygote return
+    asm("msr spsr, %0" : : "r" (task->spsr));
+    asm("ldr lr, %0"   : : "m" (task->pc));
+    asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
+        asm("ldr r0, %0" : : "m" (task->return_value));
+        asm("ldr sp, %0" : : "m" (task->sp));
+        asm("pop {r3-r12, lr}");
+    asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
     asm("movs pc, lr");
 }
 
 int task_activate(int tid) {
-    unsigned int swi_instruction;
-    unsigned int swi_argc;
-    unsigned int *swi_argv;
+    Task *current_task = task_at(tid);
+    unsigned int swi_code, swi_argc, *swi_argv;
 
-    current_task = task_at(tid);
+    static unsigned int kernel_stack, kernel_frame;
+    current_tid = tid; current_ptid = current_task->ptid;
         asm("push {r0-r10}");
-            asm("mov %0, fp" : "=r" (kernel_frame));
-                task_zygote();
-                asm("mov %0, lr" : "=r" (current_task->pc));
-                asm("mov %0, fp" : "=r" (current_task->fp));
-                asm("mov %0, sp" : "=r" (current_task->sp));
-                asm("mrs %0, spsr" : "=r" (current_task->spsr));
-            asm("mov fp, %0" : : "r" (kernel_frame));
-            asm("ldr %0, [lr, #-4]": "=r" (swi_instruction));
-            asm("mov %0, r1" : "=r" (swi_argc));
-            asm("mov %0, r2" : "=r" (swi_argv));
+        asm("str sp, %0" : : "m" (kernel_stack));
+            asm("str fp, %0" : : "m" (kernel_frame));
+                task_zygote(current_task);
+                asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
+                    asm("push {r3-r12, lr}");
+            asm("ldr fp, %0" : : "m" (kernel_frame));
+                    asm("str sp, %0" : : "m" (current_task->sp));
+                    asm("str r1, %0" : : "m" (swi_argc));
+                    asm("str r2, %0" : : "m" (swi_argv));
+                asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
+            asm("str lr, %0" : : "m" (current_task->pc));
+            asm("mrs %0, spsr" : "=r" (current_task->spsr));
+            asm("ldr r0, [lr, #-4]"); asm("str r0, %0" : : "m" (swi_code));
+        asm("ldr sp, %0" : : "m" (kernel_stack));
         asm("pop {r0-r10}");
-    current_task = 0;
+    current_tid = -1; current_ptid = -1;
 
     for (unsigned int i = 0; i < swi_argc; i++) {
         tasks[tid].syscall_args[i] = swi_argv[i];
     }
-    swi_instruction = swi_instruction & 0xFFFFFF;
-    return swi_instruction;
+    swi_code = swi_code & 0xFFFFFF;
+    return swi_code;
 }
 
 void task_kill(int tid) {
