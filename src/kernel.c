@@ -2,16 +2,17 @@
 #include <kernel.h>
 #include <kern/io.h>
 #include <kern/tasks.h>
+#include <utils/timer.h>
 
 extern void root_task();
 
 void initialize() {
-    // Initialize IO library
+    // Initialize necessary APIs and libraries
     io_init();
-    // Initialize variables related to task APIs.
     task_init();
+    timer_init();
     // Create first user task.
-    task_create(-1, 10, &root_task);
+    task_create(-1, 16, &root_task);
 }
 
 void syscall_handle(int tid, int request) {

@@ -10,10 +10,10 @@ void child_task() {
 }
 
 void root_task() {
-    bwprintf(COM2, "Created: %d\n", Create(5, &child_task));
-    bwprintf(COM2, "Created: %d\n", Create(5, &child_task));
-    bwprintf(COM2, "Created: %d\n", Create(15, &child_task));
-    bwprintf(COM2, "Created: %d\n", Create(15, &child_task));
+    bwprintf(COM2, "Created: %d\n", Create(8, &child_task));
+    bwprintf(COM2, "Created: %d\n", Create(8, &child_task));
+    bwprintf(COM2, "Created: %d\n", Create(32, &child_task));
+    bwprintf(COM2, "Created: %d\n", Create(32, &child_task));
     bwprintf(COM2, "FirstUserTask: exiting\n");
     Exit();
 }
