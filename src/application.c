@@ -1,6 +1,6 @@
 #include <ts7200.h>
-#include <bwio.h>
 #include <user/tasks.h>
+#include <utils/bwio.h>
 
 void child_task() {
     bwprintf(COM2, "TID: %d, PTID: %d\n", MyTid(), MyParentTid());

@@ -11,7 +11,8 @@ AS = $(XBINDIR)/arm-none-eabi-as
 LD = $(XBINDIR)/arm-none-eabi-ld
 
 # List of object files
-OBJECTS = kern/io.o kern/tasks.o user/io.o user/tasks.o application.o kernel.o
+LIBS = $(addprefix utils/lib, $(notdir $(patsubst %.c, %.a, $(wildcard utils/*.c))))
+OBJECTS = $(patsubst %.c, %.o, $(wildcard */*.c)) $(patsubst %.c, %.o, $(wildcard *.c))
 
 # -std=gnu99: use C99 standard with asm support
 # -g: include debug information for gdb
@@ -31,18 +32,18 @@ ARFLAGS = crs
 # -e: set entry point
 # -nmagic: no page alignment
 # -T: use linker script
-LDFLAGS = -static -e kernel_entry -nmagic -T linker.ld -L . -L ../lib -L $(XLIBDIR1) -L $(XLIBDIR2)
+LDFLAGS = -static -e kernel_entry -nmagic -T linker.ld -L ./utils -L $(XLIBDIR1) -L $(XLIBDIR2)
 
 all: main.elf
 
 %.s: %.c
 	$(CC) -S $(CFLAGS) $^
 
-libbwio.a: bwio.o
-	$(AR) $(ARFLAGS) $@ bwio.o
+utils/lib%.a: utils/%.o
+	$(AR) $(ARFLAGS) $@ $^
 
-main.elf: libbwio.a $(OBJECTS)
+main.elf: $(LIBS) $(OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -lc -lgcc
 
 clean:
-	-rm -f kern/*.o user/*.o *.s *.o *.a *.elf
+	-rm -f kern/*.o user/*.o utils/*.o utils/*.a *.o *.elf

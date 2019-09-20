@@ -1,6 +1,5 @@
 #include <kern/tasks.h>
 #include <arm.h>
-#include <bwio.h>
 #include <float.h>
 
 static unsigned int alive_task_count;
