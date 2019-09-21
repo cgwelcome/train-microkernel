@@ -119,7 +119,7 @@ int task_activate(int tid) {
 
     if (swi_argc > MAX_SYSCALL_ARG_NUM) swi_argc = MAX_SYSCALL_ARG_NUM;
     for (unsigned int i = 0; i < swi_argc; i++) {
-        tasks[tid].syscall_args[i] = swi_argv[i];
+        tasks[tid].syscall_args[(swi_argc-1) - i] = swi_argv[i];
     }
     swi_code = swi_code & 0xFFFFFF;
     return swi_code;

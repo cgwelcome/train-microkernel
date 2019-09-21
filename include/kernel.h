@@ -13,6 +13,22 @@
 #define MAX_SYSCALL_ARG_NUM 5
 
 /*
+ * The helpers for invoke syscalls
+ */
+#define SYSCALL_ARGV_OFFSET(arg_num) (4 + (arg_num) * 4)
+
+#define SYSCALL_PREPARE(arg_num) \
+    asm("push {r1, r2}"); \
+    asm("mov r1, %0" : : "I" (arg_num)); \
+    asm("sub r2, fp, %0" : : "I" (SYSCALL_ARGV_OFFSET(arg_num)))
+
+#define SYSCALL_INVOKE(syscall_code) \
+    asm("swi %0" : : "I" (syscall_code))
+
+#define SYSCALL_CLEANUP \
+    asm("pop {r1, r2}")
+
+/*
  * The codes for syscalls
  */
 #define SYSCALL_IO_GETC      0x00000001
@@ -22,3 +38,6 @@
 #define SYSCALL_TASK_EXIT    0x00000005
 #define SYSCALL_TASK_GETTID  0x00000006
 #define SYSCALL_TASK_GETPTID 0x00000007
+#define SYSCALL_IPC_SEND     0x00000008
+#define SYSCALL_IPC_RECV     0x00000009
+#define SYSCALL_IPC_REPLY    0x00000010
