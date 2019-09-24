@@ -22,25 +22,45 @@ void syscall_handle(int tid, int request) {
         int uart   = (int) current_task->syscall_args[1];
         current_task->return_value = io_getc(uart);
     }
-    if (request == SYSCALL_IO_PUTC) {
+    else if (request == SYSCALL_IO_PUTC) {
         int server = (int) current_task->syscall_args[0]; // not used for now
         int uart   = (int) current_task->syscall_args[1];
         int ch     = (int) current_task->syscall_args[2];
         current_task->return_value = io_putc(uart, ch);
     }
-    if (request == SYSCALL_TASK_CREATE) {
+    else if (request == SYSCALL_TASK_CREATE) {
         unsigned int priority = (unsigned int) current_task->syscall_args[0];
         void *entry = (void *) current_task->syscall_args[1];
         current_task->return_value = task_create(tid, priority, entry);
     }
-    if (request == SYSCALL_TASK_EXIT) {
+    else if (request == SYSCALL_TASK_EXIT) {
         task_kill(tid);
     }
-    if (request == SYSCALL_TASK_GETTID) {
+    else if (request == SYSCALL_TASK_GETTID) {
         current_task->return_value = tid;
     }
-    if (request == SYSCALL_TASK_GETPTID) {
+    else if (request == SYSCALL_TASK_GETPTID) {
         current_task->return_value = current_task->ptid;
+    }
+    else if (request == SYSCALL_IPC_SEND) {
+        int recvtid = (int) current_task->syscall_args[0];
+        char *msg = (char *) current_task->syscall_args[1];
+        int msglen = (int) current_task->syscall_args[2];
+        char *reply = (char *) current_task->syscall_args[3];
+        int rplen = (int) current_task->syscall_args[4];
+        current_task->return_value = ipc_send(tid, recvtid, msg, msglen, reply, rplen);
+    }
+    else if (request == SYSCALL_IPC_RECV) {
+        int *sendtid = (int *) current_task->syscall_args[0];
+        char *msg = (char *) current_task->syscall_args[1];
+        int msglen = (int) current_task->syscall_args[2];
+        current_task->return_value = ipc_receive(tid, sendtid, msg, msglen);
+    }
+    else if (request == SYSCALL_IPC_REPLY) {
+        int replytid = (int) current_task->syscall_args[0];
+        char *reply = (char *) current_task->syscall_args[1];
+        int rplen = (int) current_task->syscall_args[2];
+        current_task->return_value = ipc_reply(tid, replytid, reply, rplen);
     }
 }
 
