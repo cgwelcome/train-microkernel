@@ -7,17 +7,25 @@ static void msg_copy(Message *dest, Message *source) {
     }
 }
 
+static int ipc_connectable(Task *task) {
+    if (task->status == UNUSED || task->status == ZOMBIE) {
+        return 0;
+    }
+    return 1;
+}
+
 static void ipc_recvsend(Task *receiver, Task *sender) {
     *(receiver->send_tid) = sender->tid;
     msg_copy(&receiver->recv_msg, &sender->send_msg);
     sender->status = REPLYBLOCKED;
 }
 
-// TODO: Proper return value
 int ipc_send(int tid, int recvtid, char *msg, int msglen, char *reply, int rplen) {
     Task *current_task = task_at(tid);
     Task *recv_task = task_at(recvtid);
-
+    if (!recv_task || !ipc_connectable(recv_task)) {
+        return -1;
+    }
     current_task->send_msg.array = msg;
     current_task->send_msg.len = msglen;
     current_task->reply_msg.array = reply;
@@ -53,6 +61,9 @@ int ipc_receive(int tid, int *sendtid, char *msg, int msglen) {
 
 int ipc_reply(int tid, int replytid, char *reply, int rplen) {
     Task *reply_task = task_at(replytid);
+    if (!reply_task || !ipc_connectable(reply_task)) {
+        return -1;
+    }
     Message msg = {
         .array = reply,
         .len = rplen
@@ -60,4 +71,13 @@ int ipc_reply(int tid, int replytid, char *reply, int rplen) {
     msg_copy(&reply_task->reply_msg, &msg);
     reply_task->status = READY;
     return 0;
+}
+
+void ipc_cleanup(int tid) {
+    Task *current_task = task_at(tid);
+    while (q_size(&current_task->send_queue)) {
+        Task *task = task_at(q_pop(&current_task->send_queue));
+        task->return_value = -2;
+        task->status = READY;
+    }
 }

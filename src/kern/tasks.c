@@ -1,6 +1,7 @@
 #include <kern/tasks.h>
 #include <arm.h>
 #include <float.h>
+#include <stddef.h>
 #include <utils/queue.h>
 #include <utils/timer.h>
 
@@ -17,6 +18,9 @@ void task_init() {
 }
 
 Task *task_at(int tid) {
+    if (tid >= MAX_TASK_NUM) {
+        return NULL;
+    }
     return (tasks + tid);
 }
 

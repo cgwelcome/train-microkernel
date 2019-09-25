@@ -35,6 +35,7 @@ void syscall_handle(int tid, int request) {
     }
     else if (request == SYSCALL_TASK_EXIT) {
         task_kill(tid);
+        ipc_cleanup(tid);
     }
     else if (request == SYSCALL_TASK_GETTID) {
         current_task->return_value = tid;
