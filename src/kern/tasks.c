@@ -1,6 +1,7 @@
 #include <kern/tasks.h>
 #include <arm.h>
 #include <float.h>
+#include <utils/queue.h>
 #include <utils/timer.h>
 
 static unsigned int alive_task_count;
@@ -11,7 +12,7 @@ void task_init() {
     alive_task_count = 0;
     total_priority = 0;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
-        tasks[tid].status = Unused;
+        tasks[tid].status = UNUSED;
     }
 }
 
@@ -26,7 +27,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
 
     int available_tid = -1;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
-        if (tasks[tid].status == Unused) {
+        if (tasks[tid].status == UNUSED) {
             available_tid = tid;
             break;
         }
@@ -37,7 +38,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
 
     // Initialize task descriptor
     Task new_task = {
-        .status = Ready,
+        .status = READY,
         .tid = available_tid,
         .ptid = ptid,
         .runtime = 0,
@@ -47,6 +48,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         .spsr = PSR_MODE_USR,
         .return_value = 0,
     };
+    q_init(&new_task.send_queue);
     // Initialize task stack
     asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
         asm("ldr sp, %0" : : "m" (new_task.sp));
@@ -66,8 +68,8 @@ int task_schedule() {
     int ret_tid = -1;
     double min_vtime = DBL_MAX;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
-        if (tasks[tid].status == Unused) continue;
-        if (tasks[tid].status == Zombie) continue;
+        if (tasks[tid].status == UNUSED) continue;
+        if (tasks[tid].status == ZOMBIE) continue;
         unsigned int time = tasks[tid].runtime;
         unsigned int priority = tasks[tid].priority;
         double vtime = (double) (time * total_priority) / priority;
@@ -95,7 +97,7 @@ int task_activate(int tid) {
     Task *current_task = task_at(tid);
     unsigned int swi_code, swi_argc, *swi_argv;
 
-    current_task->status = Active;
+    current_task->status = ACTIVE;
     unsigned int task_start = timer_read_raw();
         static unsigned int kernel_stack, kernel_frame;
         asm("push {r0-r10}");
@@ -114,7 +116,7 @@ int task_activate(int tid) {
             asm("ldr r0, [lr, #-4]"); asm("str r0, %0" : : "m" (swi_code));
         asm("ldr sp, %0" : : "m" (kernel_stack));
         asm("pop {r0-r10}");
-    current_task->status = Ready;
+    current_task->status = READY;
     current_task->runtime += timer_read_raw() - task_start;
 
     if (swi_argc > MAX_SYSCALL_ARG_NUM) swi_argc = MAX_SYSCALL_ARG_NUM;
@@ -126,7 +128,7 @@ int task_activate(int tid) {
 }
 
 void task_kill(int tid) {
-    tasks[tid].status = Zombie;
+    tasks[tid].status = ZOMBIE;
     alive_task_count -= 1;
     total_priority -= tasks[tid].priority;
 }

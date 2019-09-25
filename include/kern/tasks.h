@@ -2,8 +2,18 @@
 #define __KERN_TASKS_H__
 
 #include <kernel.h>
+#include <kern/ipc.h>
+#include <utils/queue.h>
 
-typedef enum{Unused, Active, Ready, Zombie} TaskStatus;
+typedef enum {
+    UNUSED,
+    ACTIVE,
+    READY,
+    ZOMBIE,
+    RECVBLOCKED,
+    SENDBLOCKED,
+    REPLYBLOCKED,
+} TaskStatus;
 
 typedef struct {
     // Task Properties
@@ -19,6 +29,12 @@ typedef struct {
     // Syscall related fields
     int syscall_args[MAX_SYSCALL_ARG_NUM];
     int return_value;
+    // IPC
+    Message send_msg;
+    Message recv_msg;
+    int *send_tid;
+    Message reply_msg;
+    Queue send_queue;
 } Task;
 
 // task_init() initializes the internal variables related to task APIs.
