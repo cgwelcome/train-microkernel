@@ -39,7 +39,7 @@ all: main.elf
 	$(CC) -S $(CFLAGS) $^
 
 main.elf: $(OBJECTS)
-	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -ltimer -lc -lgcc
+	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -ltimer -lqueue -lc -lgcc
 
 clean:
 	-rm -f kern/*.o user/*.o *.o *.elf

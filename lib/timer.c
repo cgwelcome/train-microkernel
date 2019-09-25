@@ -5,7 +5,7 @@
  */
 
 #include <ts7200.h>
-#include <utils/timer.h>
+#include <lib/timer.h>
 
 void timer_init() {
   int *load = (int *)(TIMER3_BASE + LDR_OFFSET);
