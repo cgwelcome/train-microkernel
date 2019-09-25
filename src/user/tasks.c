@@ -3,43 +3,36 @@
 
 int Create(unsigned int priority, void (*entry)()) {
     register int ret asm("r0");
-    asm("push {r1, r2}");
-        unsigned int args[2] = { priority, (unsigned int) entry };
-        asm("mov r1, %0" : : "I" (sizeof(args)));
-        asm("mov r2, %0" : : "r" (args));
-        asm("swi %0" : : "I" (SYSCALL_TASK_CREATE));
-    asm("pop {r1, r2}");
+    SYSCALL_PREPARE(2);
+    SYSCALL_INVOKE(SYSCALL_TASK_CREATE);
+    SYSCALL_CLEANUP;
     return ret;
 }
 
 void Yield() {
-    asm("push {r1, r2}");
-        asm("mov r1, #0");
-        asm("swi %0" : : "I" (SYSCALL_TASK_YIELD));
-    asm("pop {r1, r2}");
+    SYSCALL_PREPARE(0);
+    SYSCALL_INVOKE(SYSCALL_TASK_YIELD);
+    SYSCALL_CLEANUP;
 }
 
 void Exit() {
-    asm("push {r1, r2}");
-        asm("mov r1, #0");
-        asm("swi %0" : : "I" (SYSCALL_TASK_EXIT));
-    asm("pop {r1, r2}");
+    SYSCALL_PREPARE(0);
+    SYSCALL_INVOKE(SYSCALL_TASK_EXIT);
+    SYSCALL_CLEANUP;
 }
 
 int MyTid() {
-    register int current_tid asm("r0");
-    asm("push {r1, r2}");
-        asm("mov r1, #0");
-        asm("swi %0" : : "I" (SYSCALL_TASK_GETTID));
-    asm("pop {r1, r2}");
-    return current_tid;
+    register int tid asm("r0");
+    SYSCALL_PREPARE(0);
+    SYSCALL_INVOKE(SYSCALL_TASK_GETTID);
+    SYSCALL_CLEANUP;
+    return tid;
 }
 
 int MyParentTid() {
-    register int current_ptid asm("r0");
-    asm("push {r1, r2}");
-        asm("mov r1, #0");
-        asm("swi %0" : : "I" (SYSCALL_TASK_GETPTID));
-    asm("pop {r1, r2}");
-    return current_ptid;
+    register int ptid asm("r0");
+    SYSCALL_PREPARE(0);
+    SYSCALL_INVOKE(SYSCALL_TASK_GETPTID);
+    SYSCALL_CLEANUP;
+    return ptid;
 }
