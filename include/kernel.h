@@ -15,18 +15,12 @@
 /*
  * The helpers for invoke syscalls
  */
-#define SYSCALL_ARGV_OFFSET(arg_num) (4 + (arg_num) * 4)
-
-#define SYSCALL_PREPARE(arg_num) \
-    asm("push {r1, r2}"); \
-    asm("mov r1, %0" : : "I" (arg_num)); \
-    asm("sub r2, fp, %0" : : "I" (SYSCALL_ARGV_OFFSET(arg_num)))
+#define SYSCALL_PREPARE(argc) \
+    asm("mov r1, %0" : : "I" (argc) : "r1"); \
+    asm("mov r2, sp" : : : "r2")
 
 #define SYSCALL_INVOKE(syscall_code) \
-    asm("swi %0" : : "I" (syscall_code))
-
-#define SYSCALL_CLEANUP \
-    asm("pop {r1, r2}")
+    asm("swi %0" : : "I" (syscall_code) : "r1", "r2")
 
 /*
  * The codes for syscalls
