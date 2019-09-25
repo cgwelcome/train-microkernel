@@ -1,6 +1,7 @@
 #include <kern/tasks.h>
 #include <arm.h>
 #include <float.h>
+#include <stddef.h>
 #include <utils/queue.h>
 #include <utils/timer.h>
 
@@ -17,6 +18,9 @@ void task_init() {
 }
 
 Task *task_at(int tid) {
+    if (tid >= MAX_TASK_NUM) {
+        return NULL;
+    }
     return (tasks + tid);
 }
 
@@ -72,7 +76,7 @@ int task_schedule() {
         if (tasks[tid].status == ZOMBIE) continue;
         unsigned int time = tasks[tid].runtime;
         unsigned int priority = tasks[tid].priority;
-        double vtime = (double) (time * total_priority) / priority;
+        double vtime = (double) ((time * total_priority)+10000)/ priority;
         if (vtime < min_vtime) {
             min_vtime = vtime;
             ret_tid = tid;

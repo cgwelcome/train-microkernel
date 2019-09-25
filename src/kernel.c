@@ -3,8 +3,7 @@
 #include <kern/io.h>
 #include <kern/tasks.h>
 #include <utils/timer.h>
-
-extern void root_task();
+#include <user/application.h>
 
 void initialize() {
     // Initialize necessary APIs and libraries
@@ -12,7 +11,7 @@ void initialize() {
     task_init();
     timer_init();
     // Create first user task.
-    task_create(-1, 500, &root_task);
+    task_create(-1, 500, &k1_root_task);
 }
 
 void syscall_handle(int tid, int request) {
@@ -35,6 +34,7 @@ void syscall_handle(int tid, int request) {
     }
     else if (request == SYSCALL_TASK_EXIT) {
         task_kill(tid);
+        ipc_cleanup(tid);
     }
     else if (request == SYSCALL_TASK_GETTID) {
         current_task->return_value = tid;

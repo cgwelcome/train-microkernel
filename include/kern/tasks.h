@@ -41,6 +41,7 @@ typedef struct {
 void task_init();
 
 // task_at() returns a pointer to the specified task.
+// It return NULL if tid is out of range
 Task *task_at(int tid);
 
 // task_create() creates a new task on behalf of the kernel.
