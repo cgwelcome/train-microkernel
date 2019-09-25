@@ -12,7 +12,7 @@ LD = $(XBINDIR)/arm-none-eabi-ld
 
 # List of object files
 LIBS = $(addprefix utils/lib, $(notdir $(patsubst %.c, %.a, $(wildcard utils/*.c))))
-OBJECTS = $(patsubst %.c, %.o, $(wildcard */*.c)) $(patsubst %.c, %.o, $(wildcard *.c))
+OBJECTS = $(patsubst %.c, %.o, $(wildcard */*/*.c */*.c *.c))
 
 # -std=gnu99: use C99 standard with asm support
 # -g: include debug information for gdb
@@ -46,4 +46,4 @@ main.elf: $(LIBS) $(OBJECTS)
 	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -ltimer -lc -lgcc
 
 clean:
-	-rm -f kern/*.o user/*.o utils/*.o utils/*.a *.o *.elf
+	-rm -f kern/*.o user/*/*.o user/*.o utils/*.o utils/*.a *.o *.elf

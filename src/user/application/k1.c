@@ -1,5 +1,6 @@
 #include <ts7200.h>
 #include <user/tasks.h>
+#include <user/application.h>
 #include <utils/bwio.h>
 
 void child_task() {
@@ -9,7 +10,7 @@ void child_task() {
     Exit();
 }
 
-void root_task() {
+void k1_root_task() {
     bwprintf(COM2, "Created: %d\n\r", Create(1, &child_task));
     bwprintf(COM2, "Created: %d\n\r", Create(1, &child_task));
     bwprintf(COM2, "Created: %d\n\r", Create(1000, &child_task));
