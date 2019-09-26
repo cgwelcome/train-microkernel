@@ -11,7 +11,13 @@ AS = $(XBINDIR)/arm-none-eabi-as
 LD = $(XBINDIR)/arm-none-eabi-ld
 
 # List of object files
-OBJECTS = $(patsubst %.c, %.o, $(wildcard */*.c)) $(patsubst %.c, %.o, $(wildcard *.c))
+OBJECTS = $(patsubst %.c, %.o, $(wildcard *c */*.c))
+
+# List of libraries
+LIBDIR = utils
+LIBNAMES = $(notdir $(basename $(wildcard $(LIBDIR)/*.c)))
+LIBFILES = $(foreach libname,$(LIBNAMES),$(LIBDIR)/lib$(libname).a)
+LDLIBS = $(foreach libname,$(LIBNAMES),-l$(notdir $(basename $(libname)))) -lc -lgcc
 
 # -std=gnu99: use C99 standard with asm support
 # -g: include debug information for gdb
@@ -31,15 +37,20 @@ ARFLAGS = crs
 # -e: set entry point
 # -nmagic: no page alignment
 # -T: use linker script
-LDFLAGS = -static -e kernel_entry -nmagic -T linker.ld -L ../lib -L $(XLIBDIR1) -L $(XLIBDIR2)
+LDFLAGS = -static -e kernel_entry -nmagic -T linker.ld -L $(LIBDIR) -L $(XLIBDIR1) -L $(XLIBDIR2)
 
+.PHONY: all
 all: main.elf
 
 %.s: %.c
 	$(CC) -S $(CFLAGS) $^
 
-main.elf: $(OBJECTS)
-	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lbwio -ltimer -lqueue -lc -lgcc
+$(LIBDIR)/lib%.a: $(LIBDIR)/%.o
+	$(AR) $(ARFLAGS) $@ $^
 
+main.elf: $(OBJECTS) $(LIBFILES)
+	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(LIBFILES)
+
+.PHONY: clean
 clean:
-	-rm -f kern/*.o user/*.o *.o *.elf
+	-rm -f kern/*.o user/*.o utils/*.a utils/*.o *.o *.elf
