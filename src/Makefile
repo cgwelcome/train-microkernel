@@ -14,7 +14,7 @@ LD = $(XBINDIR)/arm-none-eabi-ld
 OBJECTS = $(patsubst %.c, %.o, $(wildcard *c */*.c))
 
 # List of libraries
-LIBDIR = utils
+LIBDIR = ../lib
 LIBNAMES = $(notdir $(basename $(wildcard $(LIBDIR)/*.c)))
 LIBFILES = $(foreach libname,$(LIBNAMES),$(LIBDIR)/lib$(libname).a)
 LDLIBS = $(foreach libname,$(LIBNAMES),-l$(notdir $(basename $(libname)))) -lc -lgcc
@@ -26,7 +26,7 @@ LDLIBS = $(foreach libname,$(LIBNAMES),-l$(notdir $(basename $(libname)))) -lc -
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -std=gnu99 -g -O2 -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I../include
+CFLAGS = -std=gnu99 -g -O2 -fPIC -Wall -mcpu=arm920t -msoft-float -I../include
 
 # c: create archive, if necessary
 # r: insert with replacement
@@ -53,4 +53,4 @@ main.elf: $(OBJECTS) $(LIBFILES)
 
 .PHONY: clean
 clean:
-	-rm -f kern/*.o user/*.o utils/*.a utils/*.o *.o *.elf
+	-rm -f kern/*.o user/*.o $(LIBDIR)/*.a $(LIBDIR)/*.o *.o *.elf
