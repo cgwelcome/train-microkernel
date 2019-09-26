@@ -45,11 +45,11 @@ int ipc_send(int tid, int recvtid, char *msg, int msglen, char *reply, int rplen
 int ipc_receive(int tid, int *sendtid, char *msg, int msglen) {
     Task *current_task = task_at(tid);
 
+    current_task->send_tid = sendtid;
     current_task->recv_msg.array = msg;
     current_task->recv_msg.len = msglen;
-    current_task->send_tid = sendtid;
 
-    if (q_size(&current_task->send_queue)) {
+    if (q_size(&current_task->send_queue) > 0) {
         Task *send_task = task_at(q_pop(&current_task->send_queue));
         ipc_recvsend(current_task, send_task);
     }
