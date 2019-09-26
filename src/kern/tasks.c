@@ -2,8 +2,8 @@
 #include <arm.h>
 #include <float.h>
 #include <stddef.h>
-#include <lib/queue.h>
-#include <lib/timer.h>
+#include <utils/queue.h>
+#include <utils/timer.h>
 
 static unsigned int alive_task_count;
 static unsigned int total_priority;

@@ -1,4 +1,4 @@
-#include <lib/queue.h>
+#include <utils/queue.h>
 
 void q_init(Queue *q) {
     q->head = 0;

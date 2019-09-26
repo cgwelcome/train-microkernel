@@ -3,7 +3,7 @@
 
 #include <kernel.h>
 #include <kern/ipc.h>
-#include <lib/queue.h>
+#include <utils/queue.h>
 
 typedef enum {
     UNUSED,

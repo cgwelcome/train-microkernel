@@ -1,9 +1,9 @@
 #include <ts7200.h>
 #include <kernel.h>
 #include <application.h>
-#include <lib/timer.h>
 #include <kern/io.h>
 #include <kern/tasks.h>
+#include <utils/timer.h>
 
 void initialize() {
     // Initialize necessary APIs and libraries
