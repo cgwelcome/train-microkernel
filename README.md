@@ -15,5 +15,5 @@ RedBoot> go
 ```
 
 ## Team Members
-Xiule Lin <x77lin@edu.uwaterloo.ca>
-Charles Gao <c39gao@edu.uwaterloo.ca>
+- Xiule Lin <x77lin@edu.uwaterloo.ca>
+- Charles Gao <c39gao@edu.uwaterloo.ca>
