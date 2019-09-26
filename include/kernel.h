@@ -12,6 +12,8 @@
 #define MAX_TASK_PRIORITY   1024
 #define MAX_SYSCALL_ARG_NUM 5
 
+#define SCHEDULER_CALIBRATION 10000
+
 /*
  * The helpers for invoke syscalls
  */
