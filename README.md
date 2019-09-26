@@ -14,5 +14,6 @@ RedBoot> load -h 10.15.167.5 ARM/<YOUR UW USERNAME>/main.elf
 RedBoot> go
 ```
 
-## Credit
-Xiule Lin <X77Lin@edu.uwaterloo.ca>
+## Team Members
+Xiule Lin <x77lin@edu.uwaterloo.ca>
+Charles Gao <c39gao@edu.uwaterloo.ca>
