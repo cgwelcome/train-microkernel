@@ -109,8 +109,9 @@ void ipclength_child_test() {
     char replymsg[replylen];
 
     int returncode = Send(MyParentTid(), sendmsg, strlen(sendmsg)+1, replymsg, replylen);
+    replymsg[replylen] = '\0';
     kassert(returncode == 5);
-    kassert(strcmp(strcat(replymsg, "\0"), "NiHao") == 0);
+    kassert(strcmp(replymsg, "NiHao") == 0);
     Exit();
 }
 
@@ -123,7 +124,8 @@ void ipclength_test() {
     Create(2000, &ipclength_child_test);
     returncode = Receive(&tid, receivemsg, receivelen);
     kassert(returncode == receivelen);
-    kassert(strcmp(strcat(receivemsg, "\0"), "Wei") == 0);
+    receivemsg[receivelen] = '\0';
+    kassert(strcmp(receivemsg, "Wei") == 0);
 
     const char *replymsg = "NiHaoMa";
     returncode = Reply(tid, replymsg, strlen(replymsg)+1);

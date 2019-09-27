@@ -18,7 +18,7 @@ void task_init() {
 }
 
 Task *task_at(int tid) {
-    if (tid >= MAX_TASK_NUM) {
+    if (tid < 0 || tid >= MAX_TASK_NUM) {
         return NULL;
     }
     return (tasks + tid);
