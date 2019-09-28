@@ -106,7 +106,7 @@ void replyerror_test() {
 void ipclength_child_test() {
     const char *sendmsg = "Wei-Wei";
     int replylen = 5;
-    char replymsg[replylen];
+    char replymsg[replylen+1];
 
     int returncode = Send(MyParentTid(), sendmsg, strlen(sendmsg)+1, replymsg, replylen);
     replymsg[replylen] = '\0';
@@ -118,7 +118,7 @@ void ipclength_child_test() {
 void ipclength_test() {
     int tid;
     int receivelen = 3;
-    char receivemsg[receivelen];
+    char receivemsg[receivelen+1];
     int returncode;
 
     Create(2000, &ipclength_child_test);
