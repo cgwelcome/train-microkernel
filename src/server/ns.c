@@ -48,22 +48,17 @@ static void ns_task() {
     ns_tid = MyTid();
     for (;;) {
         // Wait for a name request or lookup
-        int length = Receive(&tid, (char *)&request, sizeof(request));
-        if (length != sizeof(request)) {
-            retval = -1;
-        }
-        else {
-            switch (request.type) {
-                case REGISTER:
-                    retval = ns_register(tid, request.name);
-                    break;
-                case WHOIS:
-                    retval = ns_whois(request.name);
-                    break;
-                default:
-                    retval = -1;
-                    break;
-            }
+        Receive(&tid, (char *)&request, sizeof(request));
+        switch (request.type) {
+            case NS_REGISTER:
+                retval = ns_register(tid, request.name);
+                break;
+            case NS_WHOIS:
+                retval = ns_whois(request.name);
+                break;
+            default:
+                retval = -1;
+                break;
         }
         // Reply with the appropriate value
         Reply(tid, (char *)&retval, sizeof(retval));

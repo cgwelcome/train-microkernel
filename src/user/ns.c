@@ -11,7 +11,7 @@ int RegisterAs(const char *name) {
     if (strlen(name) > MAX_NAME_SIZE) {
         return -2;
     }
-    request.type = REGISTER;
+    request.type = NS_REGISTER;
     strcpy(request.name, name);
     int retval = Send(ns_tid, (char *)&request, sizeof(request),
             (char *)&result, sizeof(result));
@@ -29,7 +29,7 @@ int WhoIs(const char *name) {
     if (strlen(name) > MAX_NAME_SIZE) {
         return -2;
     }
-    request.type = WHOIS;
+    request.type = NS_WHOIS;
     strcpy(request.name, name);
     int retval = Send(ns_tid, (char *)&request, sizeof(request),
             (char *)&result, sizeof(result));

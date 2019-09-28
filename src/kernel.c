@@ -11,7 +11,7 @@ void initialize() {
     task_init();
     timer_init();
     // Create first user task.
-    task_create(-1, 500, &ipctest_root_task);
+    task_create(-1, 500, &nstest_root_task);
 }
 
 void syscall_handle(int tid, int request) {

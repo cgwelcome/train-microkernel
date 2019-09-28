@@ -7,8 +7,8 @@
 int ns_tid;
 
 typedef enum {
-    REGISTER,
-    WHOIS,
+    NS_REGISTER,
+    NS_WHOIS,
 } NSRequestType;
 
 typedef struct {
