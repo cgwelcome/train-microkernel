@@ -8,4 +8,6 @@ void ipctest_root_task();
 void nstest_root_task();
 void rpstest_root_task();
 
+void kernperform_root_task();
+
 #endif
