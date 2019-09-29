@@ -7,10 +7,10 @@ typedef enum {
     RPS_UNUSED,
     RPS_SIGNONE,
     RPS_WAITBOTH,
-    RPS_READYP1   = 0x10,
-    RPS_READYP2   = 0x20,
-    RPS_READYBOTH = 0x30,
-    RPS_ENDGAME   = 0xFF,
+    RPS_READYP1,
+    RPS_READYP2,
+    RPS_READYBOTH,
+    RPS_ENDGAME,
 } RPSMatchStatus;
 
 typedef struct {

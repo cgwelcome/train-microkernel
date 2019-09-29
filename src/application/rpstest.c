@@ -6,7 +6,7 @@
 #include <server/ns.h>
 #include <server/rps.h>
 
-RPSResponse rps_quit(int tid)  {
+static RPSResponse rps_quit(int tid)  {
     RPSResponse response;
     RPSRequest request;
     request.type = RPS_QUIT;
@@ -14,7 +14,7 @@ RPSResponse rps_quit(int tid)  {
     return response;
 }
 
-RPSResponse rps_sendmove(int tid, char move) {
+static RPSResponse rps_sendmove(int tid, char move) {
     RPSResponse response;
     RPSRequest request;
     request.type = RPS_PLAY;
@@ -23,7 +23,7 @@ RPSResponse rps_sendmove(int tid, char move) {
     return response;
 }
 
-void rps_setup(int tid) {
+static void rps_setup(int tid) {
     RPSResponse response;
     RPSRequest request;
     request.type = RPS_SIGNUP;
@@ -31,7 +31,7 @@ void rps_setup(int tid) {
     kassert(response == RPS_READY);
 }
 
-void rpstest_client1() {
+static void rpstest_client1() {
     RPSResponse response;
     int rpstid = WhoIs("RPS");
     rps_setup(rpstid);
@@ -50,7 +50,7 @@ void rpstest_client1() {
     Exit();
 }
 
-void rpstest_client2() {
+static void rpstest_client2() {
     RPSResponse response;
     int rpstid = WhoIs("RPS");
     rps_setup(rpstid);
@@ -66,8 +66,6 @@ void rpstest_client2() {
     kassert(response == RPS_ACKQUIT);
     Exit();
 }
-
-
 
 void rpstest_root_task() {
     CreateNS(2000);

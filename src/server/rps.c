@@ -50,10 +50,18 @@ static void rps_matchupdate(RPSMatch *rpsmatch, int tid, char move) {
     }
     if (rpsmatch->p1tid == tid) {
         rpsmatch->p1move = move;
-        rpsmatch->status |= RPS_READYP1;
+        if (rpsmatch->status == RPS_READYP2) {
+            rpsmatch->status = RPS_READYBOTH;
+        } else {
+            rpsmatch->status = RPS_READYP1;
+        }
     } else {
         rpsmatch->p2move = move;
-        rpsmatch->status |= RPS_READYP2;
+        if (rpsmatch->status == RPS_READYP1) {
+            rpsmatch->status = RPS_READYBOTH;
+        } else {
+            rpsmatch->status = RPS_READYP2;
+        }
     }
     if (rpsmatch->status == RPS_READYBOTH) {
         RPSResponse P1Response;
@@ -91,6 +99,14 @@ static void rps_play(int tid, char move) {
 static void rps_quit(int tid) {
     for (unsigned int i = 0; i < rpsmatch_count; i++) {
         if (rpsmatches[i].p1tid == tid || rpsmatches[i].p2tid == tid) {
+            if (rpsmatches[i].status == RPS_READYP1) {
+                RPSResponse response = RPS_OTHERQUIT;
+                Reply(rpsmatches[i].p1tid, (char *)&response, sizeof(response));
+            }
+            if (rpsmatches[i].status == RPS_READYP2) {
+                RPSResponse response = RPS_OTHERQUIT;
+                Reply(rpsmatches[i].p2tid, (char *)&response, sizeof(response));
+            }
             RPSResponse response = RPS_ACKQUIT;
             Reply(tid, (char *)&response, sizeof(response));
             rpsmatches[i].status = RPS_ENDGAME;

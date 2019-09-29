@@ -3,9 +3,15 @@
 #include <application.h>
 #include <kern/io.h>
 #include <kern/tasks.h>
+#include <utils/bwio.h>
 #include <utils/timer.h>
 
 void initialize() {
+    // Enable cache
+    asm volatile("mrc p15, 0, r0, c1, c0, 0");
+    asm volatile("orr r0, r0, #(0x1 << 12)");
+	asm volatile("orr r0, r0, #(0x1 << 2)");
+    asm volatile("mcr p15, 0, r0, c1, c0, 0");
     // Initialize necessary APIs and libraries
     io_init();
     task_init();
@@ -66,10 +72,13 @@ void syscall_handle(int tid, int request) {
 
 void kernel_entry() {
     initialize();  // includes starting the first user task
+    unsigned int start_time = timer_read();
     for (;;) {
         unsigned int nextTID = task_schedule();
         if (nextTID == -1) break;
         int request = task_activate(nextTID);
         syscall_handle(nextTID, request);
     }
+    unsigned int end_time = timer_read();
+    bwprintf(COM2, "Kernel terminates after %u ms.", end_time - start_time);
 }
