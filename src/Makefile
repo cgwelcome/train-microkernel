@@ -53,4 +53,4 @@ main.elf: $(OBJECTS) $(LIBFILES)
 
 .PHONY: clean
 clean:
-	-rm -f kern/*.o user/*.o utils/*.a utils/*.o *.o *.elf
+	-rm -f application/*.o server/*.o kern/*.o user/*.o $(LIBDIR)/*.a $(LIBDIR)/*.o *.o *.elf

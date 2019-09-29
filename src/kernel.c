@@ -11,7 +11,7 @@ void initialize() {
     task_init();
     timer_init();
     // Create first user task.
-    task_create(-1, 500, &k1_root_task);
+    task_create(-1, 500, &k2_root_task);
 }
 
 void syscall_handle(int tid, int request) {
@@ -48,19 +48,19 @@ void syscall_handle(int tid, int request) {
         int msglen = (int) current_task->syscall_args[2];
         char *reply = (char *) current_task->syscall_args[3];
         int rplen = (int) current_task->syscall_args[4];
-        current_task->return_value = ipc_send(tid, recvtid, msg, msglen, reply, rplen);
+        ipc_send(tid, recvtid, msg, msglen, reply, rplen);
     }
     else if (request == SYSCALL_IPC_RECV) {
         int *sendtid = (int *) current_task->syscall_args[0];
         char *msg = (char *) current_task->syscall_args[1];
         int msglen = (int) current_task->syscall_args[2];
-        current_task->return_value = ipc_receive(tid, sendtid, msg, msglen);
+        ipc_receive(tid, sendtid, msg, msglen);
     }
     else if (request == SYSCALL_IPC_REPLY) {
         int replytid = (int) current_task->syscall_args[0];
         char *reply = (char *) current_task->syscall_args[1];
         int rplen = (int) current_task->syscall_args[2];
-        current_task->return_value = ipc_reply(tid, replytid, reply, rplen);
+        ipc_reply(tid, replytid, reply, rplen);
     }
 }
 
