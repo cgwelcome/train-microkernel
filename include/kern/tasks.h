@@ -5,6 +5,11 @@
 #include <kern/ipc.h>
 #include <utils/queue.h>
 
+#define SCHEDULER_CALIBRATION 1000
+#define MAX_TASK_NUM        128
+#define MAX_TASK_PRIORITY   4096
+#define MAX_SYSCALL_ARG_NUM 5
+
 typedef enum {
     UNUSED,
     ACTIVE,

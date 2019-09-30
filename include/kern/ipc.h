@@ -1,8 +1,6 @@
 #ifndef __KERN_IPC_H___
 #define __KERN_IPC_H___
 
-#define MAX_MESSAGE_LEN
-
 typedef struct {
     char *array;
     unsigned int len;

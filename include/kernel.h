@@ -8,12 +8,6 @@
 #define ADDR_MEMORY_TOP       0x02000000
 #define ADDR_KERNEL_STACK_TOP (ADDR_MEMORY_TOP - KERNEL_STACK_SIZE)
 
-#define MAX_TASK_NUM        128
-#define MAX_TASK_PRIORITY   4096
-#define MAX_SYSCALL_ARG_NUM 5
-
-#define SCHEDULER_CALIBRATION 1000
-
 /*
  * The helpers for invoke syscalls
  */
