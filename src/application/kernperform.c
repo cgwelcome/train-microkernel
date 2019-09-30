@@ -8,11 +8,10 @@
 #include <string.h>
 
 #define MESSAGESIZE 128
-#define RECEIVERFIRST 0
-#define NUMBERSRR 1
+#define RECEIVERFIRST 1
+#define NUMBERSRR 200000
 
 static void recvmsg() {
-    kassert(1 == 2);
     char msg[MESSAGESIZE];
     kassert(sizeof(msg) == MESSAGESIZE);
     int tid;
@@ -20,11 +19,9 @@ static void recvmsg() {
         Receive(&tid, msg, sizeof(MESSAGESIZE));
         Reply(tid, msg, sizeof(MESSAGESIZE));
     }
-    kassert(1 == 2);
 }
 
 static void sendreplymsg(int tid) {
-    kassert(1 == 2);
     char sendmsg[MESSAGESIZE];
     char replymsg[MESSAGESIZE];
     kassert(sizeof(sendmsg) == MESSAGESIZE);
@@ -32,11 +29,9 @@ static void sendreplymsg(int tid) {
     for (int i = 0; i < NUMBERSRR; i++) {
         Send(tid, sendmsg, sizeof(MESSAGESIZE), replymsg, sizeof(MESSAGESIZE));
     }
-    kassert(1 == 2);
 }
 
 static void child_task() {
-    int tid;
     if (RECEIVERFIRST) {
         sendreplymsg(MyParentTid());
     } else {

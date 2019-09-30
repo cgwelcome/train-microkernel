@@ -8,11 +8,11 @@
 #include <server/ns.h>
 #include <server/rps.h>
 
-#define RPS_MAX_ROUNDS 100
-#define RPS_CLIENT_NUM 100
+#define RPS_MAX_ROUNDS 6
+#define RPS_CLIENT_NUM 6
 static const char moves[3] = { 'R', 'P', 'S' };
 
-// #define OUTPUT
+#define OUTPUT
 #ifdef OUTPUT
     static const char *response2str[6] = { "READY", "TIE", "WIN", "LOST", "OTHERQUIT", "ACKQUIT" };
 #endif // OUTPUT
@@ -47,11 +47,11 @@ static void rps_client() {
     int rpstid = WhoIs("RPS");
     rps_setup(rpstid);
     srand(timer_read_raw());
-    int rounds = rand() % RPS_MAX_ROUNDS;
+    int rounds = rand() % (RPS_MAX_ROUNDS + 1);
 #ifdef OUTPUT
     bwprintf(COM2, "RPS Client %d: Game Start. Want to play %d rounds\n\r", MyTid(), rounds);
 #endif // OUTPUT
-    for (int i = 0; i < RPS_MAX_ROUNDS; i++) {
+    for (int i = 0; i < rounds; i++) {
         char move = moves[rand() % 3];
         response = rps_play(rpstid, move);
         if (response == RPS_OTHERQUIT) {
@@ -62,6 +62,7 @@ static void rps_client() {
         }
 #ifdef OUTPUT
         bwprintf(COM2, "RPS Client %d: Round %d, Move: %c, Result: %s\n\r", MyTid(), i + 1, move, response2str[response]);
+        bwgetc(COM2);
 #endif // OUTPUT
     }
     response = rps_quit(rpstid);
@@ -72,10 +73,11 @@ static void rps_client() {
 }
 
 void k2_root_task() {
+    bwsetfifo(COM2, OFF);
     CreateNS(2000);
     CreateRPS(2000);
     for (int i = 0; i < RPS_CLIENT_NUM; i++) {
-        Create(1000, &rps_client);
+        Create(500, &rps_client);
     }
     Exit();
 }
