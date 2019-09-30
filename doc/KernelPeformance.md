@@ -39,5 +39,7 @@ We will 32-bit clock built-in inside the TS-7200 board. A time will be captured 
 
 ### Conclusion
 
-Our hypothesis is that most of the time is being spent on scheduling algorithm
-the next task to be ran
+Our hypothesis is that most of the time is being spent on the scheduling algorithm 
+to choose the next ready task to be ran. By tweaking our scheduling algorithm, we
+have drastically reduced our runtime. The short message (4 bytes) time give us the
+indication of how much time is spend on solely context switching and scheduling.
