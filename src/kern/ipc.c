@@ -34,7 +34,7 @@ void ipc_send(int tid, int recvtid, char *msg, int msglen, char *reply, int rple
         ipc_recvsend(recv_task, current_task);
         recv_task->status = READY;
     } else {
-        q_push(&recv_task->send_queue, current_task->tid);
+        queue_push(&recv_task->send_queue, current_task->tid);
         current_task->status = RECVBLOCKED;
     }
 }
@@ -46,8 +46,8 @@ void ipc_receive(int tid, int *sendtid, char *msg, int msglen) {
     current_task->recv_msg.array = msg;
     current_task->recv_msg.len = msglen;
 
-    if (q_size(&current_task->send_queue) > 0) {
-        Task *send_task = task_at(q_pop(&current_task->send_queue));
+    if (queue_size(&current_task->send_queue) > 0) {
+        Task *send_task = task_at(queue_pop(&current_task->send_queue));
         ipc_recvsend(current_task, send_task);
     } else {
         current_task->status = SENDBLOCKED;
@@ -77,8 +77,8 @@ void ipc_reply(int tid, int replytid, char *reply, int rplen) {
 
 void ipc_cleanup(int tid) {
     Task *current_task = task_at(tid);
-    while (q_size(&current_task->send_queue)) {
-        Task *task = task_at(q_pop(&current_task->send_queue));
+    while (queue_size(&current_task->send_queue)) {
+        Task *task = task_at(queue_pop(&current_task->send_queue));
         task->return_value = -2;
         task->status = READY;
     }

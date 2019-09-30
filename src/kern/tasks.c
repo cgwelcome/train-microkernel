@@ -47,7 +47,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         .spsr = PSR_MODE_USR,
         .return_value = 0,
     };
-    q_init(&new_task.send_queue);
+    queue_init(&new_task.send_queue);
     // Initialize task stack
     asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
         asm("ldr sp, %0" : : "m" (new_task.sp));
