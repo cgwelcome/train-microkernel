@@ -1,6 +1,7 @@
 # Kernel Peformance 
 
 We wrote a user program in `kernperform.c` under application that will peform tasks based on some global constant
+
 | Constant | Description |
 | ------ | ------ |
 | SRR_NUM | The number of send, receive, reply |
@@ -33,5 +34,5 @@ We will 32-bit clock built-in inside the TS-7200 board. A time will be captured 
 | ON          |   ON  | R  | 64 | 8304 | 83.04
 | ON          |   ON  | R  | 256 | 8313 | 83.13
 | ON          |   ON  | S  | 4 | 8400 | 84.00
-| ON          |   ON  | S  | 64 | 8403
-| ON          |   ON  | S  | 256 | 8404
+| ON          |   ON  | S  | 64 | 8403 | 84.03
+| ON          |   ON  | S  | 256 | 8404 | 84.04
