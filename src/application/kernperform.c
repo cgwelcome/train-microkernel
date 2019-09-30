@@ -7,7 +7,7 @@
 #include <stddef.h>
 #include <string.h>
 
-#define MESSAGESIZE 256
+#define MESSAGESIZE 64
 #define RECEIVERFIRST 0
 #define SRR_NUM 100000
 
@@ -16,8 +16,8 @@ static void recvmsg() {
     kassert(sizeof(msg) == MESSAGESIZE);
     int tid;
     for (int i = 0; i < SRR_NUM; i++) {
-        Receive(&tid, msg, sizeof(MESSAGESIZE));
-        Reply(tid, msg, sizeof(MESSAGESIZE));
+        Receive(&tid, msg, sizeof(msg));
+        Reply(tid, msg, sizeof(msg));
     }
 }
 
@@ -27,7 +27,7 @@ static void sendreplymsg(int tid) {
     kassert(sizeof(sendmsg) == MESSAGESIZE);
     kassert(sizeof(replymsg) == MESSAGESIZE);
     for (int i = 0; i < SRR_NUM; i++) {
-        Send(tid, sendmsg, sizeof(MESSAGESIZE), replymsg, sizeof(MESSAGESIZE));
+        Send(tid, sendmsg, sizeof(sendmsg), replymsg, sizeof(replymsg));
     }
 }
 

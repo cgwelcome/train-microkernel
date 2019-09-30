@@ -10,7 +10,7 @@ void initialize() {
     // Enable L1I/L1D cache
     asm volatile("mrc p15, 0, r0, c1, c0, 0" ::: "r0");
     asm volatile("orr r0, r0, #(0x1 << 12)"  ::: "r0");
-	asm volatile("orr r0, r0, #(0x1 << 2)"   ::: "r0");
+    asm volatile("orr r0, r0, #(0x1 << 2)"   ::: "r0");
     asm volatile("mcr p15, 0, r0, c1, c0, 0");
     // Initialize necessary APIs and libraries
     io_init();
