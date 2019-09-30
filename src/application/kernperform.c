@@ -7,15 +7,15 @@
 #include <stddef.h>
 #include <string.h>
 
-#define MESSAGESIZE 128
-#define RECEIVERFIRST 1
-#define NUMBERSRR 200000
+#define MESSAGESIZE 256
+#define RECEIVERFIRST 0
+#define SRR_NUM 100000
 
 static void recvmsg() {
     char msg[MESSAGESIZE];
     kassert(sizeof(msg) == MESSAGESIZE);
     int tid;
-    for (int i = 0; i < NUMBERSRR; i++) {
+    for (int i = 0; i < SRR_NUM; i++) {
         Receive(&tid, msg, sizeof(MESSAGESIZE));
         Reply(tid, msg, sizeof(MESSAGESIZE));
     }
@@ -26,7 +26,7 @@ static void sendreplymsg(int tid) {
     char replymsg[MESSAGESIZE];
     kassert(sizeof(sendmsg) == MESSAGESIZE);
     kassert(sizeof(replymsg) == MESSAGESIZE);
-    for (int i = 0; i < NUMBERSRR; i++) {
+    for (int i = 0; i < SRR_NUM; i++) {
         Send(tid, sendmsg, sizeof(MESSAGESIZE), replymsg, sizeof(MESSAGESIZE));
     }
 }
