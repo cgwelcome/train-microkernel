@@ -1,12 +1,11 @@
+#include <string.h>
 #include <kern/ipc.h>
 #include <kern/tasks.h>
 
 static int msg_copy(Message *dest, Message *source) {
-    unsigned int i = 0;
-    for (i = 0; i < source->len && i < dest->len; i++) {
-        dest->array[i] = source->array[i];
-    }
-    return i;
+    unsigned int size = source->len < dest->len ? source->len : dest->len;
+    memcpy(dest->array, source->array, size);
+    return size;
 }
 
 static int ipc_connectable(Task *task) {
