@@ -1,6 +1,6 @@
 #include <kern/tasks.h>
 #include <arm.h>
-#include <float.h>
+#include <limits.h>
 #include <stddef.h>
 #include <utils/queue.h>
 #include <utils/timer.h>
@@ -67,12 +67,12 @@ int task_schedule() {
     if (alive_task_count == 0) return -1;
 
     int ret_tid = -1;
-    double min_vtime = DBL_MAX;
+    unsigned int min_vtime = UINT_MAX;
     for (int tid = 0; tid < total_task_count; tid++) {
         if (tasks[tid].status != READY) continue;
         unsigned int time = tasks[tid].runtime;
         unsigned int priority = tasks[tid].priority;
-        double vtime = (double) (time * total_task_priority) / priority;
+        unsigned int vtime = (time * total_task_priority) / priority;
         if (vtime < min_vtime) {
             min_vtime = vtime;
             ret_tid = tid;
