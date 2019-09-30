@@ -5,11 +5,13 @@
 #include <utils/queue.h>
 #include <utils/timer.h>
 
+static unsigned int total_task_count;
 static unsigned int alive_task_count;
 static unsigned int total_task_priority;
 static Task tasks[MAX_TASK_NUM];
 
 void task_init() {
+    total_task_count = 0;
     alive_task_count = 0;
     total_task_priority = 0;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
@@ -28,27 +30,20 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
     if (priority == 0 || priority > MAX_TASK_PRIORITY) {
         return -1; // invalid priority
     }
-
-    int available_tid = -1;
-    for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
-        if (tasks[tid].status == UNUSED) {
-            available_tid = tid;
-            break;
-        }
-    }
-    if (available_tid == -1) {
+    if (total_task_count == MAX_TASK_NUM) {
         return -2; // out of task descriptors.
     }
 
     // Initialize task descriptor
+    unsigned int tid = total_task_count;
     Task new_task = {
         .status = READY,
-        .tid = available_tid,
+        .tid = tid,
         .ptid = ptid,
         .runtime = SCHEDULER_CALIBRATION,
         .priority = priority,
         .pc = (unsigned int) entry,
-        .sp = (unsigned int) (ADDR_KERNEL_STACK_TOP - (unsigned int) available_tid * TASK_STACK_SIZE),
+        .sp = (unsigned int) (ADDR_KERNEL_STACK_TOP - (unsigned int) tid * TASK_STACK_SIZE),
         .spsr = PSR_MODE_USR,
         .return_value = 0,
     };
@@ -60,10 +55,12 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         asm("push {r3-r12, lr}");
         asm("str sp, %0" : : "m" (new_task.sp));
     asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
+    // Update internal storage
+    total_task_count += 1;
     alive_task_count += 1;
     total_task_priority += priority;
-    tasks[available_tid] = new_task;
-    return available_tid;
+    tasks[tid] = new_task;
+    return tid;
 }
 
 int task_schedule() {
@@ -71,8 +68,7 @@ int task_schedule() {
 
     int ret_tid = -1;
     double min_vtime = DBL_MAX;
-    for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
-        if (tasks[tid].status == UNUSED) break;
+    for (int tid = 0; tid < total_task_count; tid++) {
         if (tasks[tid].status != READY) continue;
         unsigned int time = tasks[tid].runtime;
         unsigned int priority = tasks[tid].priority;
