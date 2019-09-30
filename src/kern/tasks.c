@@ -72,6 +72,7 @@ int task_schedule() {
     int ret_tid = -1;
     double min_vtime = DBL_MAX;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
+        if (tasks[tid].status == UNUSED) break;
         if (tasks[tid].status != READY) continue;
         unsigned int time = tasks[tid].runtime;
         unsigned int priority = tasks[tid].priority;
