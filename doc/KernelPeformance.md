@@ -38,3 +38,6 @@ We will 32-bit clock built-in inside the TS-7200 board. A time will be captured 
 | ON          |   ON  | S  | 256 | 1017 | 101.7
 
 ### Conclusion
+
+Our hypothesis is that most of the time is being spent on scheduling algorithm
+the next task to be ran

@@ -8,11 +8,11 @@
 #include <server/ns.h>
 #include <server/rps.h>
 
-#define RPS_MAX_ROUNDS 6
-#define RPS_CLIENT_NUM 6
+#define RPS_MAX_ROUNDS 100
+#define RPS_CLIENT_NUM 100
 static const char moves[3] = { 'R', 'P', 'S' };
 
-#define OUTPUT
+/*#define OUTPUT*/
 #ifdef OUTPUT
     static const char *response2str[6] = { "READY", "TIE", "WIN", "LOST", "OTHERQUIT", "ACKQUIT" };
 #endif // OUTPUT
@@ -51,7 +51,7 @@ static void rps_client() {
 #ifdef OUTPUT
     bwprintf(COM2, "RPS Client %d: Game Start. Want to play %d rounds\n\r", MyTid(), rounds);
 #endif // OUTPUT
-    for (int i = 0; i < rounds; i++) {
+    for (int i = 0; i < RPS_MAX_ROUNDS; i++) {
         char move = moves[rand() % 3];
         response = rps_play(rpstid, move);
         if (response == RPS_OTHERQUIT) {
@@ -62,7 +62,7 @@ static void rps_client() {
         }
 #ifdef OUTPUT
         bwprintf(COM2, "RPS Client %d: Round %d, Move: %c, Result: %s\n\r", MyTid(), i + 1, move, response2str[response]);
-        bwgetc(COM2);
+        /*bwgetc(COM2);*/
 #endif // OUTPUT
     }
     response = rps_quit(rpstid);

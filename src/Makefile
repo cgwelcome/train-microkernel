@@ -26,7 +26,7 @@ LDLIBS = $(foreach libname,$(LIBNAMES),-l$(notdir $(basename $(libname)))) -lc -
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -std=gnu99 -g -O2 -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I../include
+CFLAGS = -std=gnu99 -g -O0 -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I../include
 
 # c: create archive, if necessary
 # r: insert with replacement

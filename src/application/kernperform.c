@@ -9,7 +9,7 @@
 
 #define MESSAGESIZE 64
 #define RECEIVERFIRST 0
-#define SRR_NUM 100000
+#define SRR_NUM 10000
 
 static void recvmsg() {
     char msg[MESSAGESIZE];
