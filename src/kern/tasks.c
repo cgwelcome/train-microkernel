@@ -6,12 +6,12 @@
 #include <utils/timer.h>
 
 static unsigned int alive_task_count;
-static unsigned int total_priority;
+static unsigned int total_task_priority;
 static Task tasks[MAX_TASK_NUM];
 
 void task_init() {
     alive_task_count = 0;
-    total_priority = 0;
+    total_task_priority = 0;
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
         tasks[tid].status = UNUSED;
     }
@@ -45,7 +45,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         .status = READY,
         .tid = available_tid,
         .ptid = ptid,
-        .runtime = 0,
+        .runtime = SCHEDULER_CALIBRATION,
         .priority = priority,
         .pc = (unsigned int) entry,
         .sp = (unsigned int) (ADDR_KERNEL_STACK_TOP - (unsigned int) available_tid * TASK_STACK_SIZE),
@@ -61,7 +61,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         asm("str sp, %0" : : "m" (new_task.sp));
     asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
     alive_task_count += 1;
-    total_priority += priority;
+    total_task_priority += priority;
     tasks[available_tid] = new_task;
     return available_tid;
 }
@@ -76,7 +76,7 @@ int task_schedule() {
         if (tasks[tid].status != READY) continue;
         unsigned int time = tasks[tid].runtime;
         unsigned int priority = tasks[tid].priority;
-        double vtime = (double) ((time * total_priority)+SCHEDULER_CALIBRATION) / priority;
+        double vtime = (double) (time * total_task_priority) / priority;
         if (vtime < min_vtime) {
             min_vtime = vtime;
             ret_tid = tid;
@@ -134,5 +134,5 @@ int task_activate(int tid) {
 void task_kill(int tid) {
     tasks[tid].status = ZOMBIE;
     alive_task_count -= 1;
-    total_priority -= tasks[tid].priority;
+    total_task_priority -= tasks[tid].priority;
 }

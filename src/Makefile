@@ -21,7 +21,7 @@ LDLIBS = $(foreach libname,$(LIBNAMES),-l$(notdir $(basename $(libname)))) -lc -
 
 # -std=gnu99: use C99 standard with asm support
 # -g: include debug information for gdb
-# -O0: disable any optimization for gcc
+# -O2: enable level 2 optimization for gcc
 # -fPIC: emit position-independent code
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture

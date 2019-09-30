@@ -7,9 +7,9 @@
 #include <stddef.h>
 #include <string.h>
 
-#define MESSAGESIZE 64
-#define RECEIVERFIRST 0
-#define SRR_NUM 100000
+#define MESSAGESIZE 4
+#define RECEIVERFIRST 1
+#define SRR_NUM 10000
 
 static void recvmsg() {
     char msg[MESSAGESIZE];

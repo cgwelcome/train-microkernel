@@ -10,10 +10,7 @@ static int msg_copy(Message *dest, Message *source) {
 }
 
 static int ipc_connectable(Task *task) {
-    if (task->status == UNUSED || task->status == ZOMBIE) {
-        return 0;
-    }
-    return 1;
+    return task->status != UNUSED && task->status != ZOMBIE;
 }
 
 static void ipc_recvsend(Task *receiver, Task *sender) {

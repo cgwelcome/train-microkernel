@@ -16,8 +16,7 @@ void timer_init() {
 }
 
 unsigned int timer_read() {
-  unsigned int time = timer_read_raw();
-  return time / TIMER_FREQUENCY_MS;
+  return timer_read_raw() / TIMER_FREQUENCY;
 }
 
 unsigned int timer_read_raw() {
