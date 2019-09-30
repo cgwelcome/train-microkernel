@@ -51,7 +51,7 @@ static void rps_client() {
 #ifdef OUTPUT
     bwprintf(COM2, "RPS Client %d: Game Start. Want to play %d rounds\n\r", MyTid(), rounds);
 #endif // OUTPUT
-    for (int i = 0; i < RPS_MAX_ROUNDS; i++) {
+    for (int i = 0; i < rounds; i++) {
         char move = moves[rand() % 3];
         response = rps_play(rpstid, move);
         if (response == RPS_OTHERQUIT) {
