@@ -1,6 +1,6 @@
-## Kernel Peformance 
+## Kernel Performance 
 
-We wrote a user program in `kernperform.c` under application that will peform tasks based on some global constant
+We wrote a user program in `kernperform.c` under application that will perform tasks based on some global constant
 
 | Constant | Description |
 | ------ | ------ |
