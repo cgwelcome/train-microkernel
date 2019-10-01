@@ -3,6 +3,7 @@
 #include <application.h>
 #include <kern/io.h>
 #include <kern/tasks.h>
+#include <server/ns.h>
 #include <utils/bwio.h>
 #include <utils/timer.h>
 
@@ -16,6 +17,8 @@ void initialize() {
     io_init();
     task_init();
     timer_init();
+    // Initialize global variables for servers
+    InitNS();
     // Create first user task.
     task_create(-1, 500, &k2_root_task);
 }

@@ -9,6 +9,7 @@ typedef struct {
     int tid;
 } NameRecord;
 
+int ns_tid;
 static unsigned int record_count;
 static NameRecord records[MAX_NAMERECORD_NUM];
 
@@ -44,14 +45,11 @@ static int ns_register(int tid, const char *name) {
     return 0;
 }
 
-static void ns_task() {
+static void ns_entry() {
     int retval;
     int tid;
     NSRequest request;
 
-    // Initialize Name server
-    record_count = 0;
-    ns_tid = MyTid();
     for (;;) {
         // Wait for a name request or lookup
         Receive(&tid, (char *)&request, sizeof(request));
@@ -71,6 +69,13 @@ static void ns_task() {
     }
 }
 
+void InitNS() {
+    ns_tid = -1;
+    record_count = 0;
+}
+
 int CreateNS(unsigned int priority) {
-    return Create(priority, &ns_task);
+    if (ns_tid != -1) return ns_tid;
+    ns_tid = Create(priority, &ns_entry);
+    return ns_tid;
 }

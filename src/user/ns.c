@@ -3,6 +3,8 @@
 #include <user/ipc.h>
 #include <server/ns.h>
 
+extern int ns_tid;
+
 int RegisterAs(const char *name) {
     int result;
     NSRequest request;
