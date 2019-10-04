@@ -16,7 +16,6 @@ typedef struct {
     unsigned int r11;
     unsigned int r12;
     unsigned int lr;
-    unsigned int sp;
 } Trapframe;
 
 unsigned int switchframe(unsigned int *pc, Trapframe **tf, unsigned int *sp);

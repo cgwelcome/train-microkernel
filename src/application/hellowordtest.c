@@ -5,5 +5,7 @@
 
 void hellowordtest_task() {
     bwprintf(COM2, "Hello world\n\r");
+    bwprintf(COM2, "%d\n\r", MyTid());
+    bwprintf(COM2, "%d\n\r", MyParentTid());
     Exit();
 }

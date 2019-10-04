@@ -10,7 +10,6 @@ switchframe:
     push {r0-r3}
     ldr lr, [r0]    @ Load Task PC
     ldr r4, [r2]    @ Load Task SPSR
-    nop
     msr SPSR_fc, r4
     msr CPSR_fc, DEFAULT_SYSMODE
     ldr sp, [r1] @ Load Task Trapframe
@@ -29,5 +28,4 @@ swi_handler:
     mrs r6, SPSR_fc
     str r6, [r3]    @ Store SPSR
     ldr r0, [lr, #-4]   @ Load switchframe
-    pop {r4-r12, lr}
-    bx lr
+    pop {r4-r12, pc}

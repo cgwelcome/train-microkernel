@@ -8,8 +8,8 @@
 #include <utils/timer.h>
 
 void timer_init() {
-  int *load = (int *)(TIMER3_BASE + LDR_OFFSET);
-  int *ctrl = (int *)(TIMER3_BASE + CRTL_OFFSET);
+  volatile int *load = (int *)(TIMER3_BASE + LDR_OFFSET);
+  volatile int *ctrl = (int *)(TIMER3_BASE + CRTL_OFFSET);
   *ctrl = 0x00;
   *load = 0xFFFFFFFF;
   *ctrl = ENABLE_MASK | CLKSEL_MASK;
@@ -20,6 +20,6 @@ unsigned int timer_read() {
 }
 
 unsigned int timer_read_raw() {
-  unsigned int *time = (unsigned int *)(TIMER3_BASE + VAL_OFFSET);
+  volatile unsigned int *time = (unsigned int *)(TIMER3_BASE + VAL_OFFSET);
   return (unsigned int)0xFFFFFFFF - *time;
 }

@@ -46,7 +46,7 @@ all: main.elf
 	$(CC) -S $(CFLAGS) $^
 
 %.o: %.S
-	$(CC) -c $(CFLAGS) $^ -o $@
+	$(CC) -c $(CFLAGS) -o $@ $^ 
 
 $(LIBDIR)/lib%.a: $(LIBDIR)/%.o
 	$(AR) $(ARFLAGS) $@ $^

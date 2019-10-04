@@ -20,7 +20,7 @@ void initialize() {
     // Initialize global variables for servers
     InitNS();
     // Create first user task.
-    task_create(-1, 500, &hellowordtest_task);
+    task_create(-1, 500, &k1_root_task);
 }
 
 void syscall_handle(int tid, int request) {
@@ -28,28 +28,28 @@ void syscall_handle(int tid, int request) {
     if (request == SYSCALL_IO_GETC) {
         int server = (int) current_task->syscall_args[0]; // not used for now
         int uart   = (int) current_task->syscall_args[1];
-        current_task->return_value = io_getc(uart);
+        current_task->tf->r0 = io_getc(uart);
     }
     else if (request == SYSCALL_IO_PUTC) {
         int server = (int) current_task->syscall_args[0]; // not used for now
         int uart   = (int) current_task->syscall_args[1];
         int ch     = (int) current_task->syscall_args[2];
-        current_task->return_value = io_putc(uart, ch);
+        current_task->tf->r0 = io_putc(uart, ch);
     }
     else if (request == SYSCALL_TASK_CREATE) {
         unsigned int priority = (unsigned int) current_task->syscall_args[0];
         void *entry = (void *) current_task->syscall_args[1];
-        current_task->return_value = task_create(tid, priority, entry);
+        current_task->tf->r0 = task_create(tid, priority, entry);
     }
     else if (request == SYSCALL_TASK_EXIT) {
         task_kill(tid);
         ipc_cleanup(tid);
     }
     else if (request == SYSCALL_TASK_GETTID) {
-        current_task->return_value = tid;
+        current_task->tf->r0 = tid;
     }
     else if (request == SYSCALL_TASK_GETPTID) {
-        current_task->return_value = current_task->ptid;
+        current_task->tf->r0 = current_task->ptid;
     }
     else if (request == SYSCALL_IPC_SEND) {
         int recvtid = (int) current_task->syscall_args[0];
