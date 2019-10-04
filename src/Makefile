@@ -11,7 +11,7 @@ AS = $(XBINDIR)/arm-none-eabi-as
 LD = $(XBINDIR)/arm-none-eabi-ld
 
 # List of object files
-OBJECTS = $(patsubst %.c, %.o, $(wildcard *c */*.c))
+OBJECTS = $(patsubst %.c, %.o, $(wildcard *c */*.c)) $(patsubst %.S, %.o, $(wildcard *S */*.S))
 
 # List of libraries
 LIBDIR = utils
@@ -44,6 +44,9 @@ all: main.elf
 
 %.s: %.c
 	$(CC) -S $(CFLAGS) $^
+
+%.o: %.S
+	$(CC) -c $(CFLAGS) $^ -o $@
 
 $(LIBDIR)/lib%.a: $(LIBDIR)/%.o
 	$(AR) $(ARFLAGS) $@ $^

@@ -1,9 +1,13 @@
+#include <kern/switchframe.h>
 #include <kern/tasks.h>
 #include <arm.h>
 #include <limits.h>
 #include <stddef.h>
 #include <utils/queue.h>
 #include <utils/timer.h>
+#include <utils/bwio.h>
+#include <utils/kassert.h>
+#include <utils/bwio.h>
 
 static unsigned int total_task_count;
 static unsigned int alive_task_count;
@@ -43,17 +47,17 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         .runtime = SCHEDULER_CALIBRATION,
         .priority = priority,
         .pc = (unsigned int) entry,
-        .sp = (unsigned int) (ADDR_KERNEL_STACK_TOP - (unsigned int) tid * TASK_STACK_SIZE),
+        .tf = (Trapframe *) (ADDR_KERNEL_STACK_TOP - (unsigned int) tid * TASK_STACK_SIZE),
         .spsr = PSR_MODE_USR,
         .return_value = 0,
     };
     queue_init(&new_task.send_queue);
     // Initialize task stack
     asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
-        asm("ldr sp, %0" : : "m" (new_task.sp));
+        asm("ldr sp, %0" : : "m" (new_task.tf));
         asm("mov lr, #0x00"); // assume all the tasks will call Exit at the end.
-        asm("push {r3-r12, lr}");
-        asm("str sp, %0" : : "m" (new_task.sp));
+        asm("push {r0-r12, lr}");
+        asm("str sp, %0" : : "m" (new_task.tf));
     asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
     // Update internal storage
     total_task_count += 1;
@@ -83,46 +87,47 @@ int task_schedule() {
 
 int task_activate(int tid) {
     Task *current_task = task_at(tid);
-    unsigned int swi_code, swi_argc, *swi_argv;
+    int swi_code, swi_argc, *swi_argv;
 
     current_task->status = ACTIVE;
     unsigned int task_start = timer_read_raw();
-        static unsigned int kernel_frame;
-        asm("str fp, %0" : : "m" (kernel_frame));
-        asm("" ::: "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r12", "lr", "memory");
-        // Restore user context
-        asm("msr spsr, %0" : : "r" (current_task->spsr));
-        asm("ldr lr, %0"   : : "m" (current_task->pc));
-        asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
-            asm("ldr r0, %0" : : "m" (current_task->return_value) : "r0");
-            asm("ldr sp, %0" : : "m" (current_task->sp));
-            asm("pop {r3-r12, lr}");
-        asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
-        asm("mov r1, #0x28" ::: "r1"); asm("str pc, [r1]"); asm("nop"); // setup swi handler
-        // Switch to user context
-        asm("movs pc, lr" ::: "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r12", "lr");
-        // Store user context
-        asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
-            asm("push {r3-r12, lr}");
-            asm("mov r12, sp" ::: "r12");
-        asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
-        // Handle arguments passed for syscall
-        asm("ldr fp, %0" : : "m" (kernel_frame));
-        asm("ldr r0, [lr, #-4]" ::: "r0");
-        asm("str r0, %0" : : "m" (swi_code));
-        asm("str r1, %0" : : "m" (swi_argc));
-        asm("str r2, %0" : : "m" (swi_argv));
-        // Store important registers for current_task
-        asm("str lr, %0" : : "m" (current_task->pc));
-        asm("str r12, %0" : : "m" (current_task->sp));
-        asm("mrs %0, spsr" : "=r" (current_task->spsr));
+    swi_code = switchframe(&current_task->pc, &current_task->tf, &current_task->spsr);
+/*        static unsigned int kernel_frame;*/
+        /*asm("str fp, %0" : : "m" (kernel_frame));*/
+        /*asm("" ::: "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r12", "lr", "memory");*/
+        /*// Restore user context*/
+        /*asm("msr spsr, %0" : : "r" (current_task->spsr));*/
+        /*asm("ldr lr, %0"   : : "m" (current_task->pc));*/
+        /*asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode*/
+            /*asm("ldr r0, %0" : : "m" (current_task->return_value) : "r0");*/
+            /*asm("ldr sp, %0" : : "m" (current_task->sp));*/
+            /*asm("pop {r0-r12, lr}");*/
+        /*asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode*/
+        /*asm("mov r1, #0x28" ::: "r1"); asm("str pc, [r1]"); asm("nop"); // setup swi handler*/
+        /*// Switch to user context*/
+        /*asm("movs pc, lr" ::: "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", "r8", "r9", "r10", "r12", "lr");*/
+        /*// Store user context*/
+        /*asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode*/
+            /*asm("push {r0-r12, lr}");*/
+            /*asm("mov r12, sp" ::: "r12");*/
+        /*asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode*/
+        /*// Handle arguments passed for syscall*/
+        /*asm("ldr fp, %0" : : "m" (kernel_frame));*/
+        /*asm("ldr r0, [lr, #-4]" ::: "r0");*/
+        /*asm("str r0, %0" : : "m" (swi_code));*/
+        /*asm("str r1, %0" : : "m" (swi_argc));*/
+        /*asm("str r2, %0" : : "m" (swi_argv));*/
+        /*// Store important registers for current_task*/
+       /*asm("str lr, %0" : : "m" (current_task->pc));*/
+        /*asm("str r12, %0" : : "m" (current_task->sp));*/
+        /*asm("mrs %0, spsr" : "=r" (current_task->spsr));*/
     current_task->status = READY;
     current_task->runtime += timer_read_raw() - task_start;
 
-    if (swi_argc > MAX_SYSCALL_ARG_NUM) swi_argc = MAX_SYSCALL_ARG_NUM;
-    for (unsigned int i = 0; i < swi_argc; i++) {
-        current_task->syscall_args[i] = swi_argv[i];
-    }
+    /*if (swi_argc > MAX_SYSCALL_ARG_NUM) swi_argc = MAX_SYSCALL_ARG_NUM;*/
+    /*for (unsigned int i = 0; i < swi_argc; i++) {*/
+        /*current_task->syscall_args[i] = swi_argv[i];*/
+    /*}*/
     swi_code = swi_code & 0xFFFFFF;
     return swi_code;
 }

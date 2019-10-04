@@ -1,0 +1,24 @@
+#ifndef __KERN_SWITCHFRAME_H__
+#define __KERN_SWITCHFRAME_H__
+
+typedef struct {
+    unsigned int r0;
+    unsigned int r1;
+    unsigned int r2;
+    unsigned int r3;
+    unsigned int r4;
+    unsigned int r5;
+    unsigned int r6;
+    unsigned int r7;
+    unsigned int r8;
+    unsigned int r9;
+    unsigned int r10;
+    unsigned int r11;
+    unsigned int r12;
+    unsigned int lr;
+    unsigned int sp;
+} Trapframe;
+
+unsigned int switchframe(unsigned int *pc, Trapframe **tf, unsigned int *sp);
+
+#endif

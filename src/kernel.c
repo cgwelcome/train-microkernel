@@ -20,7 +20,7 @@ void initialize() {
     // Initialize global variables for servers
     InitNS();
     // Create first user task.
-    task_create(-1, 500, &k2_root_task);
+    task_create(-1, 500, &hellowordtest_task);
 }
 
 void syscall_handle(int tid, int request) {
@@ -79,9 +79,9 @@ void kernel_entry() {
     for (;;) {
         unsigned int nextTID = task_schedule();
         if (nextTID == -1) break;
-        int request = task_activate(nextTID);
+        unsigned int request = task_activate(nextTID);
         syscall_handle(nextTID, request);
     }
-    unsigned int end_time = timer_read();
+    int end_time = timer_read();
     bwprintf(COM2, "Kernel terminates after %u ms.", end_time - start_time);
 }

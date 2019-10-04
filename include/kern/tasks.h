@@ -3,6 +3,7 @@
 
 #include <kernel.h>
 #include <kern/ipc.h>
+#include <kern/switchframe.h>
 #include <utils/queue.h>
 
 #define SCHEDULER_CALIBRATION 1000
@@ -29,7 +30,7 @@ typedef struct {
     unsigned int priority;
     // Cached Registers
     unsigned int pc;
-    unsigned int sp;
+    Trapframe *tf;
     unsigned int spsr;
     // Syscall related fields
     int syscall_args[MAX_SYSCALL_ARG_NUM];
@@ -41,7 +42,6 @@ typedef struct {
     Message reply_msg;
     Queue send_queue;
 } Task;
-
 // task_init() initializes the internal variables related to task APIs.
 void task_init();
 
