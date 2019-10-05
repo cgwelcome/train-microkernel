@@ -1,11 +1,15 @@
 #include <ts7200.h>
 #include <kernel.h>
+#include <event.h>
 #include <application.h>
 #include <kern/io.h>
 #include <kern/tasks.h>
+#include <kern/switchframe.h>
+#include <kern/irq.h>
 #include <server/ns.h>
 #include <utils/bwio.h>
 #include <utils/timer.h>
+#include <utils/icu.h>
 
 void initialize() {
     // Enable L1I/L1D cache
@@ -16,16 +20,27 @@ void initialize() {
     // Initialize necessary APIs and libraries
     io_init();
     task_init();
-    timer_init();
+    irq_init();
+    // Initialize software and hardware handlers
+    swi_handler_init();
+    hwi_handler_init();
+    // Initialiaze timers for interrupts
+    timer_init(TIMER2, TIMER_IRQ_INTERVAL, TIMER_LOWFREQ);
+    timer_init(TIMER3, TIMER_MAXVAL, TIMER_HIGHFREQ);
+    icu_init();
+    icu_activate(TC2UI_EVENT);
     // Initialize global variables for servers
     InitNS();
     // Create first user task.
-    task_create(-1, 500, &k1_root_task);
+    task_create(-1, 500, &irqtest_root_task);
 }
 
 void syscall_handle(int tid, int request) {
     Task *current_task = task_at(tid);
-    if (request == SYSCALL_IO_GETC) {
+    if (request == HW_INTERRUPT) {
+        irq_handle();
+    }
+    else if (request == SYSCALL_IO_GETC) {
         int server = (int) current_task->syscall_args[0]; // not used for now
         int uart   = (int) current_task->syscall_args[1];
         current_task->tf->r0 = io_getc(uart);
@@ -71,17 +86,21 @@ void syscall_handle(int tid, int request) {
         int rplen = (int) current_task->syscall_args[2];
         ipc_reply(tid, replytid, reply, rplen);
     }
+    else if (request == SYSCALL_IRQ_AWAITEVENT) {
+        int eventtype = (int) current_task->syscall_args[0];
+        irq_await(tid, eventtype);
+    }
 }
 
 void kernel_entry() {
     initialize();  // includes starting the first user task
-    unsigned int start_time = timer_read();
+    unsigned int start_time = timer_read(TIMER3);
     for (;;) {
         unsigned int nextTID = task_schedule();
         if (nextTID == -1) break;
         unsigned int request = task_activate(nextTID);
         syscall_handle(nextTID, request);
     }
-    int end_time = timer_read();
+    int end_time = timer_read(TIMER3);
     bwprintf(COM2, "Kernel terminates after %u ms.", end_time - start_time);
 }

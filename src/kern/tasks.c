@@ -1,13 +1,12 @@
 #include <kern/switchframe.h>
 #include <kern/tasks.h>
 #include <arm.h>
+#include <ts7200.h>
 #include <limits.h>
 #include <stddef.h>
 #include <utils/queue.h>
 #include <utils/timer.h>
-#include <utils/bwio.h>
 #include <utils/kassert.h>
-#include <utils/bwio.h>
 
 static unsigned int total_task_count;
 static unsigned int alive_task_count;
@@ -47,14 +46,13 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         .runtime = SCHEDULER_CALIBRATION,
         .priority = priority,
         .pc = (unsigned int) entry,
-        .tf = (Trapframe *) (ADDR_KERNEL_STACK_TOP - (unsigned int) tid * TASK_STACK_SIZE),
-        .spsr = PSR_MODE_USR | PSR_INT_DISABLED, // enter system mode
+        .spsr = PSR_MODE_USR | PSR_FINT_DISABLED,
         .return_value = 0,
     };
     queue_init(&new_task.send_queue);
     // Initialize task stack
     asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
-        asm("ldr sp, %0" : : "m" (new_task.tf));
+        asm("mov sp, %0" : : "r" (ADDR_KERNEL_STACK_TOP - (unsigned int) tid * TASK_STACK_SIZE));
         asm("mov lr, #0x00"); // assume all the tasks will call Exit at the end.
         asm("push {r0-r12, lr}");
         asm("str sp, %0" : : "m" (new_task.tf));
@@ -90,13 +88,14 @@ int task_activate(int tid) {
     int swi_code, swi_argc, *swi_argv;
 
     current_task->status = ACTIVE;
-    unsigned int task_start = timer_read_raw();
+    unsigned int task_start = timer_read_raw(TIMER3);
+
     swi_code = switchframe(&current_task->pc, &current_task->tf, &current_task->spsr);
     current_task->status = READY;
-    current_task->runtime += timer_read_raw() - task_start;
+    current_task->runtime += timer_read_raw(TIMER3) - task_start;
 
     swi_argc = current_task->tf->r1;
-    swi_argv = current_task->tf->r2;
+    swi_argv = (int *)current_task->tf->r2;
     if (swi_argc > MAX_SYSCALL_ARG_NUM) swi_argc = MAX_SYSCALL_ARG_NUM;
     for (unsigned int i = 0; i < swi_argc; i++) {
         current_task->syscall_args[i] = swi_argv[i];

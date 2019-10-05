@@ -1,3 +1,4 @@
+#include <ts7200.h>
 #include <stdlib.h>
 #include <utils/kassert.h>
 #include <utils/bwio.h>
@@ -46,7 +47,7 @@ static void rps_client() {
     RPSResponse response;
     int rpstid = WhoIs("RPS");
     rps_setup(rpstid);
-    srand(timer_read_raw());
+    srand(timer_read_raw(TIMER3));
     int rounds = rand() % (RPS_MAX_ROUNDS + 1);
 #ifdef OUTPUT
     bwprintf(COM2, "RPS Client %d: Game Start. Want to play %d rounds\n\r", MyTid(), rounds);

@@ -20,5 +20,6 @@ typedef struct {
 
 unsigned int switchframe(unsigned int *pc, Trapframe **tf, unsigned int *sp);
 void swi_handler_init();
+void hwi_handler_init();
 
 #endif

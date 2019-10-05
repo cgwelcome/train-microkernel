@@ -1,10 +1,19 @@
 #include <arm.h>
+#include <kernel.h>
 
 .global swi_handler_init
 .type swi_handler_init, %function
 swi_handler_init:
     mov r0, #SWI_HANDLER_ADDR
     ldr r1, =swi_handler
+    str r1, [r0]
+    bx lr
+
+.global hwi_handler_init
+.type hwi_handler_init, %function
+hwi_handler_init:
+    mov r0, #HW_HANDLER_ADDR
+    ldr r1, =hwi_handler
     str r1, [r0]
     bx lr
 
@@ -23,14 +32,30 @@ switchframe:
     movs pc, lr
 
 swi_handler:
-    msr CPSR_fc, DEFAULT_SYSMODE
+    msr CPSR, DEFAULT_SYSMODE
     push {r0-r12, lr}
     mov r5, sp
-    msr CPSR_fc, DEFAULT_SVCMODE
+    msr CPSR, DEFAULT_SVCMODE
     pop {r0-r3}
-    str lr, [r0]    @ Store PC
-    str r5, [r1]    @ Store Trapframe
-    mrs r6, SPSR_fc
-    str r6, [r2]    @ Store SPSR
-    ldr r0, [lr, #-4]   @ Load switchframe
+    str lr, [r0]        @ Store PC
+    str r5, [r1]        @ Store Trapframe
+    mrs r6, SPSR
+    str r6, [r2]        @ Store SPSR
+    ldr r0, [lr, #-4]   @ Load return value
+    pop {r4-r12, pc}
+
+hwi_handler:
+    msr CPSR, DEFAULT_SYSMODE
+    push {r0-r12, lr}
+    mov r5, sp
+    msr CPSR, DEFAULT_IRQMODE
+    mov r6, lr
+    sub r6, r6, #4
+    mrs r7, SPSR
+    msr CPSR, DEFAULT_SVCMODE
+    pop {r0-r3}
+    str r6, [r0]                @ Store PC
+    str r5, [r1]                @ Store Trapframe
+    str r7, [r2]                @ Store SPSR
+    mov r0, #HW_INTERRUPT       @ Load return value
     pop {r4-r12, pc}

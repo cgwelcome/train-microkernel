@@ -18,16 +18,23 @@
 #define SYSCALL_INVOKE(syscall_code) \
     asm("swi %0" : : "I" (syscall_code) : "r1", "r2")
 
+#define TIMER_IRQ_INTERVAL 2000
+
+/*
+ * The code for hardware interrupt
+ */
+#define HW_INTERRUPT         0x00000000
 /*
  * The codes for syscalls
  */
-#define SYSCALL_IO_GETC      0x00000001
-#define SYSCALL_IO_PUTC      0x00000002
-#define SYSCALL_TASK_CREATE  0x00000003
-#define SYSCALL_TASK_YIELD   0x00000004
-#define SYSCALL_TASK_EXIT    0x00000005
-#define SYSCALL_TASK_GETTID  0x00000006
-#define SYSCALL_TASK_GETPTID 0x00000007
-#define SYSCALL_IPC_SEND     0x00000008
-#define SYSCALL_IPC_RECV     0x00000009
-#define SYSCALL_IPC_REPLY    0x0000000A
+#define SYSCALL_IO_GETC             0x00000001
+#define SYSCALL_IO_PUTC             0x00000002
+#define SYSCALL_TASK_CREATE         0x00000003
+#define SYSCALL_TASK_YIELD          0x00000004
+#define SYSCALL_TASK_EXIT           0x00000005
+#define SYSCALL_TASK_GETTID         0x00000006
+#define SYSCALL_TASK_GETPTID        0x00000007
+#define SYSCALL_IPC_SEND            0x00000008
+#define SYSCALL_IPC_RECV            0x00000009
+#define SYSCALL_IPC_REPLY           0x0000000A
+#define SYSCALL_IRQ_AWAITEVENT      0x0000000B

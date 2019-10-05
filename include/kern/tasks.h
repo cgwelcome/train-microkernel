@@ -19,6 +19,7 @@ typedef enum {
     RECVBLOCKED,
     SENDBLOCKED,
     REPLYBLOCKED,
+    EVENTBLOCKED,
 } TaskStatus;
 
 typedef struct {

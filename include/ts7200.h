@@ -5,6 +5,12 @@
  *
  */
 
+#define TIMER1 0
+#define TIMER2 1
+#define TIMER3 2
+
+#define TIMER_MAXVAL 0xFFFFFFFF
+
 #define	TIMER1_BASE	0x80810000
 #define	TIMER2_BASE	0x80810020
 #define	TIMER3_BASE	0x80810080
@@ -16,7 +22,6 @@
 	#define	MODE_MASK	0x00000040
 	#define	CLKSEL_MASK	0x00000008
 #define CLR_OFFSET	0x0000000c	// no data, WO
-
 
 #define LED_ADDRESS	0x80840020
 	#define LED_NONE	0x0
@@ -80,3 +85,16 @@
 #define UART_HDLCAM_OFFSET	0x214
 #define UART_HDLCRIB_OFFSET	0x218
 #define UART_HDLCSTS_OFFSET	0x21c
+
+
+// VIC
+#define VIC1_BASE 0x800B0000
+#define VIC2_BASE 0x800C0000
+
+#define IRQSTATUS_OFFSET        0x0
+#define INTSELECT_OFFSET        0xC
+#define INTENABLE_OFFSET        0x10
+#define INTENCLEAR_OFFSET       0x14
+#define SOFTINT_OFFSET          0x18
+#define SOFTINTCLEAR_OFFSET     0x1C
+#define PROTECTION_OFFSET       0x20
