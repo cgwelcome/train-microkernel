@@ -19,5 +19,6 @@ typedef struct {
 } Trapframe;
 
 unsigned int switchframe(unsigned int *pc, Trapframe **tf, unsigned int *sp);
+void swi_handler_init();
 
 #endif
