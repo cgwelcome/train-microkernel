@@ -18,8 +18,6 @@
 #define SYSCALL_INVOKE(syscall_code) \
     asm("swi %0" : : "I" (syscall_code) : "r1", "r2")
 
-#define TIMER_IRQ_INTERVAL 20
-
 /*
  * The code for hardware interrupt
  */

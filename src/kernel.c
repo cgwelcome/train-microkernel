@@ -25,14 +25,12 @@ void initialize() {
     swi_handler_init();
     hwi_handler_init();
     // Initialiaze timers for interrupts
-    timer_init(TIMER2, TIMER_IRQ_INTERVAL, TIMER_LOWFREQ);
     timer_init(TIMER3, TIMER_MAXVAL, TIMER_HIGHFREQ);
     icu_init();
-    icu_activate(TC2UI_EVENT);
     // Initialize global variables for servers
     InitNS();
     // Create first user task.
-    task_create(-1, 500, &irqtest_root_task);
+    task_create(-1, 500, &k3_root_task);
 }
 
 void syscall_handle(int tid, int request) {
