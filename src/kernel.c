@@ -90,11 +90,16 @@ void syscall_handle(int tid, int request) {
         int eventtype = (int) current_task->syscall_args[0];
         irq_await(tid, eventtype);
     }
+    else if (request == SYSCALL_DIAG_CPUUSAGE) {
+        current_task->tf->r0 = task_cpuusage(tid);
+    }
+
 }
 
 void kernel_entry() {
     initialize();  // includes starting the first user task
     unsigned int start_time = timer_read(TIMER3);
+    task_setstarttime(start_time);
     for (;;) {
         unsigned int nextTID = task_schedule();
         if (nextTID == -1) break;

@@ -86,8 +86,17 @@
 #define UART_HDLCRIB_OFFSET	0x218
 #define UART_HDLCSTS_OFFSET	0x21c
 
+// Specific to System Controller
+#define SYSCON_BASE     0x80930000
+#define HALT_OFFSET         0x8
+#define DEVICE_CFG_OFFSET   0x80
+    #define SHENA_MASK      0x1
+#define SWLOCK_OFFSET       0xC0
+    #define SWLOCK_ON       0x0
+    #define SWLOCK_OFF      0xAA
 
-// VIC
+
+// Specific to UIC
 #define VIC1_BASE 0x800B0000
 #define VIC2_BASE 0x800C0000
 

@@ -18,7 +18,7 @@
 #define SYSCALL_INVOKE(syscall_code) \
     asm("swi %0" : : "I" (syscall_code) : "r1", "r2")
 
-#define TIMER_IRQ_INTERVAL 2000
+#define TIMER_IRQ_INTERVAL 20
 
 /*
  * The code for hardware interrupt
@@ -38,3 +38,4 @@
 #define SYSCALL_IPC_RECV            0x00000009
 #define SYSCALL_IPC_REPLY           0x0000000A
 #define SYSCALL_IRQ_AWAITEVENT      0x0000000B
+#define SYSCALL_DIAG_CPUUSAGE       0x0000000C

@@ -12,6 +12,7 @@ static unsigned int total_task_count;
 static unsigned int alive_task_count;
 static unsigned int total_task_priority;
 static Task tasks[MAX_TASK_NUM];
+static unsigned int start_time;
 
 void task_init() {
     total_task_count = 0;
@@ -43,7 +44,7 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         .status = READY,
         .tid = tid,
         .ptid = ptid,
-        .runtime = SCHEDULER_CALIBRATION,
+        .runtime = 0,
         .priority = priority,
         .pc = (unsigned int) entry,
         .spsr = PSR_MODE_USR | PSR_FINT_DISABLED,
@@ -74,7 +75,7 @@ int task_schedule() {
         if (tasks[tid].status != READY) continue;
         unsigned int time = tasks[tid].runtime;
         unsigned int priority = tasks[tid].priority;
-        unsigned int vtime = (time * total_task_priority) / priority;
+        unsigned int vtime = ((time * total_task_priority) + SCHEDULER_CALIBRATION)/priority;
         if (vtime < min_vtime) {
             min_vtime = vtime;
             ret_tid = tid;
@@ -88,11 +89,11 @@ int task_activate(int tid) {
     int swi_code, swi_argc, *swi_argv;
 
     current_task->status = ACTIVE;
-    unsigned int task_start = timer_read_raw(TIMER3);
+    unsigned int task_start = timer_read(TIMER3);
 
     swi_code = switchframe(&current_task->pc, &current_task->tf, &current_task->spsr);
+    current_task->runtime += timer_read(TIMER3) - task_start;
     current_task->status = READY;
-    current_task->runtime += timer_read_raw(TIMER3) - task_start;
 
     swi_argc = current_task->tf->r1;
     swi_argv = (int *)current_task->tf->r2;
@@ -108,4 +109,13 @@ void task_kill(int tid) {
     tasks[tid].status = ZOMBIE;
     alive_task_count -= 1;
     total_task_priority -= tasks[tid].priority;
+}
+
+void task_setstarttime(int time) {
+    start_time = time;
+}
+
+int task_cpuusage(int tid) {
+    // TODO: Need logic to not hardcode TIMER3
+    return tasks[tid].runtime*100/(timer_read(TIMER3) - start_time);
 }
