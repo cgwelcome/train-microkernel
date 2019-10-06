@@ -27,7 +27,7 @@ typedef struct {
     TaskStatus status;
     int tid;
     int ptid;
-    unsigned int runtime;
+    unsigned long runtime;
     unsigned int priority;
     // Cached Registers
     unsigned int pc;
@@ -67,14 +67,5 @@ int task_activate(int tid);
 
 // task_kill() terminates the specified task.
 void task_kill(int tid);
-
-// task_cputime() gets the cpu usage of the specified task
-int task_cputime(int tid);
-
-// task_setstarttime() sets the start time of the kernel used to calculat
-void task_setstarttime(int time);
-
-// task_cpuusage() gets the the fraction of time the task has ran
-int task_cpuusage(int tid);
 
 #endif // __KERN_TASKS_H__

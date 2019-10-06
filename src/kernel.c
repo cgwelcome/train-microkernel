@@ -11,6 +11,8 @@
 #include <utils/timer.h>
 #include <utils/icu.h>
 
+unsigned long boot_time, halt_time;
+
 void initialize() {
     // Enable L1I/L1D cache
     asm volatile("mrc p15, 0, r0, c1, c0, 0" ::: "r0");
@@ -89,21 +91,20 @@ void handle_request(int tid, int request) {
         irq_await(tid, eventtype);
     }
     else if (request == SYSCALL_DIAG_CPUUSAGE) {
-        current_task->tf->r0 = task_cpuusage(tid);
+        unsigned long total_runtime = timer_read_raw(TIMER3) - boot_time;
+        current_task->tf->r0 = current_task->runtime * 100 / total_runtime;
     }
-
 }
 
 void kernel_entry() {
     initialize();  // includes starting the first user task
-    unsigned int start_time = timer_read(TIMER3);
-    task_setstarttime(start_time);
+    boot_time = timer_read(TIMER3);
     for (;;) {
         unsigned int nextTID = task_schedule();
         if (nextTID == -1) break;
         unsigned int request = task_activate(nextTID);
         handle_request(nextTID, request);
     }
-    unsigned int end_time = timer_read(TIMER3);
-    bwprintf(COM2, "Kernel terminates after %u ms.", end_time - start_time);
+    halt_time = timer_read(TIMER3);
+    bwprintf(COM2, "Kernel terminates after %u ms.", halt_time - boot_time);
 }

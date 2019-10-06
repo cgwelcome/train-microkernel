@@ -44,11 +44,11 @@ void timer_init(int timer, int load, int frequency) {
     timers[timer].frequency = TIMER_HIGHFREQ;
 }
 
-unsigned int timer_read(int timer) {
+unsigned long timer_read(int timer) {
     return (timers[timer].load - timer_read_raw(timer)) / timers[timer].frequency;
 }
 
-unsigned int timer_read_raw(int timer) {
+unsigned long timer_read_raw(int timer) {
     volatile unsigned int *time;
     switch (timer) {
         case TIMER1:
@@ -64,7 +64,7 @@ unsigned int timer_read_raw(int timer) {
             return 0;
             break;
     }
-    return *time;
+    return (unsigned long) *time;
 }
 
 void timer_clear(int timer) {

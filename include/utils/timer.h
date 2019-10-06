@@ -13,10 +13,10 @@
 void timer_init(int timer, int load, int frequency);
 
 // timer_read() returns escaped time since bootup in milliseconds.
-unsigned int timer_read(int timer);
+unsigned long timer_read(int timer);
 
 // timer_read_raw() returns escaped time since bootup in ticks (508 ticks / millisecond).
-unsigned int timer_read_raw(int timer);
+unsigned long timer_read_raw(int timer);
 
 // timer_clear() clears the timer interrupt 
 void timer_clear(int timer);

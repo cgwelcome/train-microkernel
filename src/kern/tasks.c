@@ -12,7 +12,6 @@ static unsigned int total_task_count;
 static unsigned int alive_task_count;
 static unsigned int total_task_priority;
 static Task tasks[MAX_TASK_NUM];
-static unsigned int start_time;
 
 void task_init() {
     total_task_count = 0;
@@ -87,9 +86,9 @@ int task_activate(int tid) {
     Task *current_task = task_at(tid);
 
     current_task->status = ACTIVE;
-    unsigned int task_start = timer_read(TIMER3);
+    unsigned long task_start = timer_read_raw(TIMER3);
     int swi_code = switchframe(&current_task->pc, &current_task->tf, &current_task->spsr);
-    unsigned int task_end   = timer_read(TIMER3);
+    unsigned long task_end   = timer_read_raw(TIMER3);
     current_task->status = READY;
     current_task->runtime += task_end - task_start;
 
@@ -101,13 +100,4 @@ void task_kill(int tid) {
     tasks[tid].status = ZOMBIE;
     alive_task_count -= 1;
     total_task_priority -= tasks[tid].priority;
-}
-
-void task_setstarttime(int time) {
-    start_time = time;
-}
-
-int task_cpuusage(int tid) {
-    // TODO: Need logic to not hardcode TIMER3
-    return tasks[tid].runtime*100/(timer_read(TIMER3) - start_time);
 }
