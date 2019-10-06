@@ -104,6 +104,6 @@ void kernel_entry() {
         unsigned int request = task_activate(nextTID);
         syscall_handle(nextTID, request);
     }
-    int end_time = timer_read(TIMER3);
+    unsigned int end_time = timer_read(TIMER3);
     bwprintf(COM2, "Kernel terminates after %u ms.", end_time - start_time);
 }
