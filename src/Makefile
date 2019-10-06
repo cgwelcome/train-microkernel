@@ -36,8 +36,9 @@ ARFLAGS = crs
 # -static: force static linking
 # -e: set entry point
 # -nmagic: no page alignment
+# --gc-sections: remove unused sections
 # -T: use linker script
-LDFLAGS = -static -e kernel_entry -nmagic -T linker.ld -L $(LIBDIR) -L $(XLIBDIR1) -L $(XLIBDIR2)
+LDFLAGS = -static -e kernel_entry -nmagic --gc-sections -T linker.ld -L $(LIBDIR) -L $(XLIBDIR1) -L $(XLIBDIR2)
 
 .PHONY: all
 all: main.elf
