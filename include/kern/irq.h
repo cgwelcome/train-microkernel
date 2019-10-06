@@ -4,14 +4,13 @@
 // irq_init() initializes the internal variables related to IRQ APIs.
 void irq_init();
 
-// irq_await() puts the tid Task to eventblocked
+// irq_await() puts the specified Task to event-blocked.
 void irq_await(int tid, int event);
 
-// irq_unblock() unblocks the awaiting task on the event
+// irq_unblock() unblocks the awaiting task on the event.
 void irq_unblock(int event);
 
-// irq_handle() handles the hardware interrupt that has triggered the kerne to
-// context switch
+// irq_handle() handles the hardware interrupt that invoked the kernel.
 void irq_handle();
 
 #endif

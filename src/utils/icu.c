@@ -1,5 +1,4 @@
 #include <ts7200.h>
-#include <utils/bwio.h>
 
 void icu_init() {
     volatile unsigned int *flag;
@@ -16,14 +15,12 @@ void icu_init() {
 void icu_activate(unsigned int event) {
     volatile unsigned int *flag;
     unsigned int mask;
-    if (event < 0 || event > 64) {
-        return;
-    }
-    else if (0 <= event && event < 32) {
+
+    if (event < 0 || event > 64) return;
+    if (0 <= event && event < 32) {
         flag = (unsigned int *) (VIC1_BASE + INTENABLE_OFFSET);
         mask = 1 << event;
-    }
-    else  {
+    } else {
         flag = (unsigned int *) (VIC2_BASE + INTENABLE_OFFSET);
         mask = 1 << (event-32);
     }
@@ -34,14 +31,11 @@ void icu_softirq(unsigned int event) {
     volatile unsigned int *flag;
     unsigned int mask;
 
-    if (event < 0 || event > 64) {
-        return;
-    }
-    else if (0 <= event && event < 32) {
+    if (event < 0 || event > 64) return;
+    if (0 <= event && event < 32) {
         flag = (unsigned int *) (VIC1_BASE + SOFTINT_OFFSET);
         mask = 1 << event;
-    }
-    else  {
+    } else {
         flag = (unsigned int *) (VIC2_BASE + SOFTINT_OFFSET);
         mask = 1 << (event-32);
     }
@@ -51,14 +45,12 @@ void icu_softirq(unsigned int event) {
 int icu_activeirq(unsigned int event) {
     volatile unsigned int *flag;
     unsigned int mask;
-    if (event < 0 || event > 64) {
-        return 0;
-    }
-    else if (0 <= event && event < 32) {
+
+    if (event < 0 || event > 64) return 0;
+    if (0 <= event && event < 32) {
         flag = (unsigned int *) (VIC1_BASE + IRQSTATUS_OFFSET);
         mask = 1 << event;
-    }
-    else {
+    } else {
         flag = (unsigned int *) (VIC2_BASE + IRQSTATUS_OFFSET);
         mask = 1 << event;
     }
@@ -69,14 +61,11 @@ void icu_clear(unsigned int event) {
     volatile unsigned int *flag;
     unsigned int mask;
 
-    if (event < 0 || event > 64) {
-        return;
-    }
-    else if (0 <= event && event < 32) {
+    if (event < 0 || event > 64) return;
+    if (0 <= event && event < 32) {
         flag = (unsigned int *) (VIC1_BASE + INTENCLEAR_OFFSET);
         mask = 1 << event;
-    }
-    else  {
+    } else {
         flag = (unsigned int *) (VIC2_BASE + INTENCLEAR_OFFSET);
         mask = 1 << (event-32);
     }

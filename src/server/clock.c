@@ -9,7 +9,6 @@
 #include <utils/pqueue.h>
 #include <utils/timer.h>
 #include <utils/icu.h>
-#include <utils/bwio.h>
 
 static PQueue pqdelay;
 static int clockticks;
@@ -75,7 +74,7 @@ void cs_task() {
 
 void cn_task() {
     int cstid = WhoIs("CS");
-    timer_init(TIMER2, TIMER_IRQ_INTERVAL*TIMER_LOWFREQ, TIMER_LOWFREQ);
+    timer_init(TIMER2, TIMER_IRQ_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
     icu_activate(TC2UI_EVENT);
     CSRequest request = {
         .type = CS_TICKUPDATE

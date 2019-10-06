@@ -1,6 +1,9 @@
 #ifndef __UTILS_SYSCON_H__
 #define __UTILS_SYSCON_H__
 
+#define ON	1
+#define	OFF	0
+
 // syscon_lock() toggles lock of the system controller
 void syscon_lock(int state);
 

@@ -12,7 +12,7 @@ swi_handler_init:
 .global hwi_handler_init
 .type hwi_handler_init, %function
 hwi_handler_init:
-    mov r0, #HW_HANDLER_ADDR
+    mov r0, #HWI_HANDLER_ADDR
     ldr r1, =hwi_handler
     str r1, [r0]
     bx lr
@@ -49,8 +49,7 @@ hwi_handler:
     push {r0-r12, lr}
     mov r5, sp
     msr CPSR, DEFAULT_IRQMODE
-    mov r6, lr
-    sub r6, r6, #4
+    sub r6, lr, #4
     mrs r7, SPSR
     msr CPSR, DEFAULT_SVCMODE
     pop {r0-r3}

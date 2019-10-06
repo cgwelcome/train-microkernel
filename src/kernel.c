@@ -33,7 +33,7 @@ void initialize() {
     task_create(-1, 500, &k3_root_task);
 }
 
-void syscall_handle(int tid, int request) {
+void handle_request(int tid, int request) {
     Task *current_task = task_at(tid);
     if (request == HW_INTERRUPT) {
         irq_handle();
@@ -102,7 +102,7 @@ void kernel_entry() {
         unsigned int nextTID = task_schedule();
         if (nextTID == -1) break;
         unsigned int request = task_activate(nextTID);
-        syscall_handle(nextTID, request);
+        handle_request(nextTID, request);
     }
     unsigned int end_time = timer_read(TIMER3);
     bwprintf(COM2, "Kernel terminates after %u ms.", end_time - start_time);

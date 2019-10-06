@@ -1,6 +1,5 @@
 #include <ts7200.h>
 #include <utils/syscon.h>
-#include <utils/bwio.h>
 
 void syscon_lock(int state) {
     volatile unsigned int *flag = (unsigned int *)(SYSCON_BASE + SWLOCK_OFFSET);

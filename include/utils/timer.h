@@ -21,4 +21,4 @@ unsigned int timer_read_raw(int timer);
 // timer_clear() clears the timer interrupt 
 void timer_clear(int timer);
 
-#endif
+#endif // __UTILS_TIMER_H__
