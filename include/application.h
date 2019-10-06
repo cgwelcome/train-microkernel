@@ -13,6 +13,7 @@ void irqtest_root_task();
 void hwcontextswitchtest_root_task();
 void pqueue_root_task();
 
-void kernperform_root_task();
+void ipc_perform_root_task();
+void switch_perform_root_task();
 
 #endif

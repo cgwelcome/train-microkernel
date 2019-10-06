@@ -1,11 +1,9 @@
 #include <ts7200.h>
+#include <application.h>
+#include <user/ipc.h>
+#include <user/tasks.h>
 #include <utils/bwio.h>
 #include <utils/kassert.h>
-#include <user/tasks.h>
-#include <user/ipc.h>
-#include <application.h>
-#include <stddef.h>
-#include <string.h>
 
 #define MESSAGESIZE 4
 #define RECEIVERFIRST 1
@@ -50,7 +48,7 @@ static void parent_task() {
     Exit();
 }
 
-void kernperform_root_task() {
+void ipc_perform_root_task() {
     Create(2000, &parent_task);
     Exit();
 }
