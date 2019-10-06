@@ -39,19 +39,19 @@ void syscall_handle(int tid, int request) {
         irq_handle();
     }
     else if (request == SYSCALL_IO_GETC) {
-        int server = (int) current_task->syscall_args[0]; // not used for now
-        int uart   = (int) current_task->syscall_args[1];
+        int server = (int) current_task->tf->r0; // not used for now
+        int uart   = (int) current_task->tf->r1;
         current_task->tf->r0 = io_getc(uart);
     }
     else if (request == SYSCALL_IO_PUTC) {
-        int server = (int) current_task->syscall_args[0]; // not used for now
-        int uart   = (int) current_task->syscall_args[1];
-        int ch     = (int) current_task->syscall_args[2];
+        int server = (int) current_task->tf->r0; // not used for now
+        int uart   = (int) current_task->tf->r1;
+        int ch     = (int) current_task->tf->r2;
         current_task->tf->r0 = io_putc(uart, ch);
     }
     else if (request == SYSCALL_TASK_CREATE) {
-        unsigned int priority = (unsigned int) current_task->syscall_args[0];
-        void *entry = (void *) current_task->syscall_args[1];
+        unsigned int priority = (unsigned int) current_task->tf->r0;
+        void *entry           = (void *)       current_task->tf->r1;
         current_task->tf->r0 = task_create(tid, priority, entry);
     }
     else if (request == SYSCALL_TASK_EXIT) {
@@ -65,27 +65,27 @@ void syscall_handle(int tid, int request) {
         current_task->tf->r0 = current_task->ptid;
     }
     else if (request == SYSCALL_IPC_SEND) {
-        int recvtid = (int) current_task->syscall_args[0];
-        char *msg = (char *) current_task->syscall_args[1];
-        int msglen = (int) current_task->syscall_args[2];
-        char *reply = (char *) current_task->syscall_args[3];
-        int rplen = (int) current_task->syscall_args[4];
+        int recvtid = (int)    current_task->tf->r0;
+        char *msg   = (char *) current_task->tf->r1;
+        int msglen  = (int)    current_task->tf->r2;
+        char *reply = (char *) current_task->tf->r3;
+        int rplen   = (int)    current_task->tf->r4;
         ipc_send(tid, recvtid, msg, msglen, reply, rplen);
     }
     else if (request == SYSCALL_IPC_RECV) {
-        int *sendtid = (int *) current_task->syscall_args[0];
-        char *msg = (char *) current_task->syscall_args[1];
-        int msglen = (int) current_task->syscall_args[2];
+        int *sendtid = (int *)  current_task->tf->r0;
+        char *msg    = (char *) current_task->tf->r1;
+        int msglen   = (int)    current_task->tf->r2;
         ipc_receive(tid, sendtid, msg, msglen);
     }
     else if (request == SYSCALL_IPC_REPLY) {
-        int replytid = (int) current_task->syscall_args[0];
-        char *reply = (char *) current_task->syscall_args[1];
-        int rplen = (int) current_task->syscall_args[2];
+        int replytid = (int)    current_task->tf->r0;
+        char *reply  = (char *) current_task->tf->r1;
+        int rplen    = (int)    current_task->tf->r2;
         ipc_reply(tid, replytid, reply, rplen);
     }
     else if (request == SYSCALL_IRQ_AWAITEVENT) {
-        int eventtype = (int) current_task->syscall_args[0];
+        int eventtype = (int) current_task->tf->r0;
         irq_await(tid, eventtype);
     }
     else if (request == SYSCALL_DIAG_CPUUSAGE) {

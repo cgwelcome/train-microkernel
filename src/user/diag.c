@@ -3,7 +3,6 @@
 
 int MyCpuUsage() {
     register int usage asm("r0");
-    SYSCALL_PREPARE(0);
     SYSCALL_INVOKE(SYSCALL_DIAG_CPUUSAGE);
     return usage;
 }

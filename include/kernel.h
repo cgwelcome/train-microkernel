@@ -11,10 +11,6 @@
 /*
  * The helpers for invoke syscalls
  */
-#define SYSCALL_PREPARE(argc) \
-    asm("mov r1, %0" : : "I" (argc) : "r1"); \
-    asm("mov r2, sp" : : : "r2")
-
 #define SYSCALL_INVOKE(syscall_code) \
     asm("swi %0" : : "I" (syscall_code) : "r1", "r2")
 

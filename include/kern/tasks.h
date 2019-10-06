@@ -33,9 +33,6 @@ typedef struct {
     unsigned int pc;
     Trapframe *tf;
     unsigned int spsr;
-    // Syscall related fields
-    int syscall_args[MAX_SYSCALL_ARG_NUM];
-    int return_value;
     // IPC
     Queue send_queue;
     int *send_tid;

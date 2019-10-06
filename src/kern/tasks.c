@@ -48,7 +48,6 @@ int task_create(int ptid, unsigned int priority, void (*entry)()) {
         .priority = priority,
         .pc = (unsigned int) entry,
         .spsr = PSR_MODE_USR | PSR_FINT_DISABLED,
-        .return_value = 0,
     };
     queue_init(&new_task.send_queue);
     // Initialize task stack
@@ -86,21 +85,14 @@ int task_schedule() {
 
 int task_activate(int tid) {
     Task *current_task = task_at(tid);
-    int swi_code, swi_argc, *swi_argv;
 
     current_task->status = ACTIVE;
     unsigned int task_start = timer_read(TIMER3);
-
-    swi_code = switchframe(&current_task->pc, &current_task->tf, &current_task->spsr);
-    current_task->runtime += timer_read(TIMER3) - task_start;
+    int swi_code = switchframe(&current_task->pc, &current_task->tf, &current_task->spsr);
+    unsigned int task_end   = timer_read(TIMER3);
     current_task->status = READY;
+    current_task->runtime += task_end - task_start;
 
-    swi_argc = current_task->tf->r1;
-    swi_argv = (int *)current_task->tf->r2;
-    if (swi_argc > MAX_SYSCALL_ARG_NUM) swi_argc = MAX_SYSCALL_ARG_NUM;
-    for (unsigned int i = 0; i < swi_argc; i++) {
-        current_task->syscall_args[i] = swi_argv[i];
-    }
     swi_code = swi_code & 0xFFFFFF;
     return swi_code;
 }
