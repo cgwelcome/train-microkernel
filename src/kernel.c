@@ -98,13 +98,13 @@ void handle_request(int tid, int request) {
 
 void kernel_entry() {
     initialize();  // includes starting the first user task
-    boot_time = timer_read(TIMER3);
+    boot_time = timer_read_raw(TIMER3);
     for (;;) {
         unsigned int nextTID = task_schedule();
         if (nextTID == -1) break;
         unsigned int request = task_activate(nextTID);
         handle_request(nextTID, request);
     }
-    halt_time = timer_read(TIMER3);
-    bwprintf(COM2, "Kernel terminates after %u ms.", halt_time - boot_time);
+    halt_time = timer_read_raw(TIMER3);
+    bwprintf(COM2, "Kernel terminates after %u ms.", (halt_time - boot_time)/TIMER_HIGHFREQ);
 }
