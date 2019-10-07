@@ -42,19 +42,18 @@ void icu_softirq(unsigned int event) {
     *flag |= mask;
 }
 
-int icu_activeirq(unsigned int event) {
+int icu_read() {
     volatile unsigned int *flag;
-    unsigned int mask;
 
-    if (event < 0 || event > 64) return 0;
-    if (0 <= event && event < 32) {
-        flag = (unsigned int *) (VIC1_BASE + IRQSTATUS_OFFSET);
-        mask = 1 << event;
-    } else {
-        flag = (unsigned int *) (VIC2_BASE + IRQSTATUS_OFFSET);
-        mask = 1 << event;
+    flag = (unsigned int *) (VIC1_BASE + IRQSTATUS_OFFSET);
+    if (*flag != 0) {
+        return __builtin_ctz(*flag);
     }
-    return (*flag & mask) > 0 ? 1 : 0;
+    flag = (unsigned int *) (VIC2_BASE + IRQSTATUS_OFFSET);
+    if (*flag != 0) {
+        return 32 + __builtin_ctz(*flag);
+    }
+    return -1;
 }
 
 void icu_clear(unsigned int event) {

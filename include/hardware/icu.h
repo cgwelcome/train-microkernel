@@ -18,14 +18,11 @@ void icu_init(void);
 // icu_activate() activate an event interrupt.
 void icu_activate(unsigned int event);
 
-// icu_softirq() activate a interrupt of a event. Used for debugging
+// icu_softirq() activate a interrupt of a event. Used for debugging.
 void icu_softirq(unsigned int event);
 
-// icu_activeirq() checks if an event has been activate
-// Return Values:
-//  0: False
-//  1: True
-int icu_activeirq(unsigned int event);
+// icu_read() reads the status register of interrupt control unit to find current event.
+int icu_read();
 
 // icu_clear() clears an active interrupt, reverses the icu_active() function
 void icu_clear(unsigned int event);

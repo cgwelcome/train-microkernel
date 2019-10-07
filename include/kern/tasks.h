@@ -1,6 +1,7 @@
 #ifndef __KERN_TASKS_H__
 #define __KERN_TASKS_H__
 
+#include <stdint.h>
 #include <kern/ipc.h>
 #include <utils/queue.h>
 
@@ -42,7 +43,7 @@ typedef struct {
     TaskStatus status;
     int tid;
     int ptid;
-    unsigned long runtime;
+    uint64_t runtime;
     unsigned int priority;
     // Cached Registers
     unsigned int pc;
