@@ -200,12 +200,11 @@ void bwformat ( int channel, char *fmt, va_list va ) {
 		if ( ch != '%' )
 			bwputc( channel, ch );
 		else {
-			lz = 0; w = 0;
+			lz = ' '; w = 0;
 			ch = *(fmt++);
 			switch ( ch ) {
 			case '0':
-				lz = 1; ch = *(fmt++);
-				break;
+				lz = '0'; ch = *(fmt++);
 			case '1':
 			case '2':
 			case '3':
