@@ -9,13 +9,13 @@ static void idle_task() {
     // Print Title
     bwprintf(COM2, "\033[s");
         bwprintf(COM2, "\033[1;1H");
-        bwprintf(COM2, "CPU Usage: ");
+        bwprintf(COM2, "CPU Idle Rate: ");
     bwprintf(COM2, "\033[u");
     for (;;) {
         syscon_halt();
         // Print CPU usage
         bwprintf(COM2, "\033[s");
-            bwprintf(COM2, "\033[1;12H");
+            bwprintf(COM2, "\033[1;16H");
             bwprintf(COM2, "\033[K");
             bwprintf(COM2, "%d%%", MyCpuUsage());
         bwprintf(COM2, "\033[u");
