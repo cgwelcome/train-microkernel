@@ -16,9 +16,10 @@ OBJECTS = $(patsubst %.c, %.o, $(wildcard *c */*.c)) $(patsubst %.S, %.o, $(wild
 # -O2: enable level 2 optimization for gcc
 # -fPIC: emit position-independent code
 # -Wall: report all warnings
+# -Wextra: report more detail warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -std=gnu99 -g -O2 -fPIC -Wall -mcpu=arm920t -msoft-float -I../include
+CFLAGS = -std=gnu99 -g -O2 -fPIC -Wall -Wextra -Wconversion -mcpu=arm920t -msoft-float -I../include
 
 # -static: force static linking
 # -e: set entry point

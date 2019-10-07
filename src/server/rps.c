@@ -3,7 +3,7 @@
 #include <user/name.h>
 #include <user/tasks.h>
 
-static unsigned int rpsmatch_count;
+static uint32_t rpsmatch_count;
 static RPSMatch rpsmatches[MAX_MATCH_NUM];
 
 static void rps_signup(int tid) {
@@ -88,7 +88,7 @@ static void rps_matchupdate(RPSMatch *rpsmatch, int tid, char move) {
 }
 
 static void rps_play(int tid, char move) {
-    for (unsigned int i = 0; i < rpsmatch_count; i++) {
+    for (uint32_t i = 0; i < rpsmatch_count; i++) {
         if (rpsmatches[i].p1tid == tid || rpsmatches[i].p2tid == tid) {
             rps_matchupdate(&rpsmatches[i], tid, move);
             return;
@@ -97,7 +97,7 @@ static void rps_play(int tid, char move) {
 }
 
 static void rps_quit(int tid) {
-    for (unsigned int i = 0; i < rpsmatch_count; i++) {
+    for (uint32_t i = 0; i < rpsmatch_count; i++) {
         if (rpsmatches[i].p1tid == tid || rpsmatches[i].p2tid == tid) {
             if (rpsmatches[i].status == RPS_READYP1) {
                 RPSResponse response = RPS_OTHERQUIT;
@@ -120,7 +120,7 @@ static void rsp_task() {
     RPSRequest request;
 
     rpsmatch_count = 0;
-    for (unsigned int i = 0; i < MAX_MATCH_NUM; i++) {
+    for (uint32_t i = 0; i < MAX_MATCH_NUM; i++) {
         rpsmatches[i].status = RPS_UNUSED;
     }
 
@@ -143,6 +143,6 @@ static void rsp_task() {
     }
 }
 
-int CreateRPS(unsigned int priority) {
+int CreateRPS(uint32_t priority) {
     return Create(priority, &rsp_task);
 }

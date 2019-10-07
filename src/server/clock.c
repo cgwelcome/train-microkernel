@@ -89,7 +89,7 @@ void InitClockServer() {
     pqueue_init(&pqdelay);
 }
 
-int CreateClockServer(unsigned int priority) {
+int CreateClockServer(uint32_t priority) {
     if (clock_server_tid < 0) {
         clock_server_tid = Create(priority, &cs_task);
     }

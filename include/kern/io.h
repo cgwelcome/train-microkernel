@@ -8,6 +8,6 @@ void io_init();
 
 int io_getc(int channel);
 
-int io_putc(int channel, char c);
+int io_putc(int channel, int c);
 
 #endif

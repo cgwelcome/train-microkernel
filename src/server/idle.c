@@ -22,6 +22,6 @@ static void idle_task() {
     }
 }
 
-int CreateIdleTask(unsigned int priority) {
+int CreateIdleTask(uint32_t priority) {
     return Create(priority, &idle_task);
 }

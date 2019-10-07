@@ -4,6 +4,8 @@
 #define MAX_NAME_SIZE 64
 #define MAX_NAMERECORD_NUM 248
 
+#include <stdint.h>
+
 typedef enum {
     NS_REGISTER,
     NS_WHOIS,
@@ -18,6 +20,6 @@ typedef struct {
 void InitNameServer();
 
 // CreateNameServer() creates a global Name Server
-int CreateNameServer(unsigned int priority);
+int CreateNameServer(uint32_t priority);
 
 #endif

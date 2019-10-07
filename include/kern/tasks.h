@@ -11,20 +11,20 @@
 #define MAX_SYSCALL_ARG_NUM 5
 
 typedef struct {
-    unsigned int r0;
-    unsigned int r1;
-    unsigned int r2;
-    unsigned int r3;
-    unsigned int r4;
-    unsigned int r5;
-    unsigned int r6;
-    unsigned int r7;
-    unsigned int r8;
-    unsigned int r9;
-    unsigned int r10;
-    unsigned int r11;
-    unsigned int r12;
-    unsigned int lr;
+    uint32_t r0;
+    uint32_t r1;
+    uint32_t r2;
+    uint32_t r3;
+    uint32_t r4;
+    uint32_t r5;
+    uint32_t r6;
+    uint32_t r7;
+    uint32_t r8;
+    uint32_t r9;
+    uint32_t r10;
+    uint32_t r11;
+    uint32_t r12;
+    uint32_t lr;
 } Trapframe;
 
 typedef enum {
@@ -44,11 +44,11 @@ typedef struct {
     int tid;
     int ptid;
     uint64_t runtime;
-    unsigned int priority;
+    uint32_t priority;
     // Cached Registers
-    unsigned int pc;
+    uint32_t pc;
     Trapframe *tf;
-    unsigned int spsr;
+    uint32_t spsr;
     // IPC
     Queue send_queue;
     int *send_tid;
@@ -64,7 +64,7 @@ void swi_handler_init();
 void hwi_handler_init();
 
 // switch_frame() switches the context from kernel to a user task.
-unsigned int switch_frame(unsigned int *pc, Trapframe **tf, unsigned int *sp);
+uint32_t switch_frame(uint32_t *pc, Trapframe **tf, uint32_t *sp);
 
 // task_init() initializes the internal variables related to task APIs.
 void task_init();
@@ -82,14 +82,14 @@ Task *task_at(int tid);
 //   tid: the allocated tid if the task has been created successfully.
 //   -1: the priority is invalid.
 //   -2: the kernel is out of task descriptors.
-int task_create(int ptid, unsigned int priority, void (*function)());
+int task_create(int ptid, uint32_t priority, void (*function)());
 
 // task_schedule() returns next task tid to activate.
 // It returns -1 if there is no task alive.
 int task_schedule();
 
 // task_activate() transfers control from kernel to the specified task.
-int task_activate(int tid);
+uint32_t task_activate(int tid);
 
 // task_kill() terminates the specified task.
 void task_kill(int tid);

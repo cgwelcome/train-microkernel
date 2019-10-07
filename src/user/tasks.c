@@ -1,7 +1,8 @@
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <kernel.h>
 #include <user/tasks.h>
 
-int Create(unsigned int priority, void (*entry)()) {
+int Create(uint32_t priority, void (*entry)()) {
     register int ret asm("r0");
     SYSCALL_INVOKE(SYSCALL_TASK_CREATE);
     return ret;
