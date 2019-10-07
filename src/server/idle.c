@@ -6,9 +6,32 @@
 static void idle_task() {
     syscon_lock(OFF);
     syscon_config(SHENA_MASK);
+    bwputc(COM2, (char)27);
+    bwprintf(COM2, "[s");
+    // Jump cursor
+    bwputc(COM2, (char)27);
+    bwprintf(COM2, "[1;1H");
+    // Print
+    bwprintf(COM2, "CPU Usage: ");
+    // Restore
+    bwputc(COM2, (char)27);
+    bwprintf(COM2, "[u");
     for (;;) {
-        /*bwprintf(COM2, "CPU Usage: %d%%\n\r", MyCpuUsage());*/
         syscon_halt();
+        // Save cursor
+        bwputc(COM2, (char)27);
+        bwprintf(COM2, "[s");
+        // Jump cursor
+        bwputc(COM2, (char)27);
+        bwprintf(COM2, "[1;12H");
+        // Clear line
+        bwputc(COM2, (char)27);
+        bwprintf(COM2, "[K");
+        // Print
+        bwprintf(COM2, "%d%%", MyCpuUsage());
+        // Restore
+        bwputc(COM2, (char)27);
+        bwprintf(COM2, "[u");
     }
 }
 

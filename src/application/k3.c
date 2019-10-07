@@ -35,6 +35,10 @@ static void delay_reply(int ticks, int num) {
 }
 
 void k3_root_task() {
+    bwputc(COM2, (char)27);
+    bwprintf(COM2, "[2J");
+    bwputc(COM2, (char)27);
+    bwprintf(COM2, "[2;1H");
     CreateNameServer(4000);
     CreateClockServer(3500);
     CreateIdleTask(1);
