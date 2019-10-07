@@ -1,10 +1,10 @@
-#include <utils/kassert.h>
-#include <utils/bwio.h>
-#include <user/ipc.h>
-#include <user/ns.h>
-#include <user/tasks.h>
-#include <server/ns.h>
+#include <server/name.h>
 #include <server/rps.h>
+#include <user/ipc.h>
+#include <user/name.h>
+#include <user/tasks.h>
+#include <utils/bwio.h>
+#include <utils/kassert.h>
 
 static RPSResponse rps_quit(int tid)  {
     RPSResponse response;
@@ -67,8 +67,8 @@ static void rpstest_client2() {
     Exit();
 }
 
-void rpstest_root_task() {
-    CreateNS(2000);
+void rps_test_root_task() {
+    CreateNameServer(2000);
     CreateRPS(2000);
     Create(1000, &rpstest_client1);
     Create(1000, &rpstest_client2);

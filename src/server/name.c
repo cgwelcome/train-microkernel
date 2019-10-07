@@ -1,7 +1,7 @@
 #include <string.h>
-#include <server/ns.h>
+#include <server/name.h>
 #include <user/ipc.h>
-#include <user/ns.h>
+#include <user/name.h>
 #include <user/tasks.h>
 
 typedef struct {
@@ -9,7 +9,7 @@ typedef struct {
     int tid;
 } NameRecord;
 
-int ns_tid;
+int name_server_tid;
 static unsigned int record_count;
 static NameRecord records[MAX_NAMERECORD_NUM];
 
@@ -69,13 +69,14 @@ static void ns_entry() {
     }
 }
 
-void InitNS() {
-    ns_tid = -1;
+void InitNameServer() {
+    name_server_tid = -1;
     record_count = 0;
 }
 
-int CreateNS(unsigned int priority) {
-    if (ns_tid != -1) return ns_tid;
-    ns_tid = Create(priority, &ns_entry);
-    return ns_tid;
+int CreateNameServer(unsigned int priority) {
+    if (name_server_tid < 0) {
+        name_server_tid = Create(priority, &ns_entry);
+    }
+    return name_server_tid;
 }

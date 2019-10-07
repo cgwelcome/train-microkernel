@@ -1,7 +1,7 @@
-#include <utils/kassert.h>
-#include <user/ns.h>
+#include <server/name.h>
+#include <user/name.h>
 #include <user/tasks.h>
-#include <server/ns.h>
+#include <utils/kassert.h>
 
 void register_test() {
     RegisterAs("Winnie");
@@ -10,8 +10,8 @@ void register_test() {
     Exit();
 }
 
-void nstest_root_task() {
-    CreateNS(2000);
+void ns_test_root_task() {
+    CreateNameServer(2000);
     Create(500, &register_test);
     Exit();
 }

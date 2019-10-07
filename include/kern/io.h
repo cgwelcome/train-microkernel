@@ -10,4 +10,4 @@ int io_getc(int channel);
 
 int io_putc(int channel, char c);
 
-#endif // __KERN_IO_H__
+#endif

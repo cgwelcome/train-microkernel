@@ -3,12 +3,12 @@
 
 // Create() asks kernel to create a new task.
 // Parameters:
-//   priority: a positive integer from 1 to 1024.
-//   entry: a function pointer to the entry of the creating task.
+//   priority   a positive integer from 1 to 1024.
+//   entry      a function pointer to the entry of the creating task.
 // Return Values:
-//   tid: the allocated tid if the task has been created successfully.
-//   -1: the priority is invalid.
-//   -2: the kernel is out of task descriptors.
+//   tid    the allocated tid if the task has been created successfully.
+//    -1    the priority is invalid.
+//    -2    the kernel is out of task descriptors.
 int Create(unsigned int priority, void (*entry)());
 
 // Yield() skips this time slice, force the kernel to pick next task.
@@ -22,8 +22,11 @@ int MyTid();
 
 // MyParentTid() returns the tid of parent task.
 // Return Values:
-//   tid: the tid of the parent task.
-//   -1: the current task is started by kernel.
+//   tid    the tid of the parent task.
+//    -1    the current task is started by kernel.
 int MyParentTid();
 
-#endif // __USER_TASKS_H__
+// MyCpuUsage() reports the percentage of CPU runtime for current task.
+int MyCpuUsage();
+
+#endif

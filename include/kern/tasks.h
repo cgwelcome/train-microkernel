@@ -1,7 +1,6 @@
 #ifndef __KERN_TASKS_H__
 #define __KERN_TASKS_H__
 
-#include <kernel.h>
 #include <kern/ipc.h>
 #include <utils/queue.h>
 
@@ -9,6 +8,23 @@
 #define MAX_TASK_NUM        128
 #define MAX_TASK_PRIORITY   4096
 #define MAX_SYSCALL_ARG_NUM 5
+
+typedef struct {
+    unsigned int r0;
+    unsigned int r1;
+    unsigned int r2;
+    unsigned int r3;
+    unsigned int r4;
+    unsigned int r5;
+    unsigned int r6;
+    unsigned int r7;
+    unsigned int r8;
+    unsigned int r9;
+    unsigned int r10;
+    unsigned int r11;
+    unsigned int r12;
+    unsigned int lr;
+} Trapframe;
 
 typedef enum {
     UNUSED,
@@ -18,6 +34,7 @@ typedef enum {
     RECVBLOCKED,
     SENDBLOCKED,
     REPLYBLOCKED,
+    EVENTBLOCKED,
 } TaskStatus;
 
 typedef struct {
@@ -25,22 +42,28 @@ typedef struct {
     TaskStatus status;
     int tid;
     int ptid;
-    unsigned int runtime;
+    unsigned long runtime;
     unsigned int priority;
     // Cached Registers
     unsigned int pc;
-    unsigned int sp;
+    Trapframe *tf;
     unsigned int spsr;
-    // Syscall related fields
-    int syscall_args[MAX_SYSCALL_ARG_NUM];
-    int return_value;
     // IPC
+    Queue send_queue;
+    int *send_tid;
     Message send_msg;
     Message recv_msg;
-    int *send_tid;
     Message reply_msg;
-    Queue send_queue;
 } Task;
+
+// swi_handler_init() registers the swi_handler() to the processor.
+void swi_handler_init();
+
+// hwi_handler_init() registers the hwi_handler() to the processor.
+void hwi_handler_init();
+
+// switch_frame() switches the context from kernel to a user task.
+unsigned int switch_frame(unsigned int *pc, Trapframe **tf, unsigned int *sp);
 
 // task_init() initializes the internal variables related to task APIs.
 void task_init();
@@ -70,4 +93,4 @@ int task_activate(int tid);
 // task_kill() terminates the specified task.
 void task_kill(int tid);
 
-#endif // __KERN_TASKS_H__
+#endif

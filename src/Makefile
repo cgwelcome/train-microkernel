@@ -6,18 +6,10 @@ XBINDIR=$(XDIR)/bin
 XLIBDIR1=$(XDIR)/arm-none-eabi/lib
 XLIBDIR2=$(XDIR)/lib/gcc/arm-none-eabi/9.2.0
 CC = $(XBINDIR)/arm-none-eabi-gcc
-AR = $(XBINDIR)/arm-none-eabi-ar
-AS = $(XBINDIR)/arm-none-eabi-as
 LD = $(XBINDIR)/arm-none-eabi-ld
 
 # List of object files
-OBJECTS = $(patsubst %.c, %.o, $(wildcard *c */*.c))
-
-# List of libraries
-LIBDIR = utils
-LIBNAMES = $(notdir $(basename $(wildcard $(LIBDIR)/*.c)))
-LIBFILES = $(foreach libname,$(LIBNAMES),$(LIBDIR)/lib$(libname).a)
-LDLIBS = $(foreach libname,$(LIBNAMES),-l$(notdir $(basename $(libname)))) -lc -lgcc
+OBJECTS = $(patsubst %.c, %.o, $(wildcard *c */*.c)) $(patsubst %.S, %.o, $(wildcard *S */*.S))
 
 # -std=gnu99: use C99 standard with asm support
 # -g: include debug information for gdb
@@ -26,18 +18,14 @@ LDLIBS = $(foreach libname,$(LIBNAMES),-l$(notdir $(basename $(libname)))) -lc -
 # -Wall: report all warnings
 # -mcpu=arm920t: generate code for the 920t architecture
 # -msoft-float: no FP co-processor
-CFLAGS = -std=gnu99 -g -O2 -fPIC -Wall -mcpu=arm920t -msoft-float -I. -I../include
-
-# c: create archive, if necessary
-# r: insert with replacement
-# s: add index to archive
-ARFLAGS = crs
+CFLAGS = -std=gnu99 -g -O2 -fPIC -Wall -mcpu=arm920t -msoft-float -I../include
 
 # -static: force static linking
 # -e: set entry point
 # -nmagic: no page alignment
+# --gc-sections: remove unused sections
 # -T: use linker script
-LDFLAGS = -static -e kernel_entry -nmagic -T linker.ld -L $(LIBDIR) -L $(XLIBDIR1) -L $(XLIBDIR2)
+LDFLAGS = -static -e kernel_entry -nmagic --gc-sections -T linker.ld -L $(XLIBDIR1) -L $(XLIBDIR2)
 
 .PHONY: all
 all: main.elf
@@ -45,12 +33,12 @@ all: main.elf
 %.s: %.c
 	$(CC) -S $(CFLAGS) $^
 
-$(LIBDIR)/lib%.a: $(LIBDIR)/%.o
-	$(AR) $(ARFLAGS) $@ $^
+%.o: %.S
+	$(CC) -c $(CFLAGS) -o $@ $^
 
 main.elf: $(OBJECTS) $(LIBFILES)
-	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) $(LDLIBS) $(LIBFILES)
+	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lc -lgcc
 
 .PHONY: clean
 clean:
-	-rm -f application/*.o server/*.o kern/*.o user/*.o $(LIBDIR)/*.a $(LIBDIR)/*.o *.o *.elf
+	-rm -f */*.o *.o *.elf

@@ -14,7 +14,7 @@ static int ipc_connectable(Task *task) {
 
 static void ipc_recvsend(Task *receiver, Task *sender) {
     *(receiver->send_tid) = sender->tid;
-    receiver->return_value = msg_copy(&receiver->recv_msg, &sender->send_msg);
+    receiver->tf->r0 = msg_copy(&receiver->recv_msg, &sender->send_msg);
     sender->status = REPLYBLOCKED;
 }
 
@@ -22,7 +22,7 @@ void ipc_send(int tid, int recvtid, char *msg, int msglen, char *reply, int rple
     Task *current_task = task_at(tid);
     Task *recv_task = task_at(recvtid);
     if (!recv_task || !ipc_connectable(recv_task)) {
-        current_task->return_value = -1;
+        current_task->tf->r0 = -1;
         return;
     }
     current_task->send_msg.array = msg;
@@ -58,11 +58,11 @@ void ipc_reply(int tid, int replytid, char *reply, int rplen) {
     Task *current_task = task_at(tid);
     Task *reply_task = task_at(replytid);
     if (!reply_task || !ipc_connectable(reply_task)) {
-        current_task->return_value = -1;
+        current_task->tf->r0 = -1;
         return;
     }
     if (reply_task->status != REPLYBLOCKED) {
-        current_task->return_value = -2;
+        current_task->tf->r0 = -2;
         return;
     }
     Message msg = {
@@ -70,8 +70,8 @@ void ipc_reply(int tid, int replytid, char *reply, int rplen) {
         .len = rplen
     };
     int length = msg_copy(&reply_task->reply_msg, &msg);
-    reply_task->return_value = length;
-    current_task->return_value = length;
+    reply_task->tf->r0 = length;
+    current_task->tf->r0 = length;
     reply_task->status = READY;
 }
 
@@ -79,7 +79,7 @@ void ipc_cleanup(int tid) {
     Task *current_task = task_at(tid);
     while (queue_size(&current_task->send_queue)) {
         Task *task = task_at(queue_pop(&current_task->send_queue));
-        task->return_value = -2;
+        task->tf->r0 = -2;
         task->status = READY;
     }
 }

@@ -1,28 +1,5 @@
-/*
- * ts7200.h - definitions describing the ts7200 peripheral registers
- *
- * Specific to the TS-7200 ARM evaluation board
- *
- */
-
-#define	TIMER1_BASE	0x80810000
-#define	TIMER2_BASE	0x80810020
-#define	TIMER3_BASE	0x80810080
-
-#define	LDR_OFFSET	0x00000000	// 16/32 bits, RW
-#define	VAL_OFFSET	0x00000004	// 16/32 bits, RO
-#define CRTL_OFFSET	0x00000008	// 3 bits, RW
-	#define	ENABLE_MASK	0x00000080
-	#define	MODE_MASK	0x00000040
-	#define	CLKSEL_MASK	0x00000008
-#define CLR_OFFSET	0x0000000c	// no data, WO
-
-
-#define LED_ADDRESS	0x80840020
-	#define LED_NONE	0x0
-	#define LED_GREEN	0x1
-	#define LED_RED		0x2
-	#define LED_BOTH	0x3
+#ifndef __HARDWARE_UART_H__
+#define __HARDWARE_UART_H__
 
 #define COM1	0
 #define COM2	1
@@ -33,7 +10,6 @@
 
 // All the below registers for UART1
 // First nine registers (up to Ox28) for UART 2
-
 #define UART_DATA_OFFSET	0x0	// low 8 bits
 	#define DATA_MASK	0xff
 #define UART_RSR_OFFSET		0x4	// low 4 bits
@@ -72,7 +48,6 @@
 #define UART_DMAR_OFFSET	0x28
 
 // Specific to UART1
-
 #define UART_MDMCTL_OFFSET	0x100
 #define UART_MDMSTS_OFFSET	0x104
 #define UART_HDLCCTL_OFFSET	0x20c
@@ -80,3 +55,5 @@
 #define UART_HDLCAM_OFFSET	0x214
 #define UART_HDLCRIB_OFFSET	0x218
 #define UART_HDLCSTS_OFFSET	0x21c
+
+#endif
