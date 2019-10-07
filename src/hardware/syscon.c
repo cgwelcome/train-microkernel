@@ -1,7 +1,7 @@
 #include <hardware/syscon.h>
 
 void syscon_lock(int state) {
-    volatile unsigned int *flag = (unsigned int *)(SYSCON_BASE + SWLOCK_OFFSET);
+    volatile uint32_t *flag = (uint32_t *)(SYSCON_BASE + SWLOCK_OFFSET);
     switch (state) {
         case ON:
             *flag = SWLOCK_ON;
@@ -14,12 +14,12 @@ void syscon_lock(int state) {
     }
 }
 
-void syscon_config(unsigned int mask) {
-    volatile unsigned int *flag = (unsigned int *)(SYSCON_BASE + DEVICE_CFG_OFFSET);
+void syscon_config(uint32_t mask) {
+    volatile uint32_t *flag = (uint32_t *)(SYSCON_BASE + DEVICE_CFG_OFFSET);
     *flag |= mask;
 }
 
 
 void syscon_halt() {
-    *(volatile unsigned int *)(SYSCON_BASE + HALT_OFFSET);
+    *(volatile uint32_t *)(SYSCON_BASE + HALT_OFFSET);
 }

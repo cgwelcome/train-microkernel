@@ -55,7 +55,7 @@ int io_getc(int channel) {
     return *data;
 }
 
-int io_putc(int channel, char c) {
+int io_putc(int channel, int c) {
     int *flags, *data;
 	switch (channel) {
 	case COM1:

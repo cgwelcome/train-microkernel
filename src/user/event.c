@@ -1,3 +1,4 @@
+#pragma GCC diagnostic ignored "-Wunused-parameter"
 #include <kernel.h>
 #include <user/event.h>
 

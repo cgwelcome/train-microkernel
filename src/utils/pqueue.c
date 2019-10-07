@@ -4,14 +4,14 @@ void pqueue_init(PQueue *pqueue) {
     pqueue->size = 0;
 }
 
-static void pqueuerecord_swap(PQueue *pqueue, int i, int j) {
+static void pqueuerecord_swap(PQueue *pqueue, uint32_t i, uint32_t j) {
     PQueueRecord record = pqueue->array[i];
     pqueue->array[i] = pqueue->array[j];
     pqueue->array[j] = record;
 }
 
-static void pqueue_bubbledown(PQueue *pqueue, int i) {
-    unsigned int min = i;
+static void pqueue_bubbledown(PQueue *pqueue, uint32_t i) {
+    uint32_t min = i;
     if (2*i+1 < pqueue->size && pqueue->array[2*i+1].priority < pqueue->array[min].priority) {
         min = 2*i+1;
     }
@@ -31,8 +31,8 @@ int pqueue_pop(PQueue *pqueue) {
     return id;
 }
 
-static void pqueue_bubbleup(PQueue *pqueue, int k) {   
-    int i = k;
+static void pqueue_bubbleup(PQueue *pqueue, uint32_t k) {
+    uint32_t i = k;
     while (i != 0 && pqueue->array[(i-1)/2].priority > pqueue->array[i].priority) {
         pqueuerecord_swap(pqueue, i, (i-1)/2);
         i = (i-1)/2;
@@ -41,7 +41,7 @@ static void pqueue_bubbleup(PQueue *pqueue, int k) {
 
 void pqueue_insert(PQueue *pqueue, int id, int priority) {
     if (pqueue->size == PQUEUE_SIZE) return;
-    
+
     pqueue->array[pqueue->size].id = id;
     pqueue->array[pqueue->size].priority = priority;
     pqueue_bubbleup(pqueue, pqueue->size);
@@ -55,6 +55,6 @@ int pqueue_peek(PQueue *pqueue) {
     return -1;
 }
 
-unsigned int pqueue_size(PQueue *pqueue) {
+uint32_t pqueue_size(PQueue *pqueue) {
     return pqueue->size;
 }

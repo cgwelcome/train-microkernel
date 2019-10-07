@@ -3,6 +3,8 @@
 
 #define MAX_MATCH_NUM 128
 
+#include <stdint.h>
+
 typedef enum {
     RPS_UNUSED,
     RPS_SIGNONE,
@@ -42,6 +44,6 @@ typedef struct {
 } RPSRequest;
 
 // CreateRPS() creates a Rock Paper Server
-int CreateRPS(unsigned int priority);
+int CreateRPS(uint32_t priority);
 
 #endif

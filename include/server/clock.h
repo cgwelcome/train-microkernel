@@ -3,6 +3,8 @@
 
 #define CLOCK_NOTIFY_INTERVAL 10
 
+#include <stdint.h>
+
 typedef enum {
     CS_TICKUPDATE,
     CS_DELAY,
@@ -19,6 +21,6 @@ typedef struct {
 void InitClockServer();
 
 // CreateClockServer() creates a global Clock Server
-int CreateClockServer(unsigned int priority);
+int CreateClockServer(uint32_t priority);
 
 #endif

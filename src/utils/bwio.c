@@ -84,8 +84,8 @@ int bwputc( int channel, char c ) {
 }
 
 char c2x( char ch ) {
-	if ( (ch <= 9) ) return '0' + ch;
-	return 'a' + ch - 10;
+	if ( (ch <= 9) ) return (char) ('0' + ch);
+	return (char) ('a' + ch - 10);
 }
 
 int bwputx( int channel, char c ) {
@@ -140,7 +140,7 @@ int bwgetc( int channel ) {
 		break;
 	}
 	while ( !( *flags & RXFF_MASK ) ) ;
-	c = *data;
+	c = (unsigned char) *data;
 	return c;
 }
 
@@ -172,11 +172,11 @@ void bwui2a( unsigned int num, unsigned int base, char *bf ) {
 
 	while( (num / d) >= base ) d *= base;
 	while( d != 0 ) {
-		dgt = num / d;
+		dgt = (int) (num / d);
 		num %= d;
 		d /= base;
 		if( n || dgt > 0 || d == 0 ) {
-			*bf++ = dgt + ( dgt < 10 ? '0' : 'a' - 10 );
+			*bf++ = (char) (dgt + ( dgt < 10 ? '0' : 'a' - 10 ));
 			++n;
 		}
 	}
@@ -188,7 +188,7 @@ void bwi2a( int num, char *bf ) {
 		num = -num;
 		*bf++ = '-';
 	}
-	bwui2a( num, 10, bf );
+	bwui2a( (unsigned int) num, 10, bf );
 }
 
 void bwformat ( int channel, char *fmt, va_list va ) {
@@ -205,6 +205,7 @@ void bwformat ( int channel, char *fmt, va_list va ) {
 			switch ( ch ) {
 			case '0':
 				lz = '0'; ch = *(fmt++);
+				__attribute__ ((fallthrough));
 			case '1':
 			case '2':
 			case '3':

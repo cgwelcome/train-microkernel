@@ -35,7 +35,7 @@ void initialize() {
     task_create(-1, 500, &k3_root_task);
 }
 
-void handle_request(int tid, int request) {
+void handle_request(int tid, uint32_t request) {
     Task *current_task = task_at(tid);
     if (request == HW_INTERRUPT) {
         event_handle();
@@ -43,56 +43,56 @@ void handle_request(int tid, int request) {
     else if (request == SYSCALL_IO_GETC) {
         int server = (int) current_task->tf->r0; // not used for now
         int uart   = (int) current_task->tf->r1;
-        current_task->tf->r0 = io_getc(uart);
+        current_task->tf->r0 = (uint32_t) io_getc(uart);
     }
     else if (request == SYSCALL_IO_PUTC) {
         int server = (int) current_task->tf->r0; // not used for now
         int uart   = (int) current_task->tf->r1;
         int ch     = (int) current_task->tf->r2;
-        current_task->tf->r0 = io_putc(uart, ch);
+        current_task->tf->r0 = (uint32_t) io_putc(uart, ch);
     }
     else if (request == SYSCALL_TASK_CREATE) {
-        unsigned int priority = (unsigned int) current_task->tf->r0;
-        void *entry           = (void *)       current_task->tf->r1;
-        current_task->tf->r0 = task_create(tid, priority, entry);
+        uint32_t priority = (uint32_t) current_task->tf->r0;
+        void *entry       = (void *)       current_task->tf->r1;
+        current_task->tf->r0 = (uint32_t) task_create(tid, priority, entry);
     }
     else if (request == SYSCALL_TASK_EXIT) {
         task_kill(tid);
         ipc_cleanup(tid);
     }
     else if (request == SYSCALL_TASK_GETTID) {
-        current_task->tf->r0 = tid;
+        current_task->tf->r0 = (uint32_t) tid;
     }
     else if (request == SYSCALL_TASK_GETPTID) {
-        current_task->tf->r0 = current_task->ptid;
+        current_task->tf->r0 = (uint32_t) current_task->ptid;
     }
     else if (request == SYSCALL_TASK_CPUUSAGE) {
         uint64_t total_runtime = timer_read_raw(TIMER3) - boot_time;
-        current_task->tf->r0 = current_task->runtime * 100 / total_runtime;
+        current_task->tf->r0 = (uint32_t) (current_task->runtime * 100UL / total_runtime);
     }
     else if (request == SYSCALL_IPC_SEND) {
-        int recvtid = (int)    current_task->tf->r0;
-        char *msg   = (char *) current_task->tf->r1;
-        int msglen  = (int)    current_task->tf->r2;
-        char *reply = (char *) current_task->tf->r3;
-        int rplen   = (int)    current_task->tf->r4;
+        int recvtid   = (int)    current_task->tf->r0;
+        char *msg     = (char *) current_task->tf->r1;
+        size_t msglen = (size_t) current_task->tf->r2;
+        char *reply   = (char *) current_task->tf->r3;
+        size_t rplen  = (size_t) current_task->tf->r4;
         ipc_send(tid, recvtid, msg, msglen, reply, rplen);
     }
     else if (request == SYSCALL_IPC_RECV) {
-        int *sendtid = (int *)  current_task->tf->r0;
-        char *msg    = (char *) current_task->tf->r1;
-        int msglen   = (int)    current_task->tf->r2;
+        int *sendtid  = (int *)  current_task->tf->r0;
+        char *msg     = (char *) current_task->tf->r1;
+        size_t msglen = (size_t) current_task->tf->r2;
         ipc_receive(tid, sendtid, msg, msglen);
     }
     else if (request == SYSCALL_IPC_REPLY) {
         int replytid = (int)    current_task->tf->r0;
         char *reply  = (char *) current_task->tf->r1;
-        int rplen    = (int)    current_task->tf->r2;
+        size_t rplen = (size_t) current_task->tf->r2;
         ipc_reply(tid, replytid, reply, rplen);
     }
     else if (request == SYSCALL_IRQ_AWAITEVENT) {
-        int eventtype = (int) current_task->tf->r0;
-        event_await(tid, eventtype);
+        int event = (int) current_task->tf->r0;
+        event_await(tid, event);
     }
 }
 
@@ -100,9 +100,9 @@ void kernel_entry() {
     initialize();  // includes starting the first user task
     boot_time = timer_read_raw(TIMER3);
     for (;;) {
-        unsigned int nextTID = task_schedule();
+        int32_t nextTID = task_schedule();
         if (nextTID == -1) break;
-        unsigned int request = task_activate(nextTID);
+        uint32_t request = task_activate(nextTID);
         handle_request(nextTID, request);
     }
     halt_time = timer_read_raw(TIMER3);

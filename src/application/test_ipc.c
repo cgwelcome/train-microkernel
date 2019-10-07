@@ -18,7 +18,7 @@ void recvblock_child_test() {
 // Receive Wei-Wei from child task
 void recvblock_test() {
     int tid;
-    int msglen = 9;
+    size_t msglen = 9;
     char msg[msglen];
     int sendtid = Create(2000, &recvblock_child_test);
     Receive(&tid, msg, msglen);
@@ -55,7 +55,7 @@ void sendtransacterror_test() {
 // Receive string from parent
 void sendblock_child_test() {
     int tid;
-    int msglen = 9;
+    size_t msglen = 9;
     char msg[msglen];
     Receive(&tid, msg, msglen);
     kassert(strcmp("Wei-Wei", msg) == 0);
@@ -73,7 +73,7 @@ void sendblock_test() {
 }
 
 void reply_child_test() {
-    int msglen = 9;
+    size_t msglen = 9;
     char msg[msglen];
     Send(MyParentTid(), NULL, 0, msg, msglen);
     kassert(strcmp("Wei-Wei", msg) == 0);
@@ -104,7 +104,7 @@ void replyerror_test() {
 
 void ipclength_child_test() {
     const char *sendmsg = "Wei-Wei";
-    int replylen = 5;
+    size_t replylen = 5;
     char replymsg[replylen+1];
 
     int returncode = Send(MyParentTid(), sendmsg, strlen(sendmsg)+1, replymsg, replylen);
@@ -116,13 +116,13 @@ void ipclength_child_test() {
 
 void ipclength_test() {
     int tid;
-    int receivelen = 3;
+    size_t receivelen = 3;
     char receivemsg[receivelen+1];
     int returncode;
 
     Create(2000, &ipclength_child_test);
     returncode = Receive(&tid, receivemsg, receivelen);
-    kassert(returncode == receivelen);
+    kassert(returncode == 3);
     receivemsg[receivelen] = '\0';
     kassert(strcmp(receivemsg, "Wei") == 0);
 

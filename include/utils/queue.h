@@ -3,16 +3,18 @@
 
 #define QUEUE_SIZE 2048
 
+#include <stdint.h>
+
 typedef struct {
-    short array[QUEUE_SIZE];
-    unsigned int head;
-    unsigned int tail;
-    unsigned int size;
+    int array[QUEUE_SIZE];
+    uint32_t head;
+    uint32_t tail;
+    uint32_t size;
 } Queue;
 
 void queue_init(Queue *queue);
-short queue_pop(Queue *queue);
-void queue_push(Queue *queue, short data);
-unsigned int queue_size(Queue *queue);
+int  queue_pop (Queue *queue);
+void queue_push(Queue *queue, int data);
+uint32_t queue_size(Queue *queue);
 
 #endif

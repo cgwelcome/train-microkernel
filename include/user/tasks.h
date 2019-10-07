@@ -1,6 +1,8 @@
 #ifndef __USER_TASKS_H__
 #define __USER_TASKS_H__
 
+#include <stdint.h>
+
 // Create() asks kernel to create a new task.
 // Parameters:
 //   priority   a positive integer from 1 to 1024.
@@ -9,7 +11,7 @@
 //   tid    the allocated tid if the task has been created successfully.
 //    -1    the priority is invalid.
 //    -2    the kernel is out of task descriptors.
-int Create(unsigned int priority, void (*entry)());
+int Create(uint32_t priority, void (*entry)());
 
 // Yield() skips this time slice, force the kernel to pick next task.
 void Yield();

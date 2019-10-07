@@ -1,27 +1,27 @@
 #include <hardware/timer.h>
 
 typedef struct {
-    unsigned int load;
+    uint32_t load;
     int frequency;
 } Timer;
 
 static Timer timers[TIMER_MAXNUM];
 
-void timer_init(int timer, int load, int frequency) {
-    volatile unsigned int *loadaddr;
-    volatile unsigned int *ctrl;
+void timer_init(int timer, uint32_t load, int frequency) {
+    volatile uint32_t *loadaddr;
+    volatile uint32_t *ctrl;
     switch (timer) {
         case TIMER1:
-            loadaddr = (unsigned int *)(TIMER1_BASE + LDR_OFFSET);
-            ctrl = (unsigned int *)(TIMER1_BASE + CRTL_OFFSET);
+            loadaddr = (uint32_t *)(TIMER1_BASE + LDR_OFFSET);
+            ctrl = (uint32_t *)(TIMER1_BASE + CRTL_OFFSET);
             break;
         case TIMER2:
-            loadaddr = (unsigned int *)(TIMER2_BASE + LDR_OFFSET);
-            ctrl = (unsigned int *)(TIMER2_BASE + CRTL_OFFSET);
+            loadaddr = (uint32_t *)(TIMER2_BASE + LDR_OFFSET);
+            ctrl = (uint32_t *)(TIMER2_BASE + CRTL_OFFSET);
             break;
         case TIMER3:
-            loadaddr = (unsigned int *)(TIMER3_BASE + LDR_OFFSET);
-            ctrl = (unsigned int *)(TIMER3_BASE + CRTL_OFFSET);
+            loadaddr = (uint32_t *)(TIMER3_BASE + LDR_OFFSET);
+            ctrl = (uint32_t *)(TIMER3_BASE + CRTL_OFFSET);
             break;
         default:
             return;
@@ -42,16 +42,16 @@ uint64_t timer_read(int timer) {
 }
 
 uint64_t timer_read_raw(int timer) {
-    volatile unsigned int *time;
+    volatile uint32_t *time;
     switch (timer) {
         case TIMER1:
-            time = (unsigned int *)(TIMER1_BASE + VAL_OFFSET);
+            time = (uint32_t *)(TIMER1_BASE + VAL_OFFSET);
             break;
         case TIMER2:
-            time = (unsigned int *)(TIMER2_BASE + VAL_OFFSET);
+            time = (uint32_t *)(TIMER2_BASE + VAL_OFFSET);
             break;
         case TIMER3:
-            time = (unsigned int *)(TIMER3_BASE + VAL_OFFSET);
+            time = (uint32_t *)(TIMER3_BASE + VAL_OFFSET);
             break;
         default:
             return 0;
@@ -61,16 +61,16 @@ uint64_t timer_read_raw(int timer) {
 }
 
 void timer_clear(int timer) {
-    volatile unsigned int *flag;
+    volatile uint32_t *flag;
     switch (timer) {
         case TIMER1:
-            flag = (unsigned int *)(TIMER1_BASE + CLR_OFFSET);
+            flag = (uint32_t *)(TIMER1_BASE + CLR_OFFSET);
             break;
         case TIMER2:
-            flag = (unsigned int *)(TIMER2_BASE + CLR_OFFSET);
+            flag = (uint32_t *)(TIMER2_BASE + CLR_OFFSET);
             break;
         case TIMER3:
-            flag = (unsigned int *)(TIMER3_BASE + CLR_OFFSET);
+            flag = (uint32_t *)(TIMER3_BASE + CLR_OFFSET);
             break;
         default:
             return;

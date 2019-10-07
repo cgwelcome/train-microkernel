@@ -10,11 +10,11 @@ typedef struct {
 } NameRecord;
 
 int name_server_tid;
-static unsigned int record_count;
+static int record_count;
 static NameRecord records[MAX_NAMERECORD_NUM];
 
 static int ns_search(const char *name) {
-    for (unsigned int i = 0; i < record_count; i++) {
+    for (int i = 0; i < record_count; i++) {
         if (strcmp(records[i].name, name) == 0) {
             return i; // Found a registration
         }
@@ -74,7 +74,7 @@ void InitNameServer() {
     record_count = 0;
 }
 
-int CreateNameServer(unsigned int priority) {
+int CreateNameServer(uint32_t priority) {
     if (name_server_tid < 0) {
         name_server_tid = Create(priority, &ns_entry);
     }
