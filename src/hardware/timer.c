@@ -38,7 +38,7 @@ void timer_init(int timer, int load, int frequency) {
 }
 
 unsigned long timer_read(int timer) {
-    return timer_read_raw(timer)/timers[timer].frequency;
+    return timer_read_raw(timer) / (unsigned long) timers[timer].frequency;
 }
 
 unsigned long timer_read_raw(int timer) {
@@ -57,7 +57,7 @@ unsigned long timer_read_raw(int timer) {
             return 0;
             break;
     }
-    return timers[timer].load - (unsigned long) *time;
+    return (unsigned long) timers[timer].load - (unsigned long) *time;
 }
 
 void timer_clear(int timer) {
