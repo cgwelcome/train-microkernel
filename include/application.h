@@ -12,6 +12,7 @@ void rps_test_root_task();
 void irq_test_root_task();
 void hw_context_switch_test_root_task();
 void cpu_usage_test_root_task();
+void halt_test_root_task();
 
 void queue_test_root_task();
 void pqueue_test_root_task();
