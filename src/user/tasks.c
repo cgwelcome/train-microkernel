@@ -1,4 +1,5 @@
 #include <kernel.h>
+#include <user/tasks.h>
 
 int Create(unsigned int priority, void (*entry)()) {
     register int ret asm("r0");

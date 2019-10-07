@@ -1,4 +1,5 @@
 #include <server/clock.h>
+#include <user/clock.h>
 #include <user/ipc.h>
 
 int Time(int tid) {

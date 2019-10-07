@@ -1,6 +1,7 @@
 #include <string.h>
 #include <server/name.h>
 #include <user/ipc.h>
+#include <user/name.h>
 
 extern int name_server_tid;
 

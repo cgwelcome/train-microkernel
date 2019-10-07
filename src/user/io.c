@@ -1,4 +1,5 @@
 #include <kernel.h>
+#include <user/io.h>
 
 int Getc(int server, int uart) {
     register int ret asm("r0");

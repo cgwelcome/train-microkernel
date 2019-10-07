@@ -1,4 +1,5 @@
 #include <kernel.h>
+#include <user/ipc.h>
 
 int Send(int tid, const char *msg, int msglen, char *reply, int rplen) {
     register int ret asm("r0");

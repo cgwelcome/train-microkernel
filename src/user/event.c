@@ -1,4 +1,5 @@
 #include <kernel.h>
+#include <user/event.h>
 
 int AwaitEvent(int eventid) {
     register int data asm("r0");
