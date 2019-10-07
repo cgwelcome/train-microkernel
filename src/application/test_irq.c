@@ -1,9 +1,8 @@
-#include <ts7200.h>
-#include <event.h>
 #include <application.h>
+#include <event.h>
 #include <server/idle.h>
+#include <user/event.h>
 #include <user/tasks.h>
-#include <user/irq.h>
 #include <utils/bwio.h>
 
 void await_test() {
@@ -14,8 +13,8 @@ void await_test() {
     }
 }
 
-void irqtest_root_task() {
+void irq_test_root_task() {
     Create(3000, &await_test);
-    CreateIdle(1);
+    CreateIdleTask(1);
     Exit();
 }

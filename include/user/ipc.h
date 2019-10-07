@@ -7,4 +7,4 @@ int Receive(int *tid, char *msg, int msglen);
 
 int Reply(int tid, const char *reply, int rplen);
 
-#endif // __USER_IPC_H__
+#endif

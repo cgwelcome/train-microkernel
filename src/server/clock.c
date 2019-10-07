@@ -1,17 +1,18 @@
 #include <stddef.h>
-#include <ts7200.h>
 #include <event.h>
+#include <hardware/icu.h>
+#include <hardware/timer.h>
 #include <server/clock.h>
-#include <user/ns.h>
-#include <user/irq.h>
+#include <user/event.h>
 #include <user/ipc.h>
+#include <user/name.h>
 #include <user/tasks.h>
+#include <utils/kassert.h>
 #include <utils/pqueue.h>
-#include <utils/timer.h>
-#include <utils/icu.h>
 
-static PQueue pqdelay;
+static int clock_server_tid, clock_notifier_tid;
 static int clockticks;
+static PQueue pqdelay;
 
 static void cs_time(int tid) {
     Reply(tid, (char *)&clockticks, sizeof(clockticks));
@@ -28,8 +29,7 @@ static void cs_updatetick() {
 static void cs_delay(int tid, int ticks) {
     if (ticks == 0) {
         cs_time(tid);
-    }
-    else {
+    } else {
         pqueue_insert(&pqdelay, tid, clockticks + ticks);
     }
 }
@@ -37,8 +37,7 @@ static void cs_delay(int tid, int ticks) {
 static void cs_delayuntil(int tid, int ticks) {
     if (ticks <= clockticks) {
         cs_time(tid);
-    }
-    else {
+    } else {
         pqueue_insert(&pqdelay, tid, ticks);
     }
 }
@@ -47,8 +46,6 @@ void cs_task() {
     int tid;
     CSRequest request;
 
-    pqueue_init(&pqdelay);
-    clockticks = 0;
     RegisterAs("CS");
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
@@ -74,7 +71,7 @@ void cs_task() {
 
 void cn_task() {
     int cstid = WhoIs("CS");
-    timer_init(TIMER2, TIMER_IRQ_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
+    timer_init(TIMER2, CLOCK_NOTIFY_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
     icu_activate(TC2UI_EVENT);
     CSRequest request = {
         .type = CS_TICKUPDATE
@@ -85,8 +82,19 @@ void cn_task() {
     }
 }
 
-int CreateCS(unsigned int priority) {
-    int tid = Create(priority, &cs_task);
-    Create(priority-1000, &cn_task);
-    return tid;
+void InitClockServer() {
+    clock_server_tid = -1;
+    clock_notifier_tid = -1;
+    clockticks = 0;
+    pqueue_init(&pqdelay);
+}
+
+int CreateClockServer(unsigned int priority) {
+    if (clock_server_tid < 0) {
+        clock_server_tid = Create(priority, &cs_task);
+    }
+    if (clock_notifier_tid < 0) {
+        clock_notifier_tid = Create(priority - 1000, &cn_task);
+    }
+    return clock_server_tid;
 }

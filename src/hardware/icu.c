@@ -1,4 +1,4 @@
-#include <ts7200.h>
+#include <hardware/icu.h>
 
 void icu_init() {
     volatile unsigned int *flag;

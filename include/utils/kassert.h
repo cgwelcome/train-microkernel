@@ -10,4 +10,4 @@
 #define kassert(expr) \
     if (!(expr)) bwprintf(COM2, "%s: %d: Assertion '%s' failed.\n\r", __FILE__, __LINE__, #expr)
 
-#endif // __UTILS_KASSERT_H__
+#endif

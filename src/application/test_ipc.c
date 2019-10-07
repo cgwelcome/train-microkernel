@@ -1,11 +1,10 @@
-#include <ts7200.h>
-#include <utils/bwio.h>
-#include <utils/kassert.h>
-#include <user/tasks.h>
-#include <user/ipc.h>
-#include <application.h>
 #include <stddef.h>
 #include <string.h>
+#include <application.h>
+#include <user/ipc.h>
+#include <user/tasks.h>
+#include <utils/bwio.h>
+#include <utils/kassert.h>
 
 // Send String to the Parent Task
 void recvblock_child_test() {
@@ -133,7 +132,7 @@ void ipclength_test() {
     Exit();
 }
 
-void ipctest_root_task() {
+void ipc_test_root_task() {
     Create(1000, &recvblock_test);
     Create(1000, &senderror_test);
     Create(1000, &sendtransacterror_test);

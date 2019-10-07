@@ -1,9 +1,8 @@
 #include <string.h>
-#include <user/ns.h>
+#include <server/name.h>
 #include <user/ipc.h>
-#include <server/ns.h>
 
-extern int ns_tid;
+extern int name_server_tid;
 
 int RegisterAs(const char *name) {
     int result;
@@ -15,8 +14,7 @@ int RegisterAs(const char *name) {
     }
     request.type = NS_REGISTER;
     strcpy(request.name, name);
-    int retval = Send(ns_tid, (char *)&request, sizeof(request),
-            (char *)&result, sizeof(result));
+    int retval = Send(name_server_tid, (char *)&request, sizeof(request), (char *)&result, sizeof(result));
     if (retval == -1) {
         return -1;
     }
@@ -33,8 +31,7 @@ int WhoIs(const char *name) {
     }
     request.type = NS_WHOIS;
     strcpy(request.name, name);
-    int retval = Send(ns_tid, (char *)&request, sizeof(request),
-            (char *)&result, sizeof(result));
+    int retval = Send(name_server_tid, (char *)&request, sizeof(request), (char *)&result, sizeof(result));
     if (retval == -1) {
         return -1;
     }

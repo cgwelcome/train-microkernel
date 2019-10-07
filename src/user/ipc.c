@@ -1,4 +1,3 @@
-#include <user/ipc.h>
 #include <kernel.h>
 
 int Send(int tid, const char *msg, int msglen, char *reply, int rplen) {

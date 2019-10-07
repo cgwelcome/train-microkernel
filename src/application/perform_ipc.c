@@ -1,4 +1,3 @@
-#include <ts7200.h>
 #include <application.h>
 #include <user/ipc.h>
 #include <user/tasks.h>

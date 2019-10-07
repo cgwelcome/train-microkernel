@@ -26,4 +26,7 @@ int MyTid();
 //   -1: the current task is started by kernel.
 int MyParentTid();
 
-#endif // __USER_TASKS_H__
+// MyCpuUsage() reports the percentage of CPU runtime for current task.
+int MyCpuUsage();
+
+#endif

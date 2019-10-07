@@ -1,5 +1,4 @@
-#include <kern/io.h>
-#include <ts7200.h>
+#include <hardware/uart.h>
 
 int setspeed(int channel, int speed) {
     int *high, *low;

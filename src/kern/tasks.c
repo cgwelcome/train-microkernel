@@ -1,12 +1,11 @@
-#include <kern/switchframe.h>
-#include <kern/tasks.h>
 #include <arm.h>
-#include <ts7200.h>
+#include <kernel.h>
 #include <limits.h>
 #include <stddef.h>
+#include <hardware/timer.h>
+#include <kern/switchframe.h>
+#include <kern/tasks.h>
 #include <utils/queue.h>
-#include <utils/timer.h>
-#include <utils/kassert.h>
 
 static unsigned int total_task_count;
 static unsigned int alive_task_count;

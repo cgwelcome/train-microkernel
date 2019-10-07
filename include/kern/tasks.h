@@ -1,7 +1,6 @@
 #ifndef __KERN_TASKS_H__
 #define __KERN_TASKS_H__
 
-#include <kernel.h>
 #include <kern/ipc.h>
 #include <kern/switchframe.h>
 #include <utils/queue.h>
@@ -68,4 +67,4 @@ int task_activate(int tid);
 // task_kill() terminates the specified task.
 void task_kill(int tid);
 
-#endif // __KERN_TASKS_H__
+#endif

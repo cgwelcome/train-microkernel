@@ -1,5 +1,5 @@
-#ifndef __USER_NS_H__
-#define __USER_NS_H__
+#ifndef __USER_NAME_H__
+#define __USER_NAME_H__
 
 int RegisterAs(const char *name);
 

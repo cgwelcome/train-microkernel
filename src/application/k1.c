@@ -1,4 +1,3 @@
-#include <ts7200.h>
 #include <application.h>
 #include <user/tasks.h>
 #include <utils/bwio.h>

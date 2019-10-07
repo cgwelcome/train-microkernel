@@ -1,11 +1,11 @@
 #include <stddef.h>
 #include <server/clock.h>
 #include <server/idle.h>
-#include <server/ns.h>
+#include <server/name.h>
 #include <user/clock.h>
 #include <user/ipc.h>
+#include <user/name.h>
 #include <user/tasks.h>
-#include <user/ns.h>
 #include <utils/bwio.h>
 
 typedef struct {
@@ -35,15 +35,15 @@ static void delay_reply(int ticks, int num) {
 }
 
 void k3_root_task() {
-    CreateNS(4000);
-    CreateCS(3500);
-    CreateIdle(1);
-    
+    CreateNameServer(4000);
+    CreateClockServer(3500);
+    CreateIdleTask(1);
+
     Create(600, &child_task);
     Create(500, &child_task);
     Create(400, &child_task);
     Create(300, &child_task);
-    
+
     delay_reply(10, 20);
     delay_reply(23, 9);
     delay_reply(33, 6);

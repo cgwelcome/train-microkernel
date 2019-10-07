@@ -1,13 +1,12 @@
-#include <ts7200.h>
 #include <stdlib.h>
-#include <utils/kassert.h>
-#include <utils/bwio.h>
-#include <utils/timer.h>
-#include <user/ipc.h>
-#include <user/ns.h>
-#include <user/tasks.h>
-#include <server/ns.h>
+#include <hardware/timer.h>
+#include <server/name.h>
 #include <server/rps.h>
+#include <user/ipc.h>
+#include <user/name.h>
+#include <user/tasks.h>
+#include <utils/bwio.h>
+#include <utils/kassert.h>
 
 #define RPS_MAX_ROUNDS 6
 #define RPS_CLIENT_NUM 6
@@ -75,7 +74,7 @@ static void rps_client() {
 
 void k2_root_task() {
     bwsetfifo(COM2, OFF);
-    CreateNS(2000);
+    CreateNameServer(2000);
     CreateRPS(2000);
     for (int i = 0; i < RPS_CLIENT_NUM; i++) {
         Create(500, &rps_client);

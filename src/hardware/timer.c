@@ -1,18 +1,11 @@
-/*
- * timer.c - routines for reading EP93XX timer 3.
- *
- * Specific to the TS-7200 ARM evaluation board
- */
-
-#include <ts7200.h>
-#include <utils/timer.h>
+#include <hardware/timer.h>
 
 typedef struct {
     unsigned int load;
     int frequency;
 } Timer;
 
-static Timer timers[MAX_TIMER_NUM];
+static Timer timers[TIMER_MAXNUM];
 
 void timer_init(int timer, int load, int frequency) {
     volatile unsigned int *loadaddr;

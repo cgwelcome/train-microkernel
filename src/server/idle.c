@@ -1,9 +1,7 @@
-#include <ts7200.h>
+#include <hardware/syscon.h>
 #include <server/idle.h>
 #include <user/tasks.h>
-#include <user/diag.h>
 #include <utils/bwio.h>
-#include <utils/syscon.h>
 
 static void idle_task() {
     syscon_lock(OFF);
@@ -14,6 +12,6 @@ static void idle_task() {
     }
 }
 
-int CreateIdle(unsigned int priority) {
+int CreateIdleTask(unsigned int priority) {
     return Create(priority, &idle_task);
 }

@@ -1,16 +1,16 @@
+#include <user/tasks.h>
+#include <utils/bwio.h>
 #include <utils/kassert.h>
 #include <utils/pqueue.h>
-#include <utils/bwio.h>
-#include <user/tasks.h>
 
 
 static void pqueue_single(PQueue *pqueue, int k) {
     pqueue_insert(pqueue, k, k);
 }
 
-void pqueue_root_task() {
+void pqueue_test_root_task() {
     PQueue pqueue;
-    
+
     pqueue_init(&pqueue);
     pqueue_single(&pqueue, 8);
     bwprintf(COM2, "%d\r\n", pqueue_peek(&pqueue));

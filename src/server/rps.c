@@ -1,6 +1,6 @@
 #include <server/rps.h>
 #include <user/ipc.h>
-#include <user/ns.h>
+#include <user/name.h>
 #include <user/tasks.h>
 
 static unsigned int rpsmatch_count;

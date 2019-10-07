@@ -1,4 +1,3 @@
-#include <user/tasks.h>
 #include <kernel.h>
 
 int Create(unsigned int priority, void (*entry)()) {
@@ -25,4 +24,10 @@ int MyParentTid() {
     register int ptid asm("r0");
     SYSCALL_INVOKE(SYSCALL_TASK_GETPTID);
     return ptid;
+}
+
+int MyCpuUsage() {
+    register int usage asm("r0");
+    SYSCALL_INVOKE(SYSCALL_TASK_CPUUSAGE);
+    return usage;
 }

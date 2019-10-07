@@ -1,4 +1,3 @@
-#include <user/io.h>
 #include <kernel.h>
 
 int Getc(int server, int uart) {

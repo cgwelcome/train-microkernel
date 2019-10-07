@@ -1,7 +1,7 @@
 #ifndef __SERVER_CLOCK_H__
 #define __SERVER_CLOCK_H__
 
-#define TIMER_IRQ_INTERVAL 10
+#define CLOCK_NOTIFY_INTERVAL 10
 
 typedef enum {
     CS_TICKUPDATE,
@@ -15,6 +15,10 @@ typedef struct {
     int data;
 } CSRequest;
 
-int CreateCS(unsigned int priority);
+// InitClockServer() initialize some global counters for the Clock Server.
+void InitClockServer();
 
-#endif 
+// CreateClockServer() creates a global Clock Server
+int CreateClockServer(unsigned int priority);
+
+#endif
