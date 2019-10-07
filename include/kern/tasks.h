@@ -2,13 +2,29 @@
 #define __KERN_TASKS_H__
 
 #include <kern/ipc.h>
-#include <kern/switchframe.h>
 #include <utils/queue.h>
 
 #define SCHEDULER_CALIBRATION 1000
 #define MAX_TASK_NUM        128
 #define MAX_TASK_PRIORITY   4096
 #define MAX_SYSCALL_ARG_NUM 5
+
+typedef struct {
+    unsigned int r0;
+    unsigned int r1;
+    unsigned int r2;
+    unsigned int r3;
+    unsigned int r4;
+    unsigned int r5;
+    unsigned int r6;
+    unsigned int r7;
+    unsigned int r8;
+    unsigned int r9;
+    unsigned int r10;
+    unsigned int r11;
+    unsigned int r12;
+    unsigned int lr;
+} Trapframe;
 
 typedef enum {
     UNUSED,
@@ -39,6 +55,16 @@ typedef struct {
     Message recv_msg;
     Message reply_msg;
 } Task;
+
+// swi_handler_init() registers the swi_handler() to the processor.
+void swi_handler_init();
+
+// hwi_handler_init() registers the hwi_handler() to the processor.
+void hwi_handler_init();
+
+// switch_frame() switches the context from kernel to a user task.
+unsigned int switch_frame(unsigned int *pc, Trapframe **tf, unsigned int *sp);
+
 // task_init() initializes the internal variables related to task APIs.
 void task_init();
 

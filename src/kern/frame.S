@@ -17,9 +17,9 @@ hwi_handler_init:
     str r1, [r0]
     bx lr
 
-.global switchframe
-.type switchframe, %function
-switchframe:
+.global switch_frame
+.type switch_frame, %function
+switch_frame:
     push {r4-r12, lr}
     push {r0-r3}
     ldr lr, [r0]    @ Load Task PC

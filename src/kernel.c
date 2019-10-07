@@ -4,7 +4,6 @@
 #include <hardware/timer.h>
 #include <kern/event.h>
 #include <kern/io.h>
-#include <kern/switchframe.h>
 #include <kern/tasks.h>
 #include <server/clock.h>
 #include <server/name.h>

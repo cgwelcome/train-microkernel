@@ -3,7 +3,6 @@
 #include <limits.h>
 #include <stddef.h>
 #include <hardware/timer.h>
-#include <kern/switchframe.h>
 #include <kern/tasks.h>
 #include <utils/queue.h>
 
@@ -86,7 +85,7 @@ int task_activate(int tid) {
 
     current_task->status = ACTIVE;
     unsigned long task_start = timer_read_raw(TIMER3);
-    int swi_code = switchframe(&current_task->pc, &current_task->tf, &current_task->spsr);
+    int swi_code = switch_frame(&current_task->pc, &current_task->tf, &current_task->spsr);
     unsigned long task_end   = timer_read_raw(TIMER3);
     current_task->status = READY;
     current_task->runtime += task_end - task_start;
