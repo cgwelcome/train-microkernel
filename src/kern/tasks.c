@@ -84,9 +84,9 @@ int task_activate(int tid) {
     Task *current_task = task_at(tid);
 
     current_task->status = ACTIVE;
-    unsigned long task_start = timer_read_raw(TIMER3);
+    uint64_t task_start = timer_read_raw(TIMER3);
     int swi_code = switch_frame(&current_task->pc, &current_task->tf, &current_task->spsr);
-    unsigned long task_end   = timer_read_raw(TIMER3);
+    uint64_t task_end   = timer_read_raw(TIMER3);
     current_task->status = READY;
     current_task->runtime += task_end - task_start;
 

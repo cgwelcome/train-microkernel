@@ -1,5 +1,6 @@
 #include <kernel.h>
 #include <application.h>
+#include <stdint.h>
 #include <hardware/icu.h>
 #include <hardware/timer.h>
 #include <kern/event.h>
@@ -9,7 +10,7 @@
 #include <server/name.h>
 #include <utils/bwio.h>
 
-unsigned long boot_time, halt_time;
+uint64_t boot_time, halt_time;
 
 void initialize() {
     // Enable L1I/L1D cache
@@ -66,7 +67,7 @@ void handle_request(int tid, int request) {
         current_task->tf->r0 = current_task->ptid;
     }
     else if (request == SYSCALL_TASK_CPUUSAGE) {
-        unsigned long total_runtime = timer_read_raw(TIMER3) - boot_time;
+        uint64_t total_runtime = timer_read_raw(TIMER3) - boot_time;
         current_task->tf->r0 = current_task->runtime * 100 / total_runtime;
     }
     else if (request == SYSCALL_IPC_SEND) {

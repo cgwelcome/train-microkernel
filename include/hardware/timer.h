@@ -23,15 +23,16 @@
 	#define	CLKSEL_MASK	0x00000008
 #define CLR_OFFSET	0x0000000c	// no data, WO
 
+#include <stdint.h>
 
 // timer_init initialize the a timers in the EP93XX processor.
 void timer_init(int timer, int load, int frequency);
 
 // timer_read() returns escaped time since bootup in milliseconds.
-unsigned long timer_read(int timer);
+uint64_t timer_read(int timer);
 
 // timer_read_raw() returns escaped time since bootup in ticks (508 ticks / millisecond).
-unsigned long timer_read_raw(int timer);
+uint64_t timer_read_raw(int timer);
 
 // timer_clear() clears the timer interrupt 
 void timer_clear(int timer);
