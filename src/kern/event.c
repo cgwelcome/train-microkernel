@@ -60,9 +60,7 @@ void event_unblock(int eventid) {
 }
 
 void event_handle() {
-    // TODO: Make a sizeof Macro
-    int size = sizeof(event_priority)/sizeof(event_priority[0]);
-
+    int size = sizeof(event_priority) / sizeof(event_priority[0]);
     for (int i = 0; i < size; i++) {
         if (icu_activeirq(event_priority[i])) {
             event_unblock(event_priority[i]);

@@ -9,10 +9,9 @@
 #define ADDR_KERNEL_STACK_TOP (ADDR_MEMORY_TOP - KERNEL_STACK_SIZE)
 
 /*
- * The helpers for invoke syscalls
+ * SYSCALL_INVOKE triggers a SWI syscall.
  */
-#define SYSCALL_INVOKE(syscall_code) \
-    asm("swi %0" : : "I" (syscall_code))
+#define SYSCALL_INVOKE(syscall_code) asm("swi %0" : : "I" (syscall_code))
 
 /*
  * The request code for hardware interrupt

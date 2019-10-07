@@ -7,8 +7,7 @@ int Time(int tid) {
     CSRequest request = {
         .type = CS_TIME,
     };
-    int status = Send(tid, (char *)&request, sizeof(request),
-            (char *)&tick, sizeof(tick));
+    int status = Send(tid, (char *)&request, sizeof(request), (char *)&tick, sizeof(tick));
     if (status < 0) return -1;
     return tick;
 }
@@ -20,8 +19,7 @@ int Delay(int tid, int ticks) {
         .type = CS_DELAY,
         .data = ticks,
     };
-    int status = Send(tid, (char *)&request, sizeof(request),
-            (char *)&tick, sizeof(tick));
+    int status = Send(tid, (char *)&request, sizeof(request), (char *)&tick, sizeof(tick));
     if (status < 0) return -1;
     return tick;
 }
@@ -33,8 +31,7 @@ int DelayUntil(int tid, int ticks) {
         .type = CS_DELAYUNTIL,
         .data = ticks,
     };
-    int status = Send(tid, (char *)&request, sizeof(request),
-            (char *)&tick, sizeof(tick));
+    int status = Send(tid, (char *)&request, sizeof(request), (char *)&tick, sizeof(tick));
     if (status < 0) return -1;
     return tick;
 }
