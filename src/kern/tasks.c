@@ -80,14 +80,14 @@ int task_schedule() {
 }
 
 uint32_t task_activate(int tid) {
-    Task *current_task = task_at(tid);
+    Task *task = task_at(tid);
 
-    current_task->status = ACTIVE;
+    task->status = ACTIVE;
     uint64_t task_start = timer_read_raw(TIMER3);
-    uint32_t swi_code = switch_frame(&current_task->pc, &current_task->tf, &current_task->spsr);
+    uint32_t swi_code   = switch_frame(&task->pc, &task->tf, &task->spsr);
     uint64_t task_end   = timer_read_raw(TIMER3);
-    current_task->status = READY;
-    current_task->runtime += task_end - task_start;
+    task->status = READY;
+    task->runtime += task_end - task_start;
 
     swi_code = swi_code & 0xFFFFFF;
     return swi_code;
