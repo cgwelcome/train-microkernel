@@ -7,7 +7,6 @@
 #include <user/ipc.h>
 #include <user/name.h>
 #include <user/tasks.h>
-#include <utils/kassert.h>
 #include <utils/pqueue.h>
 
 static int clock_server_tid, clock_notifier_tid;
@@ -72,11 +71,11 @@ void cs_task() {
 void cn_task() {
     int cstid = WhoIs(CLOCK_SERVER_NAME);
     timer_init(TIMER2, CLOCK_NOTIFY_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
-    icu_activate(TC2UI_EVENT);
     CSRequest request = {
         .type = CS_TICKUPDATE
     };
     for (;;) {
+		timer_clear(TIMER2);
         AwaitEvent(TC2UI_EVENT);
         Send(cstid, (char *)&request, sizeof(request), NULL, 0);
     }
