@@ -3,8 +3,8 @@
 At the school Linux server:
 
 ``` bash
-cd src && make
-cp main.elf /u/cs452/tftp/ARM/<YOUR UW USERNAME>
+make
+make install
 ```
 
 At the RedBoot prompt:

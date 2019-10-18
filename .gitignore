@@ -6,3 +6,6 @@
 *.a
 *.elf
 *.nfs*
+
+./bin
+./obj
