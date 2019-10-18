@@ -14,13 +14,19 @@
 
 #include <stdint.h>
 
-// syscon_lock() toggles lock of the system controller
+/**
+ * Toggles lock of the system controller
+ */
 void syscon_lock(int state);
 
-// syscon_config() configures the device
+/**
+ * Configures the device
+ */
 void syscon_config(uint32_t mask);
 
-// syscon_halt() uses the system controller to halt the system
+/**
+ * Uses the system controller to halt the system
+ */
 void syscon_halt();
 
 #endif

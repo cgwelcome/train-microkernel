@@ -7,4 +7,4 @@
 	#define LED_RED		0x2
 	#define LED_BOTH	0x3
 
-#endif
+#endif /*__HARDWARE_LED_H__ */

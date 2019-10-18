@@ -3,7 +3,9 @@
 
 #include <stdint.h>
 
-// CreateIdleTask creates an idle task for diagnostic purpose.
+/**
+ * Creates an idle task for diagnostic purpose.
+ */
 int CreateIdleTask(uint32_t priority);
 
 #endif

@@ -9,17 +9,25 @@ typedef struct {
     size_t len;
 } Message;
 
-// ipc_send() sends message(msg) to recvtid, and waits for a reply message to be written to reply
+/**
+ * Sends message(msg) to recvtid, and waits for a reply message to be written to reply
+ */
 void ipc_send(int tid, int recvtid, char *msg, size_t msglen, char *reply, size_t rplen);
 
-// ipc_receive() copies a sender's message to msg and the sender's tid to sendtid.
+/**
+ * Copies a sender's message to msg and the sender's tid to sendtid.
+ */
 void ipc_receive(int tid, int *sendtid, char *msg, size_t msglen);
 
-// ipc_reply() copies the reply message from tid Task to replytid Task.
+/**
+ * Copies the reply message from tid Task to replytid Task.
+ */
 void ipc_reply(int tid, int replytid, char *reply, size_t rplen);
 
-// ipc_cleanup() clears the send queue by unblock the tasks, and return an error code.
-// for incomplete transaction
+/**
+ * Clears the send queue by unblock the tasks, and return an error code.
+ * for incomplete transaction
+ */
 void ipc_cleanup(int tid);
 
 #endif

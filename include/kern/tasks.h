@@ -57,41 +57,59 @@ typedef struct {
     Message reply_msg;
 } Task;
 
-// swi_handler_init() registers the swi_handler() to the processor.
+/**
+ * Registers the swi_handler() to the processor.
+ */
 void swi_handler_init();
 
-// hwi_handler_init() registers the hwi_handler() to the processor.
+/**
+ * Registers the hwi_handler() to the processor.
+ */
 void hwi_handler_init();
 
-// switch_frame() switches the context from kernel to a user task.
+/**
+ * Switches the context from kernel to a user task.
+ */
 uint32_t switch_frame(uint32_t *pc, Trapframe **tf, uint32_t *sp);
 
-// task_init() initializes the internal variables related to task APIs.
+/**
+ * Initializes the internal variables related to task APIs.
+ */
 void task_init();
 
-// task_at() returns a pointer to the specified task.
-// It return NULL if tid is out of range
+/**
+ * Returns a pointer to the specified task.
+ * It return NULL if tid is out of range
+ */
 Task *task_at(int tid);
 
-// task_create() creates a new task on behalf of the kernel.
-// Parameters:
-//   ptid: parent tid, which is -1 if the task is started by kernel itself.
-//   priority: a positive integer from 1 to 1024.
-//   function: a function pointer to the entry of the creating task.
-// Return Values:
-//   tid: the allocated tid if the task has been created successfully.
-//   -1: the priority is invalid.
-//   -2: the kernel is out of task descriptors.
+/**
+ * Creates a new task on behalf of the kernel.
+ * Parameters:
+ *  ptid: parent tid, which is -1 if the task is started by kernel itself.
+ *  priority: a positive integer from 1 to 1024.
+ *  function: a function pointer to the entry of the creating task.
+ * Return Values:
+ *  tid: the allocated tid if the task has been created successfully.
+ *  -1: the priority is invalid.
+ *  -2: the kernel is out of task descriptors.
+ */
 int task_create(int ptid, uint32_t priority, void (*function)());
 
-// task_schedule() returns next task tid to activate.
-// It returns -1 if there is no task alive.
+/**
+ * Returns next task tid to activate.
+ * It returns -1 if there is no task alive.
+ */
 int task_schedule();
 
-// task_activate() transfers control from kernel to the specified task.
+/**
+ * Transfers control from kernel to the specified task.
+ */
 uint32_t task_activate(int tid);
 
-// task_kill() terminates the specified task.
+/**
+ * Terminates the specified task.
+ */
 void task_kill(int tid);
 
 #endif

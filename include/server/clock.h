@@ -17,10 +17,14 @@ typedef struct {
     int data;
 } CSRequest;
 
-// InitClockServer() initialize some global counters for the Clock Server.
+/**
+ * Initialize some global counters for the Clock Server.
+ */
 void InitClockServer();
 
-// CreateClockServer() creates a global Clock Server
+/**
+ * Creates a global Clock Server
+ */
 int CreateClockServer(uint32_t priority);
 
 #endif

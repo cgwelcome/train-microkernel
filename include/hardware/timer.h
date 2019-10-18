@@ -25,16 +25,24 @@
 
 #include <stdint.h>
 
-// timer_init initialize the a timers in the EP93XX processor.
+/**
+ * Initialize the a timers in the EP93XX processor.
+ */
 void timer_init(int timer, uint32_t load, int frequency);
 
-// timer_read() returns escaped time since bootup in milliseconds.
+/**
+ * Returns escaped time since bootup in milliseconds.
+ */
 uint64_t timer_read(int timer);
 
-// timer_read_raw() returns escaped time since bootup in ticks (508 ticks / millisecond).
+/**
+ * Returns escaped time since bootup in ticks (508 ticks / millisecond).
+ */
 uint64_t timer_read_raw(int timer);
 
-// timer_clear() clears the timer interrupt.
+/**
+ * Clears the timer interrupt.
+ */
 void timer_clear(int timer);
 
 #endif

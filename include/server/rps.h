@@ -43,7 +43,9 @@ typedef struct {
     char move;
 } RPSRequest;
 
-// CreateRPS() creates a Rock Paper Server
+/**
+ * Creates a Rock Paper Server
+ */
 int CreateRPS(uint32_t priority);
 
 #endif
