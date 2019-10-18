@@ -46,7 +46,7 @@ void cs_task() {
     int tid;
     CSRequest request;
 
-    RegisterAs("CS");
+    RegisterAs(CLOCK_SERVER_NAME);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {
@@ -70,7 +70,7 @@ void cs_task() {
 }
 
 void cn_task() {
-    int cstid = WhoIs("CS");
+    int cstid = WhoIs(CLOCK_SERVER_NAME);
     timer_init(TIMER2, CLOCK_NOTIFY_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
     icu_activate(TC2UI_EVENT);
     CSRequest request = {

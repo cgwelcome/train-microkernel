@@ -21,7 +21,7 @@ int setspeed(int channel, int speed) {
         return 0;
     case 2400:
         *high = 0x00;
-        *low  = 0xC0;
+        *low  = 0xBF;
         return 0;
     default:
         return -1;

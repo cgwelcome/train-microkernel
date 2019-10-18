@@ -253,4 +253,3 @@ void bwprintf( int channel, char *fmt, ... ) {
 	bwformat( channel, fmt, va );
 	va_end(va);
 }
-

@@ -5,6 +5,8 @@
 
 #include <stdint.h>
 
+#define CLOCK_SERVER_NAME "CS"
+
 typedef enum {
     CS_TICKUPDATE,
     CS_DELAY,

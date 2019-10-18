@@ -17,7 +17,7 @@ static void child_task() {
     int mytid = MyTid();
     DelayRequest request;
     Send(MyParentTid(), NULL, 0, (char *)&request, sizeof(request));
-    int cstid = WhoIs("CS");
+    int cstid = WhoIs(CLOCK_SERVER_NAME);
     for (int i = 0; i < request.num; i++) {
         Delay(cstid, request.ticks);
         bwprintf(COM2, "TID: %d - Ticks: %d - Num: %d\n\r", mytid, request.ticks, i+1);

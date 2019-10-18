@@ -32,7 +32,7 @@ void initialize() {
     InitNameServer();
     InitClockServer();
     // Create first user task.
-    task_create(-1, 500, &k3_root_task);
+    task_create(-1, 500, &k2_root_task);
 }
 
 void handle_request(int tid, uint32_t request) {

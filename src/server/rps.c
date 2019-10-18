@@ -124,7 +124,7 @@ static void rsp_task() {
         rpsmatches[i].status = RPS_UNUSED;
     }
 
-    RegisterAs("RPS");
+    RegisterAs(RPS_SERVER_NAME);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {

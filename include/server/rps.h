@@ -1,9 +1,10 @@
 #ifndef __SERVER_RPS_H__
 #define __SERVER_RPS_H__
 
-#define MAX_MATCH_NUM 128
-
 #include <stdint.h>
+
+#define MAX_MATCH_NUM 128
+#define RPS_SERVER_NAME "RPS"
 
 typedef enum {
     RPS_UNUSED,
