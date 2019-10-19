@@ -4,13 +4,13 @@
 #define SYSCON_BASE     0x80930000
 #define HALT_OFFSET         0x08
 #define DEVICE_CFG_OFFSET   0x80
-	#define SHENA_MASK      0x01
+    #define SHENA_MASK      0x01
 #define SWLOCK_OFFSET       0xC0
-	#define SWLOCK_ON       0x00
-	#define SWLOCK_OFF      0xAA
+    #define SWLOCK_ON       0x00
+    #define SWLOCK_OFF      0xAA
 
-#define ON	1
-#define	OFF	0
+#define ON  1
+#define OFF 0
 
 #include <stdint.h>
 

@@ -15,13 +15,13 @@ void event_init() {
 
 void event_await(int tid, int event) {
     Task *current_task = task_at(tid);
-	icu_activate(event);
-	if (event < 0 || MAX_EVENT_NUM <= event) {
-		current_task->tf->r0 = (uint32_t) -1;
-		return;
-	}
-	current_task->status = EVENTBLOCKED;
-	queue_push(&await_queue[event], tid);
+    icu_activate(event);
+    if (event < 0 || MAX_EVENT_NUM <= event) {
+        current_task->tf->r0 = (uint32_t) -1;
+        return;
+    }
+    current_task->status = EVENTBLOCKED;
+    queue_push(&await_queue[event], tid);
 }
 
 void event_handle() {
@@ -33,17 +33,17 @@ void event_handle() {
         case TC3UI_EVENT:
             return_value = 0;
             break;
-		case INT_UART1:
-			return_value = (uint32_t) uart_readintr(COM1);
-			break;
-		case INT_UART2:
-			return_value = (uint32_t) uart_readintr(COM2);
-			break;
+        case INT_UART1:
+            return_value = (uint32_t) uart_readintr(COM1);
+            break;
+        case INT_UART2:
+            return_value = (uint32_t) uart_readintr(COM2);
+            break;
         default:
             return;
-			break;
+            break;
     }
-	icu_disable(event);
+    icu_disable(event);
     while (queue_size(&await_queue[event]) > 0) {
         Task *task = task_at(queue_pop(&await_queue[event]));
         task->status = READY;
