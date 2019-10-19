@@ -57,19 +57,19 @@ int io_getc(int channel) {
 
 int io_putc(int channel, int c) {
     int *flags, *data;
-	switch (channel) {
-	case COM1:
-		flags = (int *)( UART1_BASE + UART_FLAG_OFFSET );
-		data  = (int *)( UART1_BASE + UART_DATA_OFFSET );
-		break;
-	case COM2:
-		flags = (int *)( UART2_BASE + UART_FLAG_OFFSET );
-		data  = (int *)( UART2_BASE + UART_DATA_OFFSET );
-		break;
-	default:
-		return -1; // wrong channel, cannot continue
-	}
-	while( *flags & TXFF_MASK ) ;
-	*data = c;
+    switch (channel) {
+    case COM1:
+        flags = (int *)( UART1_BASE + UART_FLAG_OFFSET );
+        data  = (int *)( UART1_BASE + UART_DATA_OFFSET );
+        break;
+    case COM2:
+        flags = (int *)( UART2_BASE + UART_FLAG_OFFSET );
+        data  = (int *)( UART2_BASE + UART_DATA_OFFSET );
+        break;
+    default:
+        return -1; // wrong channel, cannot continue
+    }
+    while( *flags & TXFF_MASK ) ;
+    *data = c;
     return 0;
 }

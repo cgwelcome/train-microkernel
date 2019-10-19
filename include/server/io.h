@@ -10,39 +10,39 @@
 #include <utils/queue.h>
 
 typedef enum {
-	IO_TRANSMITDOWN,
-	IO_TRANSMITUP,
+    IO_TRANSMITDOWN,
+    IO_TRANSMITUP,
 } IOTransmitFlag;
 
 typedef enum {
-	IO_CTSINIT,
-	IO_CTSDOWN,
-	IO_CTSCOMPLETED,
+    IO_CTSINIT,
+    IO_CTSDOWN,
+    IO_CTSCOMPLETED,
 } IOCtsFlag;
 
 typedef enum {
-	IO_RECVDOWN,
-	IO_RECVUP,
+    IO_RECVDOWN,
+    IO_RECVUP,
 } IORecvFlag;
 
 typedef struct {
-	int id;
-	Queue sendqueue;
-	Queue recvqueue;
-	IOCtsFlag ctsflag;
-	IOTransmitFlag transmitflag;
-	IORecvFlag recvflag;
+    int id;
+    Queue sendqueue;
+    Queue recvqueue;
+    IOCtsFlag ctsflag;
+    IOTransmitFlag transmitflag;
+    IORecvFlag recvflag;
 } IOChannel;
 
 typedef enum {
-	IO_REQUEST_INT_UART,
-	IO_REQUEST_PUTC,
-	IO_REQUEST_GETC,
+    IO_REQUEST_INT_UART,
+    IO_REQUEST_PUTC,
+    IO_REQUEST_GETC,
 } IORequestType;
 
 typedef struct {
-	IORequestType type;
-   	uint32_t data;
+    IORequestType type;
+    uint32_t data;
 } IORequest;
 
 int CreateIOServer(uint32_t priority, int channel);

@@ -10,7 +10,7 @@
 #define UART2RXINTR2 25
 #define UART2TXINTR2 26
 #define TC3UI_EVENT  51
-#define INT_UART1	 52
-#define INT_UART2	 54
+#define INT_UART1    52
+#define INT_UART2    54
 
 #endif /*__EVENT_H__*/

@@ -74,7 +74,7 @@ void cn_task() {
         .type = CS_TICKUPDATE
     };
     for (;;) {
-		timer_clear(TIMER2);
+        timer_clear(TIMER2);
         AwaitEvent(TC2UI_EVENT);
         Send(cstid, (char *)&request, sizeof(request), NULL, 0);
     }
