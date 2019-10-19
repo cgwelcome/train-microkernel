@@ -103,7 +103,7 @@ static void comserver_updateflag(IOChannel *iochannel, uint32_t flag) {
     }
     if (flag & RIS_MASK) {
         iochannel->recvflag = IO_RECVDOWN;
-        uart_disableintr(iochannel->id, RTIEN_MASK);
+        uart_disableintr(iochannel->id, RIEN_MASK);
     }
     if (flag & TIS_MASK) {
         iochannel->transmitflag = IO_TRANSMITUP;
@@ -136,21 +136,21 @@ static void comserver_task(IOChannel *iochannel) {
 }
 
 void com1server_task() {
-	uart_setspeed(COM1, 2400);
-	uart_setbitconfig(COM1, WLEN_MASK | STP2_MASK);
-	comserver_initiochannel(COM1);
-	uart_enableintr(COM1, UARTEN_MASK);
-	RegisterAs(COM1_SERVER_NAME);
-	comserver_task(&com1iochannel);
+    uart_setspeed(COM1, 2400);
+    uart_setbitconfig(COM1, WLEN_MASK | STP2_MASK);
+    comserver_initiochannel(COM1);
+    uart_enableintr(COM1, UARTEN_MASK);
+    RegisterAs(COM1_SERVER_NAME);
+    comserver_task(&com1iochannel);
 }
 
 void com2server_task() {
-	uart_setspeed(COM2, 115200);
-	uart_setbitconfig(COM2, WLEN_MASK);
-	comserver_initiochannel(COM2);
-	uart_enableintr(COM2, UARTEN_MASK);
-	RegisterAs(COM2_SERVER_NAME);
-	comserver_task(&com2iochannel);
+    uart_setspeed(COM2, 115200);
+    uart_setbitconfig(COM2, WLEN_MASK);
+    comserver_initiochannel(COM2);
+    uart_enableintr(COM2, UARTEN_MASK);
+    RegisterAs(COM2_SERVER_NAME);
+    comserver_task(&com2iochannel);
 }
 
 static void comnotifier_await(int channel, int servertid) {
