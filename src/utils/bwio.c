@@ -56,7 +56,7 @@ int bwsetspeed( int channel, int speed ) {
 		return 0;
 	case 2400:
 		*high = 0x00;
-		*low  = 0xC0;
+		*low  = 0xBF;
 		return 0;
 	default:
 		return -1;
@@ -80,6 +80,7 @@ int bwputc( int channel, char c ) {
 	}
 	while( ( *flags & TXFF_MASK ) ) ;
 	*data = c;
+	while( ( *flags & TXFF_MASK ) ) ;
 	return 0;
 }
 
@@ -141,6 +142,7 @@ int bwgetc( int channel ) {
 	}
 	while ( !( *flags & RXFF_MASK ) ) ;
 	c = (unsigned char) *data;
+	while ( !( *flags & RXFF_MASK ) ) ;
 	return c;
 }
 
