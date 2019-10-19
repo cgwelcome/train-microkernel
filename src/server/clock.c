@@ -12,35 +12,35 @@ static int clock_server_tid, clock_notifier_tid;
 static int clockticks;
 static PQueue pqdelay;
 
-static void cs_time(int tid) {
+static void clock_time(int tid) {
     Reply(tid, (char *)&clockticks, sizeof(clockticks));
 }
 
-static void cs_updatetick() {
+static void clock_updatetick() {
     clockticks++;
     while (pqueue_size(&pqdelay) > 0 && pqueue_peek(&pqdelay) <= clockticks) {
         int tid = pqueue_pop(&pqdelay);
-        cs_time(tid);
+        clock_time(tid);
     }
 }
 
-static void cs_delay(int tid, int ticks) {
+static void clock_delay(int tid, int ticks) {
     if (ticks == 0) {
-        cs_time(tid);
+        clock_time(tid);
     } else {
         pqueue_insert(&pqdelay, tid, clockticks + ticks);
     }
 }
 
-static void cs_delayuntil(int tid, int ticks) {
+static void clock_delayuntil(int tid, int ticks) {
     if (ticks <= clockticks) {
-        cs_time(tid);
+        clock_time(tid);
     } else {
         pqueue_insert(&pqdelay, tid, ticks);
     }
 }
 
-void cs_task() {
+void clock_server_task() {
     int tid;
     CSRequest request;
 
@@ -49,17 +49,17 @@ void cs_task() {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {
             case CS_TICKUPDATE:
-                cs_updatetick();
+                clock_updatetick();
                 Reply(tid, NULL, 0);
                 break;
             case CS_TIME:
-                cs_time(tid);
+                clock_time(tid);
                 break;
             case CS_DELAY:
-                cs_delay(tid, request.data);
+                clock_delay(tid, request.data);
                 break;
             case CS_DELAYUNTIL:
-                cs_delayuntil(tid, request.data);
+                clock_delayuntil(tid, request.data);
                 break;
             default:
                 break;
@@ -67,8 +67,7 @@ void cs_task() {
     }
 }
 
-void cn_task() {
-    int cstid = WhoIs(CLOCK_SERVER_NAME);
+void clock_notifier_task() {
     timer_init(TIMER2, CLOCK_NOTIFY_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
     CSRequest request = {
         .type = CS_TICKUPDATE
@@ -76,7 +75,7 @@ void cn_task() {
     for (;;) {
         timer_clear(TIMER2);
         AwaitEvent(TC2UI_EVENT);
-        Send(cstid, (char *)&request, sizeof(request), NULL, 0);
+        Send(clock_server_tid, (char *)&request, sizeof(request), NULL, 0);
     }
 }
 
@@ -89,10 +88,10 @@ void InitClockServer() {
 
 int CreateClockServer(uint32_t priority) {
     if (clock_server_tid < 0) {
-        clock_server_tid = Create(priority, &cs_task);
+        clock_server_tid = Create(priority, &clock_server_task);
     }
     if (clock_notifier_tid < 0) {
-        clock_notifier_tid = Create(priority - 1000, &cn_task);
+        clock_notifier_tid = Create(priority - 1000, &clock_notifier_task);
     }
     return clock_server_tid;
 }
