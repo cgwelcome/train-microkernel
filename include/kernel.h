@@ -20,8 +20,7 @@
 /*
  * The request codes for syscalls
  */
-#define SYSCALL_IO_GETC             0x00000001
-#define SYSCALL_IO_PUTC             0x00000002
+// TODO: clean the syscall codes later
 #define SYSCALL_TASK_CREATE         0x00000003
 #define SYSCALL_TASK_YIELD          0x00000004
 #define SYSCALL_TASK_EXIT           0x00000005
