@@ -34,7 +34,6 @@ void io_sensors_test() {
 
 	}
 	Exit();
-	Exit();
 }
 
 

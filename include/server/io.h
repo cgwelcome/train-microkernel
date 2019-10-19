@@ -26,12 +26,13 @@ typedef enum {
 } IORecvFlag;
 
 typedef struct {
+	int id;
 	Queue sendqueue;
 	Queue recvqueue;
 	IOCtsFlag ctsflag;
 	IOTransmitFlag transmitflag;
 	IORecvFlag recvflag;
-} IOStatus;
+} IOChannel;
 
 typedef enum {
 	IO_REQUEST_INT_UART,
