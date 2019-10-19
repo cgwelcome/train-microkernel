@@ -6,7 +6,7 @@
 #include <user/name.h>
 #include <utils/bwio.h>
 
-void io_sensors_test() {
+void train_sensors_test() {
     int com1tid = WhoIs(COM1_SERVER_NAME);
     int com2tid = WhoIs(COM2_SERVER_NAME);
     unsigned int speed = 10;
@@ -38,7 +38,7 @@ void io_sensors_test() {
 
 
 
-void io_traingame_test() {
+void train_game_test() {
     int com1tid = WhoIs(COM1_SERVER_NAME);
     int com2tid = WhoIs(COM2_SERVER_NAME);
     unsigned int speed = 5;
@@ -64,7 +64,7 @@ void io_traingame_test() {
 }
 
 
-void io_subcommand_test() {
+void train_subcommand_test() {
     int com1tid = WhoIs(COM1_SERVER_NAME);
     int com2tid = WhoIs(COM2_SERVER_NAME);
     Putc(com1tid, COM1, 5);
@@ -78,7 +78,7 @@ void io_subcommand_test() {
     Exit();
 }
 
-void io_move_train_test() {
+void move_train_test() {
     int servertid = WhoIs(COM1_SERVER_NAME);
     Putc(servertid, COM1, 5);
     Putc(servertid, COM1, 78);
@@ -89,7 +89,7 @@ void train_test_root_task() {
     CreateNameServer(4000);
     CreateIOServer(3000, COM1);
     CreateIOServer(3000, COM2);
-    Create(3000, &io_sensors_test);
+    Create(3000, &train_sensors_test);
     CreateIdleTask(1);
     Exit();
 }
