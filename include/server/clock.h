@@ -2,10 +2,9 @@
 #define __SERVER_CLOCK_H__
 
 #define CLOCK_NOTIFY_INTERVAL 10
+#define CLOCK_SERVER_NAME "CS"
 
 #include <stdint.h>
-
-#define CLOCK_SERVER_NAME "CS"
 
 typedef enum {
     CS_TICKUPDATE,

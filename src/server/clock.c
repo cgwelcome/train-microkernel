@@ -1,6 +1,5 @@
 #include <stddef.h>
 #include <event.h>
-#include <hardware/icu.h>
 #include <hardware/timer.h>
 #include <server/clock.h>
 #include <user/event.h>

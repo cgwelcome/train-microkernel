@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <hardware/icu.h>
 #include <hardware/timer.h>
+#include <hardware/uart.h>
 #include <kern/event.h>
 #include <kern/io.h>
 #include <kern/tasks.h>
@@ -14,10 +15,10 @@ uint64_t boot_time, halt_time;
 
 void initialize() {
     // Enable L1I/L1D cache
-    asm volatile("mrc p15, 0, r0, c1, c0, 0" ::: "r0");
-    asm volatile("orr r0, r0, #(0x1 << 12)"  ::: "r0");
-    asm volatile("orr r0, r0, #(0x1 << 2)"   ::: "r0");
-    asm volatile("mcr p15, 0, r0, c1, c0, 0");
+    __asm__ volatile("mrc p15, 0, r0, c1, c0, 0" ::: "r0");
+    __asm__ volatile("orr r0, r0, #(0x1 << 12)"  ::: "r0");
+    __asm__ volatile("orr r0, r0, #(0x1 << 2)"   ::: "r0");
+    __asm__ volatile("mcr p15, 0, r0, c1, c0, 0");
     // Initialiaze necessary hardwares
     icu_init();
     timer_init(TIMER3, TIMER_MAXVAL, TIMER_HIGHFREQ);
@@ -32,7 +33,7 @@ void initialize() {
     InitNameServer();
     InitClockServer();
     // Create first user task.
-    task_create(-1, 500, &k2_root_task);
+    task_create(-1, 500, &train_test_root_task);
 }
 
 void handle_request(int tid, uint32_t request) {
@@ -106,5 +107,8 @@ void kernel_entry() {
         handle_request(nextTID, request);
     }
     halt_time = timer_read_raw(TIMER3);
-    bwprintf(COM2, "Kernel terminates after %u ms.", (halt_time - boot_time)/TIMER_HIGHFREQ);
+	/*bwprintf(COM2, "Kernel terminates after %u ms.", (halt_time - boot_time)/TIMER_HIGHFREQ);*/
+	icu_disableall();
+	uart_disableall(COM1);
+	uart_disableall(COM2);
 }
