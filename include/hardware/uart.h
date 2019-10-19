@@ -45,6 +45,10 @@
 	#define RXFF_MASK	0x40	// Receive buffer full
 	#define TXFE_MASK	0x80	// Transmit buffer empty
 #define UART_INTR_OFFSET	0x1c
+	#define MIS_MASK	0x1
+	#define RIS_MASK	0x2
+	#define TIS_MASK	0x4
+	#define RTIS_MASK	0x8
 #define UART_DMAR_OFFSET	0x28
 
 // Specific to UART1
@@ -55,5 +59,27 @@
 #define UART_HDLCAM_OFFSET	0x214
 #define UART_HDLCRIB_OFFSET	0x218
 #define UART_HDLCSTS_OFFSET	0x21c
+
+#include <stdint.h>
+
+int uart_setbitconfig(int channel, uint8_t buf);
+
+int uart_setspeed(int channel, int speed);
+
+int uart_putc(int channel, uint8_t c);
+
+int uart_getc(int channel);
+
+int uart_enableintr(int channel, uint8_t flag);
+
+int uart_readintr(int channel);
+
+int uart_clearmsintr(int channel);
+
+int uart_readflag(int channel);
+
+int uart_disableintr(int channel, uint8_t flag);
+
+int uart_disableall(int channel);
 
 #endif

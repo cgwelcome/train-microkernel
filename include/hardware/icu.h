@@ -35,6 +35,8 @@ int icu_read();
 /**
  * Clears an active interrupt, reverses the icu_active() function
  */
-void icu_clear(int event);
+void icu_disable(int event);
+
+void icu_disableall();
 
 #endif /*__HARDWARE_ICU_H__*/

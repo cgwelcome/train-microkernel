@@ -43,7 +43,7 @@ void event_handle() {
             return;
 			break;
     }
-	icu_clear(event);
+	icu_disable(event);
     while (queue_size(&await_queue[event]) > 0) {
         Task *task = task_at(queue_pop(&await_queue[event]));
         task->status = READY;

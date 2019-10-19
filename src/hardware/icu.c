@@ -48,7 +48,7 @@ int icu_read() {
 
     flag = (uint32_t *) (VIC1_BASE + IRQSTATUS_OFFSET);
     if (*flag != 0) {
-        return __builtin_ctz(*flag);
+		return __builtin_ctz(*flag);
     }
     flag = (uint32_t *) (VIC2_BASE + IRQSTATUS_OFFSET);
     if (*flag != 0) {
@@ -57,7 +57,7 @@ int icu_read() {
     return -1;
 }
 
-void icu_clear(int event) {
+void icu_disable(int event) {
     volatile uint32_t *flag;
     uint32_t mask;
 
@@ -70,4 +70,12 @@ void icu_clear(int event) {
         mask = 1U << (event-32);
     }
     *flag |= mask;
+}
+
+void icu_disableall() {
+    volatile uint32_t *flag;
+	flag = (uint32_t *) (VIC1_BASE + INTENCLEAR_OFFSET);
+    *flag = 0x0;
+	flag = (uint32_t *) (VIC2_BASE + INTENCLEAR_OFFSET);
+    *flag = 0x0;
 }
