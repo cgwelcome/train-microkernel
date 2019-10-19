@@ -5,12 +5,12 @@
 // Return Values:
 //   >-1    new character from the given UART.
 //    -1    tid is not a valid uart server task.
-int Getc(int server, int uart);
+int Getc(int tid, int uart);
 
 // Putc() queues the given character for transmission by the given UART.
 // Return Values:
 //    0     success
 //   -1     tid is not a valid uart server task.
-int Putc(int server, int uart, char ch);
+int Putc(int tid, int uart, char c);
 
 #endif

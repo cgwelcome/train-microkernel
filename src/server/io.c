@@ -136,8 +136,8 @@ static void comserver_task(IOChannel *iochannel) {
 }
 
 void com1server_task() {
-	uart_setbitconfig(COM1, WLEN_MASK | STP2_MASK);
 	uart_setspeed(COM1, 2400);
+	uart_setbitconfig(COM1, WLEN_MASK | STP2_MASK);
 	comserver_initiochannel(COM1);
 	uart_enableintr(COM1, UARTEN_MASK);
 	RegisterAs(COM1_SERVER_NAME);
@@ -145,8 +145,8 @@ void com1server_task() {
 }
 
 void com2server_task() {
-	uart_setbitconfig(COM2, WLEN_MASK);
 	uart_setspeed(COM2, 115200);
+	uart_setbitconfig(COM2, WLEN_MASK);
 	comserver_initiochannel(COM2);
 	uart_enableintr(COM2, UARTEN_MASK);
 	RegisterAs(COM2_SERVER_NAME);

@@ -5,7 +5,6 @@
 #include <hardware/timer.h>
 #include <hardware/uart.h>
 #include <kern/event.h>
-#include <kern/io.h>
 #include <kern/tasks.h>
 #include <server/clock.h>
 #include <server/name.h>
@@ -23,7 +22,6 @@ void initialize() {
     icu_init();
     timer_init(TIMER3, TIMER_MAXVAL, TIMER_HIGHFREQ);
     // Initialize necessary APIs and libraries
-    io_init();
     task_init();
     event_init();
     // Initialize software and hardware handlers
@@ -40,17 +38,6 @@ void handle_request(int tid, uint32_t request) {
     Task *current_task = task_at(tid);
     if (request == HW_INTERRUPT) {
         event_handle();
-    }
-    else if (request == SYSCALL_IO_GETC) {
-        int server = (int) current_task->tf->r0; // not used for now
-        int uart   = (int) current_task->tf->r1;
-        current_task->tf->r0 = (uint32_t) io_getc(uart);
-    }
-    else if (request == SYSCALL_IO_PUTC) {
-        int server = (int) current_task->tf->r0; // not used for now
-        int uart   = (int) current_task->tf->r1;
-        int ch     = (int) current_task->tf->r2;
-        current_task->tf->r0 = (uint32_t) io_putc(uart, ch);
     }
     else if (request == SYSCALL_TASK_CREATE) {
         uint32_t priority = (uint32_t) current_task->tf->r0;
