@@ -27,7 +27,7 @@
 // MAXNUM means the highest id switch can get
 #define MAX_TRAIN_NUM            80
 #define MAX_SENSOR_PER_MODULE    16
-#define MAX_SENSOR_NUM          80
+#define MAX_SENSOR_NUM           80
 #define MAX_SWITCH_NUM          157
 
 #define TRAINSET_SERVER_NAME  "TS"

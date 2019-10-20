@@ -83,24 +83,27 @@ static void trainset_switch(TrainSwitch *trainswitch, TrainSwitchStatus status) 
 }
 
 static void trainset_sensor_parsemodule(ActiveTrainSensorList *sensorlist, char module, uint16_t raw) {
-    while (raw != 0) {
-        TrainSensor sensor = {
-            .id = (uint32_t)(__builtin_ctz(raw)+1),
-            .module = module,
-        };
-        sensorlist->sensors[sensorlist->size] = sensor;
-        sensorlist->size++;
+    for (uint32_t i = 0; i < MAX_SENSOR_PER_MODULE; i++) {
+        if (raw % 2 == 1) {
+            TrainSensor sensor = {
+                .id = MAX_SENSOR_PER_MODULE - i,
+                .module = module,
+            };
+            sensorlist->sensors[sensorlist->size] = sensor;
+            sensorlist->size++;
+        }
+        raw = raw >> 1;
     }
 }
 
 static void trainset_sensor_readall(int tid) {
     ActiveTrainSensorList sensorlist;
-    Putc(iotid, uart, (char)SENSOR_READALL + MODULE_TOTAL_NUM);
+    sensorlist.size = 0;
+    Putc(iotid, uart, (char)(SENSOR_READALL + MODULE_TOTAL_NUM));
     for (char module = 'A'; module < 'A' + MODULE_TOTAL_NUM; module++) {
-        // Little-endian
-        uint8_t high = (uint8_t) Getc(iotid, uart);
-        uint8_t low = (uint8_t) Getc(iotid, uart);
-        uint16_t raw  = (uint16_t) (low + (high << sizeof(low)));
+        uint8_t first = (uint8_t) Getc(iotid, uart);
+        uint8_t second = (uint8_t) Getc(iotid, uart);
+        uint16_t raw = (uint16_t)((first << sizeof(second)*8) | second);
         trainset_sensor_parsemodule(&sensorlist, module, raw);
     }
     Reply(tid, (char *)&sensorlist, sizeof(sensorlist));
@@ -125,18 +128,18 @@ static void trainset_init() {
     iotid = WhoIs(IO_SERVER_NAME);
     RegisterAs(TRAINSET_SERVER_NAME);
     tsqueue_init(&delayresponses);
-    for (uint32_t id = 0; id < MAX_TRAIN_NUM; id++) {
-        trains[id].id = id;
-        trainset_speed(&trains[id], 0);
-    }
+    /*for (uint32_t id = 0; id < MAX_TRAIN_NUM; id++) {*/
+        /*trains[id].id = id;*/
+        /*trainset_speed(&trains[id], 0);*/
+    /*}*/
     trainset_go();
     for (uint32_t id = 1; id <= 18; id++) {
         trainswitches[id].id = id;
-        trainset_switch(&trainswitches[id], SWITCH_STRAIGHT);
+        trainset_switch(&trainswitches[id], TSWITCHSTATUS_STRAIGHT);
     }
     for (uint32_t id = 0x99; id <= 0x9C; id++) {
         trainswitches[id].id = id;
-        trainset_switch(&trainswitches[id], SWITCH_STRAIGHT);
+        trainset_switch(&trainswitches[id], TSWITCHSTATUS_STRAIGHT);
     }
 }
 

@@ -8,6 +8,22 @@
 #include <user/tasks.h>
 #include <user/trainset.h>
 
+void trainset_sensor_test() {
+    ActiveTrainSensorList list;
+    int servertid = WhoIs(TRAINSET_SERVER_NAME);
+    int iotid = WhoIs(IO_SERVER_NAME);
+    for (;;) {
+        Printf(iotid, COM2, "Waiting for input\n\r");
+        Getc(iotid, COM2);
+        list = Trainset_Sensor_Readall(servertid);
+        for (uint32_t i = 0; i < list.size; i++) {
+            Printf(iotid, COM2, "%c", list.sensors[i].module);
+            Printf(iotid, COM2, "%d\n\r", list.sensors[i].id);
+        };
+    }
+    Exit();
+}
+
 void trainset_switch_test() {
     TrainSwitchStatus status;
     int servertid = WhoIs(TRAINSET_SERVER_NAME);
@@ -72,7 +88,7 @@ void trainset_test_root_task() {
     CreateClockServer(3700);
     CreateIOServer(3500, 3500, 3500);
     CreateTrainSetServer(3000);
-    Create(2000, &trainset_switch_test);
+    Create(2000, &trainset_sensor_test);
     CreateIdleTask(1);
     Exit();
 }
