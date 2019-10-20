@@ -14,7 +14,9 @@ void Trainset_Reverse(int tid, uint32_t train_id);
 
 ActiveTrainSensorList Trainset_Sensor_Readall(int tid);
 
-void Trainset_Switch(int tid, uint32_t switch_id, TrainSwitchStatus status);
+void Trainset_Switchone(int tid, uint32_t switch_id, TrainSwitchStatus status);
+
+void Trainset_Switchall(int tid, TrainSwitchStatus status);
 
 void Trainset_Done(int tid);
 

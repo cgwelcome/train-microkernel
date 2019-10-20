@@ -67,15 +67,34 @@ static void trainset_reverse(Train *train) {
 
 static void trainset_switch(TrainSwitch *trainswitch, TrainSwitchStatus status) {
     switch (status) {
-        case TSWITCHSTATUS_STRAIGHT:
+        case SWITCHSTATUS_STRAIGHT:
             Putc(iotid, uart, SWITCH_STRAIGHT);
             break;
-        case TSWITCHSTATUS_CURVED:
+        case SWITCHSTATUS_CURVED:
             Putc(iotid, uart, SWITCH_CURVED);
             break;
     }
     Putc(iotid, uart, (char)trainswitch->id);
     trainswitch->status = status;
+}
+
+static void trainset_switchone(TrainSwitch *trainswitch, TrainSwitchStatus status) {
+    trainset_switch(trainswitch, status);
+    TSRequest payload = {
+        .type = TSREQUESTTYPE_SWITCH_TIMEOUT,
+    };
+    trainset_create_delay(payload, SWITCH_MOVE_INTERVAL);
+}
+
+static void trainset_switchall(TrainSwitchStatus status) {
+    for (uint32_t id = 1; id <= 18; id++) {
+        trainswitches[id].id = id;
+        trainset_switch(&trainswitches[id], status);
+    }
+    for (uint32_t id = 0x99; id <= 0x9C; id++) {
+        trainswitches[id].id = id;
+        trainset_switch(&trainswitches[id], status);
+    }
     TSRequest payload = {
         .type = TSREQUESTTYPE_SWITCH_TIMEOUT,
     };
@@ -128,19 +147,12 @@ static void trainset_init() {
     iotid = WhoIs(IO_SERVER_NAME);
     RegisterAs(TRAINSET_SERVER_NAME);
     tsqueue_init(&delayresponses);
-    /*for (uint32_t id = 0; id < MAX_TRAIN_NUM; id++) {*/
-        /*trains[id].id = id;*/
-        /*trainset_speed(&trains[id], 0);*/
-    /*}*/
+    for (uint32_t id = 0; id < MAX_TRAIN_NUM; id++) {
+        trains[id].id = id;
+        trainset_speed(&trains[id], 0);
+    }
     trainset_go();
-    for (uint32_t id = 1; id <= 18; id++) {
-        trainswitches[id].id = id;
-        trainset_switch(&trainswitches[id], TSWITCHSTATUS_STRAIGHT);
-    }
-    for (uint32_t id = 0x99; id <= 0x9C; id++) {
-        trainswitches[id].id = id;
-        trainset_switch(&trainswitches[id], TSWITCHSTATUS_STRAIGHT);
-    }
+    trainset_switchall(SWITCHSTATUS_DEFAULT);
 }
 
 static void trainset_done() {
@@ -172,8 +184,12 @@ void trainset_server_task() {
                 trainset_reverse(&trains[request.arg1]);
                 Reply(tid, NULL, 0);
                 break;
-            case TSREQUESTTYPE_SWITCH:
-                trainset_switch(&trainswitches[request.arg1], request.arg2);
+            case TSREQUESTTYPE_SWITCHONE:
+                trainset_switchone(&trainswitches[request.arg1], request.arg2);
+                Reply(tid, NULL, 0);
+                break;
+            case TSREQUESTTYPE_SWITCHALL:
+                trainset_switchall(request.arg1);
                 Reply(tid, NULL, 0);
                 break;
             case TSREQUESTTYPE_SENSOR_READALL:
@@ -200,6 +216,7 @@ void trainset_server_task() {
     }
     Exit();
 }
+
 
 int CreateTrainSetServer(uint32_t priority) {
     return Create(priority, &trainset_server_task);

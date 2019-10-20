@@ -32,6 +32,8 @@
 
 #define TRAINSET_SERVER_NAME  "TS"
 
+#define SWITCHSTATUS_DEFAULT SWITCHSTATUS_CURVED
+
 typedef struct {
     uint32_t id;
     uint32_t speed;
@@ -43,8 +45,8 @@ typedef struct {
 } TrainSensor;
 
 typedef enum {
-    TSWITCHSTATUS_STRAIGHT,
-    TSWITCHSTATUS_CURVED,
+    SWITCHSTATUS_STRAIGHT,
+    SWITCHSTATUS_CURVED,
 } TrainSwitchStatus;
 
 // Named TrainSwitch instead of Switch since switch is C keyword
@@ -64,7 +66,8 @@ typedef enum {
     TSREQUESTTYPE_STOP,
     TSREQUESTTYPE_SPEED,
     TSREQUESTTYPE_REVERSE,
-    TSREQUESTTYPE_SWITCH,
+    TSREQUESTTYPE_SWITCHONE,
+    TSREQUESTTYPE_SWITCHALL,
     TSREQUESTTYPE_SENSOR_READALL,
     TSREQUESTTYPE_INIT_TIMEOUT,
     TSREQUESTTYPE_REVERSE_TIMEOUT,

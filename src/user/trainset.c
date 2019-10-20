@@ -33,11 +33,19 @@ void Trainset_Reverse(int tid, uint32_t train_id) {
     Send(tid, (char *)&request, sizeof(request), NULL, 0);
 }
 
-void Trainset_Switch(int tid, uint32_t switch_id, TrainSwitchStatus status) {
+void Trainset_Switchone(int tid, uint32_t switch_id, TrainSwitchStatus status) {
     TSRequest request = {
-        .type = TSREQUESTTYPE_SWITCH,
+        .type = TSREQUESTTYPE_SWITCHONE,
         .arg1 = switch_id,
         .arg2 = status,
+    };
+    Send(tid, (char *)&request, sizeof(request), NULL, 0);
+}
+
+void Trainset_Switchall(int tid, TrainSwitchStatus status) {
+    TSRequest request = {
+        .type = TSREQUESTTYPE_SWITCHALL,
+        .arg1 = status,
     };
     Send(tid, (char *)&request, sizeof(request), NULL, 0);
 }

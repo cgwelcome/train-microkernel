@@ -30,19 +30,17 @@ void trainset_switch_test() {
     int iotid = WhoIs(IO_SERVER_NAME);
     int parity = 0;
     for (;;) {
-        Getc(iotid, COM2);
+        int c = Getc(iotid, COM2);
+        Putc(iotid, COM2, (char)c);
         if (parity == 1) {
-            status = TSWITCHSTATUS_STRAIGHT;
+            status = SWITCHSTATUS_STRAIGHT;
+            Putc(iotid, COM2, 's');
         }
         else {
-            status = TSWITCHSTATUS_CURVED;
+            status = SWITCHSTATUS_CURVED;
+            Putc(iotid, COM2, 'c');
         }
-        for (uint32_t id = 1; id <= 18; id++) {
-            Trainset_Switch(servertid, id, status);
-        }
-        for (uint32_t id = 0x99; id <= 0x9C; id++) {
-            Trainset_Switch(servertid, id, status);
-        }
+        Trainset_Switchall(servertid, status);
         parity ^= 1;
     }
     Exit();
