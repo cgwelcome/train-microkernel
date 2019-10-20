@@ -15,7 +15,8 @@ void cpu_usage_test_root_task();
 void halt_test_root_task();
 void io_test_root_task();
 void ctxcom_test_root_task();
-void train_test_root_task();
+void trainset_test_root_task();
+void clock_test_root_task();
 
 void queue_test_root_task();
 void pqueue_test_root_task();

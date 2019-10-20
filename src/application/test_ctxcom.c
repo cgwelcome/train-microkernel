@@ -18,7 +18,7 @@ void ctxcom_read_and_write_test() {
             Putc(iotid, COM1, (char)speed);
             Putc(iotid, COM1, 78);
         }
-        if (command == 's' && speed > 1) {
+        if (command == 's' && speed > 0) {
             speed--;
             Putc(iotid, COM2, (char)('a'-1+speed));
             Putc(iotid, COM1, (char)speed);
