@@ -66,19 +66,21 @@ int uart_putc(int channel, uint8_t c) {
 }
 
 int uart_getc(int channel) {
-    volatile uint8_t *data;
-    switch (channel) {
+    volatile uint8_t *flags, *data;
+    switch(channel) {
         case COM1:
-            data = (uint8_t *) (UART1_BASE + UART_DATA_OFFSET);
+            flags = (uint8_t *)(UART1_BASE + UART_FLAG_OFFSET);
+            data  = (uint8_t *)(UART1_BASE + UART_DATA_OFFSET);
             break;
         case COM2:
-            data = (uint8_t *) (UART2_BASE + UART_DATA_OFFSET);
+            flags = (uint8_t *)(UART2_BASE + UART_FLAG_OFFSET);
+            data  = (uint8_t *)(UART2_BASE + UART_DATA_OFFSET);
             break;
         default:
-            return -1;
-            break;
+            return -1; // wrong channel, cannot continue
     }
-    return *data;
+    return *flags & RXFE_MASK ? -1 : *data;
+
 }
 
 
@@ -161,7 +163,7 @@ int uart_disableintr(int channel, uint8_t flag) {
             return -1;
             break;
     }
-    *line = *line & (uint8_t)~flag;
+    *line = *line & ~flag;
     return 0;
 }
 

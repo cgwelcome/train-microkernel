@@ -7,6 +7,7 @@
 #include <kern/event.h>
 #include <kern/tasks.h>
 #include <server/clock.h>
+#include <server/io.h>
 #include <server/name.h>
 #include <utils/bwio.h>
 
@@ -28,6 +29,7 @@ void initialize() {
     swi_handler_init();
     hwi_handler_init();
     // Initialize global variables for servers
+    InitIOServer();
     InitNameServer();
     InitClockServer();
     // Create first user task.

@@ -1,8 +1,7 @@
 #ifndef __SERVER_IO_H__
 #define __SERVER_IO_H__
 
-#define COM1_SERVER_NAME "COM1SERVER"
-#define COM2_SERVER_NAME "COM2SERVER"
+#define IO_SERVER_NAME "IO"
 #define COM1 0
 #define COM2 1
 
@@ -10,28 +9,29 @@
 #include <utils/queue.h>
 
 typedef enum {
-    IO_TRANSMITDOWN,
-    IO_TRANSMITUP,
-} IOTransmitFlag;
-
-typedef enum {
     IO_CTSINIT,
     IO_CTSDOWN,
     IO_CTSCOMPLETED,
-} IOCtsFlag;
+} IOCTSFlag;
 
 typedef enum {
-    IO_RECVDOWN,
-    IO_RECVUP,
-} IORecvFlag;
+    IO_TXDOWN,
+    IO_TXUP,
+} IOTXFlag;
+
+typedef enum {
+    IO_RXDOWN,
+    IO_RXUP,
+} IORXFlag;
 
 typedef struct {
-    int id;
-    Queue sendqueue;
-    Queue recvqueue;
-    IOCtsFlag ctsflag;
-    IOTransmitFlag transmitflag;
-    IORecvFlag recvflag;
+    int uart;
+    Queue recv_queue;
+    Queue send_buffer;
+    Queue recv_buffer;
+    IOCTSFlag cts_flag;
+    IOTXFlag tx_flag;
+    IORXFlag rx_flag;
 } IOChannel;
 
 typedef enum {
@@ -42,9 +42,12 @@ typedef enum {
 
 typedef struct {
     IORequestType type;
+    int uart;
     uint32_t data;
 } IORequest;
 
-int CreateIOServer(uint32_t priority, int channel);
+void InitIOServer();
+
+int CreateIOServer(uint32_t server_priority, uint32_t com1_priority, uint32_t com2_priority);
 
 #endif
