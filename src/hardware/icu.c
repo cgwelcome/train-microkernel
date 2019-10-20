@@ -75,7 +75,7 @@ void icu_disable(int event) {
 void icu_disableall() {
     volatile uint32_t *flag;
     flag = (uint32_t *) (VIC1_BASE + INTENCLEAR_OFFSET);
-    *flag = 0x0;
+    *flag = UINT32_MAX;
     flag = (uint32_t *) (VIC2_BASE + INTENCLEAR_OFFSET);
-    *flag = 0x0;
+    *flag = UINT32_MAX;
 }
