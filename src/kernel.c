@@ -33,7 +33,7 @@ void initialize() {
     InitNameServer();
     InitClockServer();
     // Create first user task.
-    task_create(-1, 500, &train_test_root_task);
+    task_create(-1, 500, &ctxcom_test_root_task);
 }
 
 void handle_request(int tid, uint32_t request) {

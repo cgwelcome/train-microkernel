@@ -10,12 +10,12 @@
 
 void io_perf_test() {
     int servertid = WhoIs(IO_SERVER_NAME);
-    char buffer[BUFFER_SIZE];
+    int buffer[BUFFER_SIZE];
     for (int i = 0; i < BUFFER_SIZE; i++) {
         buffer[i] = Getc(servertid, COM2);
     }
     for (int i = 0; i < BUFFER_SIZE; i++) {
-        Putc(servertid, COM2, buffer[i]);
+        Putc(servertid, COM2, (char)buffer[i]);
     }
     Exit();
 }

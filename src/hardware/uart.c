@@ -163,7 +163,7 @@ int uart_disableintr(int channel, uint8_t flag) {
             return -1;
             break;
     }
-    *line = *line & ~flag;
+    *line = (uint8_t)(*line & ~flag);
     return 0;
 }
 
