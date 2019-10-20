@@ -43,8 +43,8 @@ typedef struct {
 } TrainSensor;
 
 typedef enum {
-    STRAIGHT,
-    CURVED,
+    TSWITCHSTATUS_STRAIGHT,
+    TSWITCHSTATUS_CURVED,
 } TrainSwitchStatus;
 
 // Named TrainSwitch instead of Switch since switch is C keyword

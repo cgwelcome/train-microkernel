@@ -67,13 +67,14 @@ static void trainset_reverse(Train *train) {
 
 static void trainset_switch(TrainSwitch *trainswitch, TrainSwitchStatus status) {
     switch (status) {
-        case STRAIGHT:
-            Putc(iotid, uart, SWITCH_CURVED);
-            break;
-        case CURVED:
+        case TSWITCHSTATUS_STRAIGHT:
             Putc(iotid, uart, SWITCH_STRAIGHT);
             break;
+        case TSWITCHSTATUS_CURVED:
+            Putc(iotid, uart, SWITCH_CURVED);
+            break;
     }
+    Putc(iotid, uart, (char)trainswitch->id);
     trainswitch->status = status;
     TSRequest payload = {
         .type = TSREQUESTTYPE_SWITCH_TIMEOUT,
@@ -129,14 +130,14 @@ static void trainset_init() {
         trainset_speed(&trains[id], 0);
     }
     trainset_go();
-    /*for (uint32_t id = 1; id <= 18; id++) {*/
-        /*trainswitches[id].id = id;*/
-        /*trainset_switch(&trainswitches[id], SWITCH_CURVED);*/
-    /*}*/
-    /*for (uint32_t id = 0x99; id <= 0x9C; id++) {*/
-        /*trainswitches[id].id = id;*/
-        /*trainset_switch(&trainswitches[id], SWITCH_CURVED);*/
-    /*}*/
+    for (uint32_t id = 1; id <= 18; id++) {
+        trainswitches[id].id = id;
+        trainset_switch(&trainswitches[id], SWITCH_STRAIGHT);
+    }
+    for (uint32_t id = 0x99; id <= 0x9C; id++) {
+        trainswitches[id].id = id;
+        trainset_switch(&trainswitches[id], SWITCH_STRAIGHT);
+    }
 }
 
 static void trainset_done() {

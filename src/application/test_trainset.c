@@ -8,6 +8,30 @@
 #include <user/tasks.h>
 #include <user/trainset.h>
 
+void trainset_switch_test() {
+    TrainSwitchStatus status;
+    int servertid = WhoIs(TRAINSET_SERVER_NAME);
+    int iotid = WhoIs(IO_SERVER_NAME);
+    int parity = 0;
+    for (;;) {
+        Getc(iotid, COM2);
+        if (parity == 1) {
+            status = TSWITCHSTATUS_STRAIGHT;
+        }
+        else {
+            status = TSWITCHSTATUS_CURVED;
+        }
+        for (uint32_t id = 1; id <= 18; id++) {
+            Trainset_Switch(servertid, id, status);
+        }
+        for (uint32_t id = 0x99; id <= 0x9C; id++) {
+            Trainset_Switch(servertid, id, status);
+        }
+        parity ^= 1;
+    }
+    Exit();
+}
+
 void trainset_multiple_speed_test() {
     int servertid = WhoIs(TRAINSET_SERVER_NAME);
     int iotid = WhoIs(IO_SERVER_NAME);
@@ -29,6 +53,10 @@ void trainset_multiple_speed_test() {
             Printf(iotid, COM2, "Reversing");
             Trainset_Reverse(servertid, 78);
         }
+        if (command == 'q') {
+            Trainset_Done(servertid);
+            break;
+        }
     }
     Exit();
 }
@@ -44,7 +72,7 @@ void trainset_test_root_task() {
     CreateClockServer(3700);
     CreateIOServer(3500, 3500, 3500);
     CreateTrainSetServer(3000);
-    Create(2000, &trainset_multiple_speed_test);
+    Create(2000, &trainset_switch_test);
     CreateIdleTask(1);
     Exit();
 }
