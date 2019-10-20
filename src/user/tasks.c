@@ -33,3 +33,9 @@ int MyCpuUsage() {
     SYSCALL_INVOKE(SYSCALL_TASK_CPUUSAGE);
     return usage;
 }
+
+int Shutdown() {
+    register int status asm("r0");
+    SYSCALL_INVOKE(SYSCALL_TASK_SHUTDOWN);
+    return status;
+}

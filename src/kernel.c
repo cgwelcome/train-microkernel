@@ -60,6 +60,9 @@ void handle_request(int tid, uint32_t request) {
         uint64_t total_runtime = timer_read_raw(TIMER3) - boot_time;
         current_task->tf->r0 = (uint32_t) (current_task->runtime * 100UL / total_runtime);
     }
+    else if (request == SYSCALL_TASK_SHUTDOWN) {
+        task_shutdown();
+    }
     else if (request == SYSCALL_IPC_SEND) {
         int recvtid   = (int)    current_task->tf->r0;
         char *msg     = (char *) current_task->tf->r1;

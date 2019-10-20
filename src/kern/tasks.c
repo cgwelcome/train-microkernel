@@ -98,3 +98,9 @@ void task_kill(int tid) {
     alive_task_count -= 1;
     total_task_priority -= tasks[tid].priority;
 }
+
+void task_shutdown() {
+    for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
+        task_kill(tid);
+    }
+}

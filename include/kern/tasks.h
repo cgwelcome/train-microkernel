@@ -112,4 +112,6 @@ uint32_t task_activate(int tid);
  */
 void task_kill(int tid);
 
+void task_shutdown();
+
 #endif

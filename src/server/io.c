@@ -186,7 +186,7 @@ void io_server_task() {
     int tid; IORequest request; IOChannel *channel;
 
     RegisterAs(IO_SERVER_NAME);
-    for(;;) {
+    for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {
             case IO_REQUEST_INT_UART:

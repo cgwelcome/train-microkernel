@@ -31,4 +31,6 @@ int MyParentTid();
 // MyCpuUsage() reports the percentage of CPU runtime for current task.
 int MyCpuUsage();
 
+int Shutdown();
+
 #endif

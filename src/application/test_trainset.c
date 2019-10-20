@@ -24,7 +24,7 @@ void trainset_sensor_test() {
     Exit();
 }
 
-void trainset_switch_test() {
+void trainset_switchall_test() {
     TrainSwitchStatus status;
     int servertid = WhoIs(TRAINSET_SERVER_NAME);
     int iotid = WhoIs(IO_SERVER_NAME);
@@ -68,7 +68,7 @@ void trainset_multiple_speed_test() {
             Trainset_Reverse(servertid, 78);
         }
         if (command == 'q') {
-            Trainset_Done(servertid);
+            Shutdown();
             break;
         }
     }
@@ -86,7 +86,7 @@ void trainset_test_root_task() {
     CreateClockServer(3700);
     CreateIOServer(3500, 3500, 3500);
     CreateTrainSetServer(3000);
-    Create(2000, &trainset_sensor_test);
+    Create(2000, &trainset_multiple_speed_test);
     CreateIdleTask(1);
     Exit();
 }
