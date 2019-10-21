@@ -9,6 +9,7 @@
 #include <user/trainset.h>
 #include <utils/queue.h>
 
+#define SENSOR_LIST_SIZE 7
 
 static void shell_execute_command(Queue *cmd_buffer) {
     Exit();
@@ -83,19 +84,31 @@ static void shell_clock_task() {
 }
 
 static void shell_sensor_task() {
-    ActiveTrainSensorList list;
+    ActiveTrainSensorList active_list; active_list.size = 0;
+    ActiveTrainSensorList output_list; output_list.size = 0;
+
     int clocktid = WhoIs(CLOCK_SERVER_NAME);
     int iotid = WhoIs(IO_SERVER_NAME);
     int traintid = WhoIs(TRAINSET_SERVER_NAME);
+
     for (;;) {
         Delay(clocktid, SENSOR_READ_INTERVAL/10);
-        list = Trainset_Sensor_Readall(traintid);
-        for (uint32_t i = 0; i < list.size; i++) {
+        active_list = Trainset_Sensor_Readall(traintid);
+        for (uint32_t i = 0; i < active_list.size; i++) {
+            if (output_list.size < SENSOR_LIST_SIZE) {
+                output_list.size += 1;
+            }
+            for (int t = SENSOR_LIST_SIZE - 1; t > 0; t--) {
+                output_list.sensors[t] = output_list.sensors[t - 1];
+            }
+            output_list.sensors[0] = active_list.sensors[i];
+        }
+        for (uint32_t i = 0; i < output_list.size; i++) {
             Printf(iotid, COM2,
                 "\033[%d;%dH\033[K%c%u",
-                LINE_SENSOR_START, 1,
-                list.sensors[i].module,
-                list.sensors[i].id
+                LINE_SENSOR_START + i, 3,
+                output_list.sensors[i].module,
+                output_list.sensors[i].id
             );
         };
     }

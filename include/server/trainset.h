@@ -82,8 +82,7 @@ typedef struct {
 
 typedef struct {
     TSRequest payload;
-    // In milliseconds
-    uint32_t delay;
+    uint32_t delay; // in milliseconds
 } TSTimerResponse;
 
 int CreateTrainSetServer(uint32_t priority);
