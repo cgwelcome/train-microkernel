@@ -56,7 +56,7 @@ static void shell_print_switch(int iotid, unsigned int code, char direction) {
 static void shell_print_terminal(int iotid, char *cmd_buffer, unsigned int cmd_len) {
     cmd_buffer[cmd_len] = '\0';
     Printf(iotid, COM2, "\033[%u;%uH\033[K%s█",
-        LINE_TERMINAL, 4,
+        LINE_TERMINAL, 3,
         cmd_buffer
     );
 }
