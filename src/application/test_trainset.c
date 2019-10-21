@@ -68,6 +68,7 @@ void trainset_multiple_speed_test() {
             Trainset_Reverse(servertid, 78);
         }
         if (command == 'q') {
+            ShutdownIOServer();
             Shutdown();
             break;
         }

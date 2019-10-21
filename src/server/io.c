@@ -69,6 +69,9 @@ static IOChannel *iochannel(int uart) {
     }
 }
 
+static bool iochannel_haltable(IOChannel *channel) {
+    return queue_size(&channel->send_buffer) == 0;
+}
 
 static void iochannel_flush_send(IOChannel *channel) {
     int send_count = channel->fifo ? 8 : 1;
@@ -178,10 +181,18 @@ static void io_server_getc(IOChannel *channel, int tid) {
 
 void io_server_task() {
     int tid; IORequest request; IOChannel *channel;
+    bool is_halting = false; int halting_error = -1;
+    Queue halting_queue; queue_init(&halting_queue);
 
     RegisterAs(IO_SERVER_NAME);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
+        if (is_halting) {
+            if (request.type != IO_REQUEST_INT_UART && request.type != IO_REQUEST_SHUTDOWN) {
+                Reply(tid, (char *) &halting_error, sizeof(halting_error));
+                continue;
+            }
+        }
         switch (request.type) {
             case IO_REQUEST_INT_UART:
                 channel = iochannel(request.uart);
@@ -201,8 +212,26 @@ void io_server_task() {
                 channel = iochannel(request.uart);
                 io_server_getc(channel, tid);
                 break;
+            case IO_REQUEST_SHUTDOWN:
+                if (iochannel_haltable(&com1_channel) && iochannel_haltable(&com2_channel)) {
+                    is_halting = true;
+                    Reply(tid, NULL, 0);
+                } else {
+                    is_halting = true;
+                    queue_push(&halting_queue, tid);
+                }
+                break;
             default:
                 break;
+        }
+        if (is_halting) {
+            if (iochannel_haltable(&com1_channel) && iochannel_haltable(&com2_channel)) {
+                while (queue_size(&halting_queue)) {
+                    int tid = queue_pop(&halting_queue);
+                    Reply(tid, NULL, 0);
+                }
+                Exit();
+            }
         }
     }
 }
@@ -255,4 +284,11 @@ int CreateIOServer(uint32_t server_priority, uint32_t com1_priority, uint32_t co
         com2_notifier_tid = Create(com2_priority, &io_com2_notifier_task);
     }
     return io_server_tid;
+}
+
+void ShutdownIOServer() {
+    IORequest request = {
+        .type = IO_REQUEST_SHUTDOWN
+    };
+    Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0);
 }
