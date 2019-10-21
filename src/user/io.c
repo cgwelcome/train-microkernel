@@ -83,11 +83,13 @@ void i2a(int num, char *bf) {
     ui2a((unsigned int) num, 10, bf);
 }
 
-void bufcpy(char *dst, char *src, int *dst_start) {
+void bufcpy(char *dst, char *src, int fill_count, char fill_char, int *dst_start) {
     char ch;
-    while ((ch = *(src++))) {
-        dst[(*dst_start)++] = ch;
-    }
+    char *p = src;
+
+    while (*p++ && fill_count > 0) fill_count--;
+    while (fill_count-- > 0) dst[(*dst_start)++] = fill_char;
+    while ((ch = *(src++)))  dst[(*dst_start)++] = ch;
 }
 
 void format(int tid, int uart, char *fmt, va_list va) {
@@ -118,27 +120,25 @@ void format(int tid, int uart, char *fmt, va_list va) {
                 ch = a2i(ch, &fmt, 10, &w);
                 break;
             }
-            while (w--) bf[i++] = lz;
-
             switch(ch) {
             case 0: return;
             case 'c':
                 bf[i++] = va_arg(va, char);
                 break;
             case 's':
-                bufcpy(bf, va_arg(va, char*), &i);
+                bufcpy(bf, va_arg(va, char*), w, lz, &i);
                 break;
             case 'u':
                 ui2a(va_arg(va, unsigned int), 10, num);
-                bufcpy(bf, num, &i);
+                bufcpy(bf, num, w, lz, &i);
                 break;
             case 'd':
                 i2a(va_arg(va, int), num);
-                bufcpy(bf, num, &i);
+                bufcpy(bf, num, w, lz, &i);
                 break;
             case 'x':
                 ui2a(va_arg(va, unsigned int), 16, num);
-                bufcpy(bf, num, &i);
+                bufcpy(bf, num, w, lz, &i);
                 break;
             case '%':
                 bf[i++] = ch;
