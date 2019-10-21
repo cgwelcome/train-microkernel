@@ -191,8 +191,8 @@ void shell_server_root_task() {
     Printf(iotid, COM2, "\033[?25l");
 
     Create(SHELL_PRIORITY, &shell_keyboard_task);
-    /*Create(SHELL_PRIORITY, &shell_clock_task);*/
-    /*Create(SHELL_PRIORITY, &shell_sensor_task);*/
+    Create(SHELL_PRIORITY, &shell_clock_task);
+    Create(SHELL_PRIORITY, &shell_sensor_task);
     Exit();
 }
 
