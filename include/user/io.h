@@ -25,8 +25,13 @@ int Getc(int tid, int uart);
 //   -1     tid is not a valid uart server task.
 int Putc(int tid, int uart, char c);
 
-void Putw(int tid, int uart, int n, char fc, char *bf);
+// Putw() queues the given string for transmission by the given UART.
+// Return Values:
+//    0     success
+//   -1     tid is not a valid uart server task.
+int Putw(int tid, int uart, char *buffer);
 
+// Printf() queues the given formatted string for transmission by the given UART.
 void Printf(int tid, int uart, char *fmt, ...);
 
 #endif

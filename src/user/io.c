@@ -1,3 +1,4 @@
+#include <string.h>
 #include <server/io.h>
 #include <user/io.h>
 #include <user/ipc.h>
@@ -25,13 +26,15 @@ int Putc(int tid, int uart, char c) {
     return 0;
 }
 
-void Putw(int tid, int uart, int n, char fc, char *bf) {
-    char ch;
-    char *p = bf;
-
-    while(*p++ && n > 0) n--;
-    while(n-- > 0) Putc(tid, uart, fc);
-    while((ch = *bf++)) Putc(tid, uart, ch);
+int Putw(int tid, int uart, char *buffer) {
+    IORequest request = {
+        .type = IO_REQUEST_PUTW,
+        .uart = uart,
+        .data = (uint32_t) buffer
+    };
+    int status = Send(tid, (char *)&request, sizeof(request), NULL, 0);
+    if (status < 0) return status;
+    return 0;
 }
 
 int a2d(char ch) {
@@ -82,13 +85,14 @@ void i2a(int num, char *bf) {
 }
 
 void format(int tid, int uart, char *fmt, va_list va) {
-    char bf[12];
+    char bf[128], num[32];
     char ch, lz;
     int w;
 
+    int i = 0;
     while ((ch = *(fmt++))) {
         if (ch != '%')
-            Putc(tid, uart, ch);
+            bf[i++] = ch;
         else {
             lz = ' '; w = 0;
             ch = *(fmt++);
@@ -108,32 +112,36 @@ void format(int tid, int uart, char *fmt, va_list va) {
                 ch = a2i(ch, &fmt, 10, &w);
                 break;
             }
+            while (w--) bf[i++] = lz;
+
             switch(ch) {
             case 0: return;
             case 'c':
-                Putc(tid, uart, va_arg(va, char));
+                bf[i++] = va_arg(va, char);
                 break;
             case 's':
-                Putw(tid, uart, w, 0, va_arg( va, char* ));
+                strcpy(bf + (i++), va_arg(va, char*));
                 break;
             case 'u':
-                ui2a(va_arg( va, unsigned int ), 10, bf);
-                Putw(tid, uart, w, lz, bf);
+                ui2a(va_arg(va, unsigned int), 10, num);
+                strcpy(bf + (i++), num);
                 break;
             case 'd':
-                i2a(va_arg( va, int ), bf);
-                Putw(tid, uart, w, lz, bf);
+                i2a(va_arg(va, int), num);
+                strcpy(bf + (i++), num);
                 break;
             case 'x':
-                ui2a(va_arg( va, unsigned int ), 16, bf);
-                Putw(tid, uart, w, lz, bf);
+                ui2a(va_arg(va, unsigned int), 16, num);
+                strcpy(bf + (i++), num);
                 break;
             case '%':
-                Putc(tid, uart, ch);
+                bf[i++] = ch;
                 break;
             }
         }
     }
+    bf[i] = '\0';
+    Putw(tid, uart, bf);
 }
 
 void Printf(int tid, int uart, char *fmt, ...) {

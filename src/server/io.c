@@ -172,6 +172,15 @@ static void io_server_putc(IOChannel *channel, int tid, int c) {
     Reply(tid, NULL, 0);
 }
 
+static void io_server_putw(IOChannel *channel, int tid, char * str) {
+    int c = 0;
+    while ((c = *str++)) {
+        queue_push(&channel->send_buffer, c);
+    }
+    io_server_update_channel(channel);
+    Reply(tid, NULL, 0);
+}
+
 static void io_server_getc(IOChannel *channel, int tid) {
     if (queue_size(&channel->recv_buffer) != 0) {
         int c = queue_pop(&channel->recv_buffer);
@@ -198,6 +207,10 @@ void io_server_task() {
             case IO_REQUEST_PUTC:
                 channel = iochannel(request.uart);
                 io_server_putc(channel, tid, (int)request.data);
+                break;
+            case IO_REQUEST_PUTW:
+                channel = iochannel(request.uart);
+                io_server_putw(channel, tid, (char *)request.data);
                 break;
             case IO_REQUEST_GETC:
                 channel = iochannel(request.uart);
