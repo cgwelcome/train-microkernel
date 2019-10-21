@@ -55,6 +55,10 @@ void io_race_test() {
 void io_test_root_task() {
     CreateNameServer(4000);
     CreateIOServer(3000, 3000, 3000);
+
+    int servertid = WhoIs(IO_SERVER_NAME);
+    Printf(servertid, COM2, "\033[2J");
+
     Create(1000, &io_race_test);
     Create(2000, &io_race_test);
     Create(3000, &io_race_test);
