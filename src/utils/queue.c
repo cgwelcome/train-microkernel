@@ -26,5 +26,5 @@ uint32_t queue_size(Queue *queue) {
 }
 
 int queue_peek(Queue *queue) {
-    return queue->array[0];
+    return queue->array[queue->head];
 }
