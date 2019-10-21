@@ -24,3 +24,7 @@ void queue_push(Queue *queue, int data) {
 uint32_t queue_size(Queue *queue) {
     return queue->size;
 }
+
+int queue_peek(Queue *queue) {
+    return queue->array[0];
+}

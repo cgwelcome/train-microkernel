@@ -7,16 +7,35 @@
 #include <user/name.h>
 #include <user/tasks.h>
 #include <user/trainset.h>
+#include <utils/queue.h>
 
-static void shell_parser_task() {
+
+static void shell_execute_command(Queue *cmd_buffer) {
     Exit();
 }
 
 static void shell_keyboard_task() {
     int iotid = WhoIs(IO_SERVER_NAME);
+    int traintid = WhoIs(TRAINSET_SERVER_NAME);
+    static Queue cmd_buffer;
+    queue_init(&cmd_buffer);
     for (;;) {
         int c = Getc(iotid, COM2);
-        Putc(iotid, COM2, (char)c);
+        if (c == '\r' && queue_size(&cmd_buffer) > 0)  {
+            if (queue_peek(&cmd_buffer) == 'q') {
+                Trainset_Done(traintid);
+                ShutdownIOServer();
+                Shutdown();
+            }
+            shell_execute_command(&cmd_buffer);
+            queue_init(&cmd_buffer);
+        }
+        if (c == '\b' && queue_size(&cmd_buffer) > 0) {
+            queue_pop(&cmd_buffer);
+        }
+        if (c < CMD_BUFFER_SIZE) {
+            queue_push(&cmd_buffer, c);
+        }
     }
     Exit();
 }
@@ -42,7 +61,12 @@ static void shell_clock_update(ShellClock *shellclock) {
 }
 
 static void shell_clock_display(int iotid, ShellClock *shellclock) {
-    Printf(iotid, COM2, "%d:%d:%d\n\r", shellclock->minute, shellclock->second, shellclock->decisecond);
+    Printf(iotid, COM2, "\033[%d;%dH\033[K%u:%u:%u",
+            LINE_TIME, 1,
+            shellclock->minute,
+            shellclock->second,
+            shellclock->decisecond
+    );
 }
 
 static void shell_clock_task() {
@@ -67,15 +91,24 @@ static void shell_sensor_task() {
         Delay(clocktid, SENSOR_READ_INTERVAL/10);
         list = Trainset_Sensor_Readall(traintid);
         for (uint32_t i = 0; i < list.size; i++) {
-            Printf(iotid, COM2, "%c", list.sensors[i].module);
-            Printf(iotid, COM2, "%d\n\r", list.sensors[i].id);
+            Printf(iotid, COM2,
+                "\033[%d;%dH\033[K%c%u",
+                LINE_SENSOR_START, 1,
+                list.sensors[i].module,
+                list.sensors[i].id
+            );
         };
     }
     Exit();
 }
 
 void shell_server_root_task() {
-    Create(SHELL_PRIORITY, &shell_parser_task);
+    int iotid = WhoIs(IO_SERVER_NAME);
+    // Clear the screen
+    Printf(iotid, COM2, "\033[2J");
+    // Hide the cursor
+    Printf(iotid, COM2, "\033[?25l");
+
     Create(SHELL_PRIORITY, &shell_keyboard_task);
     Create(SHELL_PRIORITY, &shell_clock_task);
     Create(SHELL_PRIORITY, &shell_sensor_task);
