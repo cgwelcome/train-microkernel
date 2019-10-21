@@ -13,6 +13,11 @@ static void shell_parser_task() {
 }
 
 static void shell_keyboard_task() {
+    int iotid = WhoIs(IO_SERVER_NAME);
+    for (;;) {
+        int c = Getc(iotid, COM2);
+        Putc(iotid, COM2, (char)c);
+    }
     Exit();
 }
 
