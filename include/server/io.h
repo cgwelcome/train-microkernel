@@ -37,6 +37,7 @@ typedef struct {
 typedef enum {
     IO_REQUEST_INT_UART,
     IO_REQUEST_PUTC,
+    IO_REQUEST_PUTW,
     IO_REQUEST_GETC,
 } IORequestType;
 
