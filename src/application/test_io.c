@@ -46,8 +46,8 @@ void io_putc_test() {
 
 void io_race_test() {
     int servertid = WhoIs(IO_SERVER_NAME);
-    for (int i = 0; i < 10; i++) {
-        Printf(servertid, COM2, "This is line %d printed by task %d\r\n", i + 1, MyTid());
+    for (int i = 0; i < 9; i++) {
+        Printf(servertid, COM2, "This is line %d printed by task %d.\r\n", i + 1, MyTid());
     }
     Exit();
 }
@@ -55,8 +55,8 @@ void io_race_test() {
 void io_test_root_task() {
     CreateNameServer(4000);
     CreateIOServer(3000, 3000, 3000);
-    Create(3000, &io_race_test);
-    Create(3000, &io_race_test);
+    Create(1000, &io_race_test);
+    Create(2000, &io_race_test);
     Create(3000, &io_race_test);
     // Create(3000, &io_putc_test);
     // Create(3000, &io_getc_test);

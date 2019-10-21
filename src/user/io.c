@@ -1,4 +1,3 @@
-#include <string.h>
 #include <server/io.h>
 #include <user/io.h>
 #include <user/ipc.h>
@@ -84,6 +83,13 @@ void i2a(int num, char *bf) {
     ui2a((unsigned int) num, 10, bf);
 }
 
+void bufcpy(char *dst, char *src, int *dst_start) {
+    char ch;
+    while ((ch = *src++)) {
+        dst[(*dst_start)++] = ch;
+    }
+}
+
 void format(int tid, int uart, char *fmt, va_list va) {
     char bf[128], num[32];
     char ch, lz;
@@ -120,19 +126,19 @@ void format(int tid, int uart, char *fmt, va_list va) {
                 bf[i++] = va_arg(va, char);
                 break;
             case 's':
-                strcpy(bf + (i++), va_arg(va, char*));
+                bufcpy(bf, va_arg(va, char*), &i);
                 break;
             case 'u':
                 ui2a(va_arg(va, unsigned int), 10, num);
-                strcpy(bf + (i++), num);
+                bufcpy(bf, num, &i);
                 break;
             case 'd':
                 i2a(va_arg(va, int), num);
-                strcpy(bf + (i++), num);
+                bufcpy(bf, num, &i);
                 break;
             case 'x':
                 ui2a(va_arg(va, unsigned int), 16, num);
-                strcpy(bf + (i++), num);
+                bufcpy(bf, num, &i);
                 break;
             case '%':
                 bf[i++] = ch;
@@ -147,7 +153,7 @@ void format(int tid, int uart, char *fmt, va_list va) {
 void Printf(int tid, int uart, char *fmt, ...) {
     va_list va;
 
-    va_start(va,fmt);
+    va_start(va, fmt);
     format(tid, uart, fmt, va);
     va_end(va);
 }
