@@ -40,7 +40,20 @@ static void shell_print_interface(int iotid) {
     Printf(iotid, COM2, "\033[%u;%uH> █"                             , LINE_TERMINAL        , 1);
 }
 
-static void shell_print_terminal(char *cmd_buffer, unsigned int cmd_len, int iotid) {
+static void shell_print_switch(int iotid, unsigned int code, char direction) {
+    unsigned int row, col;
+    if (code > 0 && code < 19) {
+        row = (code - 1) / 6;
+        col = (code - 1) % 6;
+    }
+    if (code > 0x98 && code < 0x9D) {
+        row = 3;
+        col = code - 0x99;
+    }
+    Printf(iotid, COM2, "\033[%u;%uH%c", LINE_SWITCH_START + row, 6 + col * 5, direction);
+}
+
+static void shell_print_terminal(int iotid, char *cmd_buffer, unsigned int cmd_len) {
     cmd_buffer[cmd_len] = '\0';
     Printf(iotid, COM2, "\033[%u;%uH\033[K%s█",
         LINE_TERMINAL, 4,
@@ -48,7 +61,7 @@ static void shell_print_terminal(char *cmd_buffer, unsigned int cmd_len, int iot
     );
 }
 
-static void shell_execute_command(char *cmd_buffer, unsigned int cmd_len, int traintid) {
+static void shell_execute_command(int iotid, int traintid, char *cmd_buffer, unsigned int cmd_len) {
     int arg1_len, arg2_len, code, speed, direction;
     switch (cmd_buffer[0]) {
         case 't':                // set train speed
@@ -85,11 +98,11 @@ static void shell_execute_command(char *cmd_buffer, unsigned int cmd_len, int tr
                         break;
                 }
                 Trainset_Switchone(traintid, (uint32_t)code, status);
+                shell_print_switch(iotid, (unsigned int) code, (char) direction);
             }
             break;
     }
 }
-
 
 static void shell_keyboard_task() {
     unsigned int cmd_len = 0;
@@ -107,22 +120,22 @@ static void shell_keyboard_task() {
                         ShutdownIOServer();
                         Shutdown();
                     }
-                    shell_execute_command(cmd_buffer, cmd_len, traintid);
+                    shell_execute_command(iotid, traintid, cmd_buffer, cmd_len);
                     cmd_len = 0;
-                    shell_print_terminal(cmd_buffer, cmd_len, iotid);
+                    shell_print_terminal(iotid, cmd_buffer, cmd_len);
                 }
                 break;
             case '\b':                         // delete character if get "BACKSPACE"
                 if (cmd_len != 0) {
                     cmd_len -= 1;
-                    shell_print_terminal(cmd_buffer, cmd_len, iotid);
+                    shell_print_terminal(iotid, cmd_buffer, cmd_len);
                 }
                 break;
             default:                           // otherwise just store the character
                 if (cmd_len < CMD_BUFFER_SIZE) {
                     cmd_buffer[cmd_len] = in;
                     cmd_len += 1;
-                    shell_print_terminal(cmd_buffer, cmd_len, iotid);
+                    shell_print_terminal(iotid, cmd_buffer, cmd_len);
                 }
                 break;
         }
