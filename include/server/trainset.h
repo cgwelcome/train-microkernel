@@ -19,7 +19,6 @@
 #define SENSOR_READONE        0xC0
 
 #define SWITCH_MOVE_INTERVAL      150
-#define SENSOR_READ_INTERVAL      100
 #define TRAIN_REVERSE_INTERVAL   3000
 
 #define MODULE_TOTAL_NUM          5
