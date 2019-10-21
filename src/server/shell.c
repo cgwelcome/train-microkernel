@@ -9,7 +9,16 @@
 #include <user/trainset.h>
 #include <utils/queue.h>
 
-#define SENSOR_LIST_SIZE 7
+static void shell_print_interface(int iotid) {
+    Printf(iotid, COM2, "\033[%u;%uHTIME: "                          , LINE_TIME            , 1);
+    Printf(iotid, COM2, "\033[%u;%uHSWITCHES: "                      , LINE_SWITCH_TITLE    , 1);
+    Printf(iotid, COM2, "\033[%u;%uH  01:S 02:S 03:S 04:S 05:S 06:S ", LINE_SWITCH_START + 0, 1);
+    Printf(iotid, COM2, "\033[%u;%uH  07:S 08:S 09:S 10:S 11:S 12:S ", LINE_SWITCH_START + 1, 1);
+    Printf(iotid, COM2, "\033[%u;%uH  13:S 14:S 15:S 16:S 17:S 18:S ", LINE_SWITCH_START + 2, 1);
+    Printf(iotid, COM2, "\033[%u;%uH  99:S 9A:S 9B:S 9C:S "          , LINE_SWITCH_START + 3, 1);
+    Printf(iotid, COM2, "\033[%u;%uHSENSORS: "                       , LINE_SENSOR_TITLE    , 1);
+    Printf(iotid, COM2, "\033[%u;%uH> █"                             , LINE_TERMINAL        , 1);
+}
 
 static void shell_execute_command(Queue *cmd_buffer) {
     Exit();
@@ -62,8 +71,8 @@ static void shell_clock_update(ShellClock *shellclock) {
 }
 
 static void shell_clock_display(int iotid, ShellClock *shellclock) {
-    Printf(iotid, COM2, "\033[%d;%dH\033[K%u:%u:%u",
-            LINE_TIME, 1,
+    Printf(iotid, COM2, "\033[%u;%uH\033[K%04u:%02u:%03u",
+            LINE_TIME, 7,
             shellclock->minute,
             shellclock->second,
             shellclock->decisecond
@@ -121,6 +130,8 @@ void shell_server_root_task() {
     Printf(iotid, COM2, "\033[2J");
     // Hide the cursor
     Printf(iotid, COM2, "\033[?25l");
+    // Initialize the interface
+    shell_print_interface(iotid);
 
     Create(SHELL_PRIORITY, &shell_keyboard_task);
     Create(SHELL_PRIORITY, &shell_clock_task);
