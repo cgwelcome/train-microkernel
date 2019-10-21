@@ -12,19 +12,22 @@ static void idle_task() {
         io_server_id = CreateIOServer(3000, 3000, 3000);
     }
 
-    /*const char *save_cursor = "\033[s";*/
-    /*const char *retn_cursor = "\033[u";*/
-    /*const char *clear_line  = "\033[K";*/
-    /*const char *idle_rate_title_position = "\033[1;1H";*/
-    /*const char *idle_rate_value_position = "\033[1;16H";*/
+    const char *save_cursor = "\033[s";
+    const char *retn_cursor = "\033[u";
+    const char *clear_line  = "\033[K";
+    const char *idle_rate_title_position = "\033[1;1H";
+    const char *idle_rate_value_position = "\033[1;16H";
 
     syscon_lock(OFF);
     syscon_config(SHENA_MASK);
-    /*Printf(io_server_id, COM2, "%s%sCPU Idle Rate: %s", save_cursor, idle_rate_title_position, retn_cursor);*/
+    Printf(io_server_id, COM2, "%s%sCPU Idle Rate: %s", save_cursor, idle_rate_title_position, retn_cursor);
     Yield();
-    for (;;) {
+    for (unsigned int i = 0; ; i++) {
         syscon_halt();
-        /*Printf(io_server_id, COM2, "%s%s%d%%%s", save_cursor, idle_rate_value_position, clear_line, MyCpuUsage(), retn_cursor);*/
+        if (i % 10 == 0) {
+            int usage = MyCpuUsage();
+            Printf(io_server_id, COM2, "%s%s%s%u.%u%%%s", save_cursor, idle_rate_value_position, clear_line, usage / 100, usage % 100, retn_cursor);
+        }
     }
     Exit();
 }
