@@ -11,6 +11,14 @@
 #include <utils/bwio.h>
 #include <user/trainset.h>
 
+static int find(char *str, int len, char ch) {
+    int i = 0;
+    for (i = 0; i < len; i++) {
+        if (str[i] == ch) return i;
+    }
+    return -1;
+}
+
 static int atoi(char *str, int len) {
     int result = 0;
     int i = 0;
@@ -24,36 +32,23 @@ static int atoi(char *str, int len) {
 static void shell_print_interface(int iotid) {
     Printf(iotid, COM2, "\033[%u;%uHTIME: "                          , LINE_TIME            , 1);
     Printf(iotid, COM2, "\033[%u;%uHSWITCHES: "                      , LINE_SWITCH_TITLE    , 1);
-    Printf(iotid, COM2, "\033[%u;%uH  01:S 02:S 03:S 04:S 05:S 06:S ", LINE_SWITCH_START + 0, 1);
-    Printf(iotid, COM2, "\033[%u;%uH  07:S 08:S 09:S 10:S 11:S 12:S ", LINE_SWITCH_START + 1, 1);
-    Printf(iotid, COM2, "\033[%u;%uH  13:S 14:S 15:S 16:S 17:S 18:S ", LINE_SWITCH_START + 2, 1);
-    Printf(iotid, COM2, "\033[%u;%uH  99:S 9A:S 9B:S 9C:S "          , LINE_SWITCH_START + 3, 1);
+    Printf(iotid, COM2, "\033[%u;%uH  01:C 02:C 03:C 04:C 05:C 06:C ", LINE_SWITCH_START + 0, 1);
+    Printf(iotid, COM2, "\033[%u;%uH  07:C 08:C 09:C 10:C 11:C 12:C ", LINE_SWITCH_START + 1, 1);
+    Printf(iotid, COM2, "\033[%u;%uH  13:C 14:C 15:C 16:C 17:C 18:C ", LINE_SWITCH_START + 2, 1);
+    Printf(iotid, COM2, "\033[%u;%uH  99:C 9A:C 9B:C 9C:C "          , LINE_SWITCH_START + 3, 1);
     Printf(iotid, COM2, "\033[%u;%uHSENSORS: "                       , LINE_SENSOR_TITLE    , 1);
     Printf(iotid, COM2, "\033[%u;%uH> █"                             , LINE_TERMINAL        , 1);
 }
 
-int find(char *str, int len, char ch) {
-    int i = 0;
-    for (i = 0; i < len; i++) {
-        if (str[i] == ch) return i;
-    }
-    return -1;
+static void shell_print_terminal(char *cmd_buffer, unsigned int cmd_len, int iotid) {
+    cmd_buffer[cmd_len] = '\0';
+    Printf(iotid, COM2, "\033[%u;%uH\033[K%s█",
+        LINE_TERMINAL, 4,
+        cmd_buffer
+    );
 }
 
-
-
-static void print_terminal(char *cmd_buffer, unsigned int cmd_len, int iotid) {
-    Printf(iotid, COM2, "\033[%d;%dH\033[K",
-            LINE_TERMINAL, 1
-          );
-    unsigned int i = 0;
-    for (i = 0; i < cmd_len; i++) {
-        Putc(iotid, COM2, cmd_buffer[i]);
-    }
-}
-
-
-static void execute_command(char *cmd_buffer, unsigned int cmd_len, int traintid) {
+static void shell_execute_command(char *cmd_buffer, unsigned int cmd_len, int traintid) {
     int arg1_len, arg2_len, code, speed, direction;
     switch (cmd_buffer[0]) {
         case 't':                // set train speed
@@ -108,22 +103,26 @@ static void shell_keyboard_task() {
             case '\r':                         // execute command if get "ENTER"
                 if (cmd_len != 0) {
                     if (cmd_buffer[0] == 'q') {
-                        Trainset_Done(traintid); ShutdownIOServer(); Shutdown(); } execute_command(cmd_buffer, cmd_len, traintid);
+                        Trainset_Done(traintid);
+                        ShutdownIOServer();
+                        Shutdown();
+                    }
+                    shell_execute_command(cmd_buffer, cmd_len, traintid);
                     cmd_len = 0;
-                    print_terminal(cmd_buffer, cmd_len, iotid);
+                    shell_print_terminal(cmd_buffer, cmd_len, iotid);
                 }
                 break;
             case '\b':                         // delete character if get "BACKSPACE"
                 if (cmd_len != 0) {
                     cmd_len -= 1;
-                    print_terminal(cmd_buffer, cmd_len, iotid);
+                    shell_print_terminal(cmd_buffer, cmd_len, iotid);
                 }
                 break;
             default:                           // otherwise just store the character
                 if (cmd_len < CMD_BUFFER_SIZE) {
                     cmd_buffer[cmd_len] = in;
                     cmd_len += 1;
-                    print_terminal(cmd_buffer, cmd_len, iotid);
+                    shell_print_terminal(cmd_buffer, cmd_len, iotid);
                 }
                 break;
         }
@@ -154,10 +153,10 @@ static void shell_clock_update(ShellClock *shellclock) {
 
 static void shell_clock_display(int iotid, ShellClock *shellclock) {
     Printf(iotid, COM2, "\033[%u;%uH\033[K%04u:%02u:%03u",
-            LINE_TIME, 7,
-            shellclock->minute,
-            shellclock->second,
-            shellclock->decisecond
+        LINE_TIME, 7,
+        shellclock->minute,
+        shellclock->second,
+        shellclock->decisecond
     );
 }
 
@@ -195,8 +194,7 @@ static void shell_sensor_task() {
             output_list.sensors[0] = active_list.sensors[i];
         }
         for (uint32_t i = 0; i < output_list.size; i++) {
-            Printf(iotid, COM2,
-                "\033[%d;%dH\033[K%c%u",
+            Printf(iotid, COM2, "\033[%d;%dH\033[K%c%u",
                 LINE_SENSOR_START + i, 3,
                 output_list.sensors[i].module,
                 output_list.sensors[i].id
