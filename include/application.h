@@ -4,6 +4,7 @@
 void k1_root_task();
 void k2_root_task();
 void k3_root_task();
+void k4_root_task();
 
 void helloworld_test_root_task();
 void ipc_test_root_task();
