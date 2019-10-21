@@ -165,7 +165,7 @@ static void shell_clock_update(ShellClock *shellclock) {
 }
 
 static void shell_clock_display(int iotid, ShellClock *shellclock) {
-    Printf(iotid, COM2, "\033[%u;%uH\033[K%04u:%02u:%03u",
+    Printf(iotid, COM2, "\033[%u;%uH\033[K%04u:%02u.%u",
         LINE_TIME, 7,
         shellclock->minute,
         shellclock->second,
