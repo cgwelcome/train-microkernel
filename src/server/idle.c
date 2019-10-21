@@ -24,7 +24,7 @@ static void idle_task() {
     Yield();
     for (;;) {
         syscon_halt();
-        Printf(io_server_id, COM2, "%s%s%d%%%s", save_cursor, idle_rate_value_position, clear_line, MyCpuUsage(), retn_cursor);
+        Printf(io_server_id, COM2, "%s%s%s%u%%%s", save_cursor, idle_rate_value_position, clear_line, MyCpuUsage(), retn_cursor);
     }
     Exit();
 }

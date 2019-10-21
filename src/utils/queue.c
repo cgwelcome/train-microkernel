@@ -7,6 +7,7 @@ void queue_init(Queue *queue) {
 }
 
 int queue_pop(Queue *queue) {
+    if (queue->size == 0) return -1;
     int data = queue->array[queue->head];
     queue->head = (queue->head + 1) % QUEUE_SIZE;
     queue->size--;
@@ -14,6 +15,7 @@ int queue_pop(Queue *queue) {
 }
 
 void queue_push(Queue *queue, int data) {
+    if (queue->size == QUEUE_SIZE) return;
     queue->array[queue->tail] = data;
     queue->tail = (queue->tail + 1) % QUEUE_SIZE;
     queue->size++;

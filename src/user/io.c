@@ -85,7 +85,7 @@ void i2a(int num, char *bf) {
 
 void bufcpy(char *dst, char *src, int *dst_start) {
     char ch;
-    while ((ch = *src++)) {
+    while ((ch = *(src++))) {
         dst[(*dst_start)++] = ch;
     }
 }
