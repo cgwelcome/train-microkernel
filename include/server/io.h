@@ -5,6 +5,7 @@
 #define COM1 0
 #define COM2 1
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <utils/queue.h>
 
@@ -26,6 +27,7 @@ typedef enum {
 
 typedef struct {
     int uart;
+    bool fifo;
     Queue recv_queue;
     Queue send_buffer;
     Queue recv_buffer;

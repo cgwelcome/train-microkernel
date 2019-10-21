@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <event.h>
 #include <hardware/uart.h>
 #include <server/idle.h>
@@ -41,10 +40,12 @@ static void io_init_channel(int uart) {
     switch (uart) {
         case COM1:
             iochannel = &com1_channel;
+            iochannel->fifo = false;
             iochannel->cts_flag = IO_CTSCOMPLETED;
             break;
         case COM2:
             iochannel = &com2_channel;
+            iochannel->fifo = true;
             break;
         default:
             return;
@@ -69,15 +70,15 @@ static IOChannel *iochannel(int uart) {
 }
 
 
-static void iochannel_flush_send(IOChannel *channel, bool fifo) {
-    int send_count = fifo ? 8 : 1;
+static void iochannel_flush_send(IOChannel *channel) {
+    int send_count = channel->fifo ? 8 : 1;
     for (int i = 0; i < send_count && queue_size(&channel->send_buffer) > 0; i++) {
         uart_putc(channel->uart, (char)queue_pop(&channel->send_buffer));
     }
 }
 
-static void iochannel_flush_recv(IOChannel *channel, bool fifo) {
-    int recv_count = fifo ? 8 : 1;
+static void iochannel_flush_recv(IOChannel *channel) {
+    int recv_count = channel->fifo ? 8 : 1;
     for (int i = 0; i < recv_count; i++) {
         int c = uart_getc(channel->uart);
         if (c == -1) break;
@@ -90,38 +91,32 @@ static void iochannel_flush_recv(IOChannel *channel, bool fifo) {
     }
 }
 
-static void io_com1_update_send(IOChannel *channel) {
+static void io_server_update_send(IOChannel *channel) {
     if (channel->tx_flag == IO_TXUP && queue_size(&channel->send_buffer) > 0) {
-        if (channel->cts_flag == IO_CTSCOMPLETED) {
-            iochannel_flush_send(channel, false);
+        if (channel->uart == COM1 && channel->cts_flag == IO_CTSCOMPLETED) {
+            iochannel_flush_send(channel);
             channel->tx_flag = IO_TXDOWN;
             channel->cts_flag = IO_CTSINIT;
             uart_enableintr(channel->uart, TIEN_MASK | MSIEN_MASK);
         }
+        if (channel->uart == COM2) {
+            iochannel_flush_send(channel);
+            channel->tx_flag = IO_TXDOWN;
+            uart_enableintr(channel->uart, TIEN_MASK);
+        }
     }
 }
 
-static void io_com2_update_send(IOChannel * channel) {
-    if (channel->tx_flag == IO_TXUP && queue_size(&channel->send_buffer) > 0) {
-        iochannel_flush_send(channel, true);
-        channel->tx_flag = IO_TXDOWN;
-        uart_enableintr(channel->uart, TIEN_MASK);
-    }
-}
-
-static void io_com1_update_recv(IOChannel *channel) {
+static void io_server_update_recv(IOChannel *channel) {
     if (channel->rx_flag == IO_RXDOWN) {
-        iochannel_flush_recv(channel, false);
+        iochannel_flush_recv(channel);
         channel->rx_flag = IO_RXUP;
-        uart_enableintr(channel->uart, RIEN_MASK);
-    }
-}
-
-static void io_com2_update_recv(IOChannel *channel) {
-    if (channel->rx_flag == IO_RXDOWN) {
-        iochannel_flush_recv(channel, true);
-        channel->rx_flag = IO_RXUP;
-        uart_enableintr(channel->uart, RIEN_MASK | RTIEN_MASK);
+        if (channel->uart == COM1) {
+            uart_enableintr(channel->uart, RIEN_MASK);
+        }
+        if (channel->uart == COM2) {
+            uart_enableintr(channel->uart, RIEN_MASK | RTIEN_MASK);
+        }
     }
 }
 
@@ -152,18 +147,8 @@ static void io_server_update_flag(IOChannel *channel, uint32_t flag) {
 }
 
 static void io_server_update_channel(IOChannel *channel) {
-    switch (channel->uart) {
-    case COM1:
-        io_com1_update_send(channel);
-        io_com1_update_recv(channel);
-        break;
-    case COM2:
-        io_com2_update_send(channel);
-        io_com2_update_recv(channel);
-        break;
-    default:
-        return;
-    }
+    io_server_update_send(channel);
+    io_server_update_recv(channel);
 }
 
 static void io_server_putc(IOChannel *channel, int tid, int c) {
@@ -172,7 +157,7 @@ static void io_server_putc(IOChannel *channel, int tid, int c) {
     Reply(tid, NULL, 0);
 }
 
-static void io_server_putw(IOChannel *channel, int tid, char * str) {
+static void io_server_putw(IOChannel *channel, int tid, char *str) {
     int c = 0;
     while ((c = *str++)) {
         queue_push(&channel->send_buffer, c);
