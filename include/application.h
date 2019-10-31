@@ -25,4 +25,4 @@ void pqueue_test_root_task();
 void ipc_perform_root_task();
 void switch_perform_root_task();
 
-#endif
+#endif /*__APPLICATION_H__*/

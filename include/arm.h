@@ -1,3 +1,6 @@
+#ifndef __ARM_H__
+#define __ARM_H__
+
 #define PSR_MODE_USR 0x10
 #define PSR_MODE_FIQ 0x11
 #define PSR_MODE_IRQ 0x12
@@ -16,3 +19,5 @@
 
 #define SWI_HANDLER_ADDR 0x28
 #define HWI_HANDLER_ADDR 0x38
+
+#endif /*__ARM_H__*/

@@ -3,6 +3,13 @@
 
 #include <stdint.h>
 
+/**
+ * @defgroup rps
+ * @ingroup server
+ *
+ * @{
+ */
+
 #define MAX_MATCH_NUM 128
 #define RPS_SERVER_NAME "RPS"
 
@@ -49,4 +56,6 @@ typedef struct {
  */
 int CreateRPS(uint32_t priority);
 
-#endif
+/** @}*/
+
+#endif /*__SERVER_RPS_H__*/

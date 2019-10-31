@@ -1,12 +1,19 @@
 #ifndef __SERVER_SHELL_H__
 #define __SERVER_SHELL_H__
 
+#include <stdint.h>
+
+/**
+ * @defgroup shell
+ * @ingroup server
+ *
+ * @{
+ */
+
 #define SENSOR_READ_INTERVAL 100
 #define CLOCK_PRECISION 100
 
 #define SHELL_PRIORITY 3000
-
-#include <stdint.h>
 
 #define LINE_TIME         2
 #define LINE_SWITCH_TITLE 3
@@ -29,5 +36,7 @@ typedef struct {
  * Creates a Shell Server
  */
 int CreateShellServer(uint32_t priority);
+
+/** @}*/
 
 #endif /*__SERVER_SHELL_H__*/

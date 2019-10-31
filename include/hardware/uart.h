@@ -1,6 +1,15 @@
 #ifndef __HARDWARE_UART_H__
 #define __HARDWARE_UART_H__
 
+#include <stdint.h>
+
+/**
+ * @defgroup uart
+ * @ingroup hardware
+ *
+ * @{
+ */
+
 #define COM1	0
 #define COM2	1
 
@@ -60,8 +69,6 @@
 #define UART_HDLCRIB_OFFSET	0x218
 #define UART_HDLCSTS_OFFSET	0x21c
 
-#include <stdint.h>
-
 int uart_setbitconfig(int channel, uint8_t buf);
 
 int uart_setspeed(int channel, int speed);
@@ -81,5 +88,7 @@ int uart_readflag(int channel);
 int uart_disableintr(int channel, uint8_t flag);
 
 int uart_disableall(int channel);
+
+/** @} */
 
 #endif

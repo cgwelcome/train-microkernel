@@ -1,6 +1,15 @@
 #ifndef __HARDWARE_TIMER_H__
 #define __HARDWARE_TIMER_H__
 
+#include <stdint.h>
+
+/**
+ * @defgroup timer
+ * @ingroup hardware
+ *
+ * @{
+ */
+
 #define TIMER_HIGHFREQ 508 // per millisecond
 #define TIMER_LOWFREQ 2 // per millisecond
 
@@ -23,8 +32,6 @@
 	#define	CLKSEL_MASK	0x00000008
 #define CLR_OFFSET	0x0000000c	// no data, WO
 
-#include <stdint.h>
-
 /**
  * Initialize the a timers in the EP93XX processor.
  */
@@ -44,5 +51,7 @@ uint64_t timer_read_raw(int timer);
  * Clears the timer interrupt.
  */
 void timer_clear(int timer);
+
+/** @} */
 
 #endif

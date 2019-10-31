@@ -4,8 +4,17 @@
 #include <stdint.h>
 
 /**
+ * @defgroup idle
+ * @ingroup server
+ *
+ * @{
+ */
+
+/**
  * Creates an idle task for diagnostic purpose.
  */
 int CreateIdleTask(uint32_t priority);
+
+/** @}*/
 
 #endif

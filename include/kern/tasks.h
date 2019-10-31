@@ -5,6 +5,13 @@
 #include <kern/ipc.h>
 #include <utils/queue.h>
 
+/**
+ * @defgroup tasks
+ * @ingroup kernel
+ *
+ * @{
+ */
+
 #define SCHEDULER_CALIBRATION 1000
 #define MAX_TASK_NUM        128
 #define MAX_TASK_PRIORITY   4096
@@ -113,5 +120,7 @@ uint32_t task_activate(int tid);
 void task_kill(int tid);
 
 void task_shutdown();
+
+/** @}*/
 
 #endif

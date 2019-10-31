@@ -1,6 +1,13 @@
 #ifndef __HARDWARE_ICU_H__
 #define __HARDWARE_ICU_H__
 
+/**
+ * @defgroup icu
+ * @ingroup hardware
+ *
+ * @{
+ */
+
 #define VIC1_BASE 0x800B0000
 #define VIC2_BASE 0x800C0000
 
@@ -11,6 +18,7 @@
 #define SOFTINT_OFFSET          0x18
 #define SOFTINTCLEAR_OFFSET     0x1C
 #define PROTECTION_OFFSET       0x20
+
 
 /**
  * Initializes the interrupt control unit variables.
@@ -38,5 +46,7 @@ int icu_read();
 void icu_disable(int event);
 
 void icu_disableall();
+
+/** @} */
 
 #endif /*__HARDWARE_ICU_H__*/

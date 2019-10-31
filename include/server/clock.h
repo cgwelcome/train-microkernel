@@ -1,10 +1,17 @@
 #ifndef __SERVER_CLOCK_H__
 #define __SERVER_CLOCK_H__
 
+#include <stdint.h>
+
+/**
+ * @defgroup clock
+ * @ingroup server
+ *
+ * @{
+ */
+
 #define CLOCK_NOTIFY_INTERVAL 10
 #define CLOCK_SERVER_NAME "CS"
-
-#include <stdint.h>
 
 typedef enum {
     CS_TICKUPDATE,
@@ -27,5 +34,7 @@ void InitClockServer();
  * Creates a global Clock Server
  */
 int CreateClockServer(uint32_t priority);
+
+/** @}*/
 
 #endif

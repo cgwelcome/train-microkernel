@@ -1,13 +1,20 @@
 #ifndef __SERVER_IO_H__
 #define __SERVER_IO_H__
 
-#define IO_SERVER_NAME "IO"
-#define COM1 0
-#define COM2 1
-
 #include <stdbool.h>
 #include <stdint.h>
 #include <utils/queue.h>
+
+/**
+ * @defgroup io
+ * @ingroup server
+ *
+ * @{
+ */
+
+#define IO_SERVER_NAME "IO"
+#define COM1 0
+#define COM2 1
 
 typedef enum {
     IO_CTSINIT,
@@ -56,4 +63,6 @@ int CreateIOServer(uint32_t server_priority, uint32_t com1_priority, uint32_t co
 
 void ShutdownIOServer();
 
-#endif
+/** @}*/
+
+#endif /*__SERVER_IO_H__*/

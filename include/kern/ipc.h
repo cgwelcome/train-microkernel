@@ -4,6 +4,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/**
+ * @defgroup ipc
+ * @ingroup kernel
+ *
+ * @{
+ */
+
 typedef struct {
     char *array;
     size_t len;
@@ -30,4 +37,6 @@ void ipc_reply(int tid, int replytid, char *reply, size_t rplen);
  */
 void ipc_cleanup(int tid);
 
-#endif
+/** @}*/
+
+#endif /*__KERN_IPC_H__*/

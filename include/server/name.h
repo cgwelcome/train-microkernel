@@ -1,10 +1,17 @@
 #ifndef __SERVER_NAME_H__
 #define __SERVER_NAME_H__
 
+#include <stdint.h>
+
+/**
+ * @defgroup name
+ * @ingroup server
+ *
+ * @{
+ */
+
 #define MAX_NAME_SIZE 64
 #define MAX_NAMERECORD_NUM 248
-
-#include <stdint.h>
 
 typedef enum {
     NS_REGISTER,
@@ -25,5 +32,7 @@ void InitNameServer();
  * Creates a global Name Server
  */
 int CreateNameServer(uint32_t priority);
+
+/** @}*/
 
 #endif

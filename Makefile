@@ -9,9 +9,10 @@ CC = $(XBINDIR)/arm-none-eabi-gcc
 LD = $(XBINDIR)/arm-none-eabi-ld
 WHOAMI = $(shell whoami)
 TARGET = main.elf
-SRCDIR = src
-OBJDIR = obj
 BINDIR = bin
+DOCDIR = doc
+OBJDIR = obj
+SRCDIR = src
 
 CSRCS = $(wildcard $(SRCDIR)/*.c $(SRCDIR)/*/*.c)
 COBJS = $(CSRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
@@ -51,11 +52,14 @@ $(BINDIR)/$(TARGET): $(COBJS) $(ASMOBJS)
 	@mkdir -p $(@D)
 	$(LD) $(LDFLAGS) -o $@ $(COBJS) $(ASMOBJS) -lc -lgcc
 
-.PHONY: clean
-clean:
-	rm -r $(BINDIR) $(OBJDIR)
-
-
 .PHONY: install
 install:
 	cp $(BINDIR)/$(TARGET) /u/cs452/tftp/ARM/$(WHOAMI)
+
+.PHONY: doc
+doc:
+	doxygen $(DOCDIR)/Doxyfile
+
+.PHONY: clean
+clean:
+	rm -r $(BINDIR) $(OBJDIR) $(DOCDIR)/doxygen

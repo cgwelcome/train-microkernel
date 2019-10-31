@@ -1,6 +1,15 @@
 #ifndef __HARDWARE_SYSCON_H__
 #define __HARDWARE_SYSCON_H__
 
+#include <stdint.h>
+
+/**
+ * @defgroup syscon
+ * @ingroup hardware
+ *
+ * @{
+ */
+
 #define SYSCON_BASE     0x80930000
 #define HALT_OFFSET         0x08
 #define DEVICE_CFG_OFFSET   0x80
@@ -11,8 +20,6 @@
 
 #define ON  1
 #define OFF 0
-
-#include <stdint.h>
 
 /**
  * Toggles lock of the system controller
@@ -29,4 +36,6 @@ void syscon_config(uint32_t mask);
  */
 void syscon_halt();
 
-#endif
+/** @} */
+
+#endif /*__HARDWARE_SYSCON_H__*/

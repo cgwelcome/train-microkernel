@@ -7,5 +7,6 @@
 *.elf
 *.nfs*
 
-./bin
-./obj
+bin/
+obj/
+doc/doxygen/

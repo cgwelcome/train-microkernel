@@ -1,6 +1,13 @@
 #ifndef __USER_IO_H__
 #define __USER_IO_H__
 
+/**
+ * @defgroup io
+ * @ingroup user
+ *
+ * @{
+ */
+
 typedef char *va_list;
 
 #define __va_argsiz(t)	\
@@ -13,25 +20,30 @@ typedef char *va_list;
 #define va_arg(ap, t)	\
 		 (((ap) = (ap) + __va_argsiz(t)), *((t*) (void*) ((ap) - __va_argsiz(t))))
 
-// Getc() returns next unreturned character from the given UART.
-// Return Values:
-//   >-1    new character from the given UART.
-//    -1    tid is not a valid uart server task.
+/**
+ * Returns next unreturned character from the given UART.
+ * @return New character from the given UART,
+ * or -1 tid is not a valid uart server task,
+ */
 int Getc(int tid, int uart);
 
-// Putc() queues the given character for transmission by the given UART.
-// Return Values:
-//    0     success
-//   -1     tid is not a valid uart server task.
+/**
+ * Queues the given character for transmission by the given UART.
+ * @return 0 sucess,
+ * or -1 tid is not a valid uart server task.
+ */
 int Putc(int tid, int uart, char c);
 
-// Putw() queues the given string for transmission by the given UART.
-// Return Values:
-//    0     success
-//   -1     tid is not a valid uart server task.
+/**
+ * Queues the given string for transmission by the given UART.
+ * @return 0 success, or -1 tid is not a valid uart server task.
+ */
 int Putw(int tid, int uart, char *buffer);
 
-// Printf() queues the given formatted string for transmission by the given UART.
+/**
+ * Queues the given formatted string
+ * for transmission by the given UART.
+ */
 void Printf(int tid, int uart, char *fmt, ...);
 
-#endif
+#endif /*__USER_IO_H__*/

@@ -3,6 +3,14 @@
 
 #include <stdint.h>
 
+/**
+ * @defgroup trainset
+ * @ingroup server
+ *
+ * @{
+ */
+
+
 #define TRAINSET_GO      96
 #define TRAINSET_STOP    97
 
@@ -85,6 +93,11 @@ typedef struct {
     uint32_t delay; // in milliseconds
 } TSTimerResponse;
 
+/**
+ * Create a Trainset Server
+ */
 int CreateTrainSetServer(uint32_t priority);
+
+/** @}*/
 
 #endif /*__SERVER_TRAINSET_H__*/

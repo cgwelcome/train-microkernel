@@ -1,5 +1,5 @@
-#ifndef __EVENT_H___
-#define __EVENT_H___
+#ifndef __EVENT_H__
+#define __EVENT_H__
 
 #define MAX_EVENT_NUM 64
 

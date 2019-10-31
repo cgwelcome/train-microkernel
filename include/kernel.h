@@ -1,5 +1,15 @@
+#ifndef __KERNEL_H__
+#define __KERNEL_H__
+
 /*
- * kernel.h - provides the constants about the kernel
+ * @file provides the constants about the kernel
+ */
+
+/**
+ * @defgroup hardware
+ * @defgroup kernel
+ * @defgroup server
+ * @defgroup user
  */
 
 #define TASK_STACK_SIZE       0x00020000 // 128 KB
@@ -31,3 +41,5 @@
 #define SYSCALL_IPC_RECV            0x00000009
 #define SYSCALL_IPC_REPLY           0x0000000A
 #define SYSCALL_IRQ_AWAITEVENT      0x0000000B
+
+#endif /*__KERNEL_H__*/
