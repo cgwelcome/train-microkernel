@@ -147,7 +147,12 @@ static void trainset_init() {
     iotid = WhoIs(IO_SERVER_NAME);
     RegisterAs(TRAINSET_SERVER_NAME);
     tsqueue_init(&delayresponses);
-    for (uint32_t id = 0; id < MAX_TRAIN_NUM; id++) {
+	const uint32_t init_trains[] = {
+		1, 24, 58, 74, 78, 79,
+	};
+	uint32_t init_trains_size = sizeof(init_trains)/sizeof(init_trains[0]);
+    for (uint32_t i = 0; i < init_trains_size; i++) {
+		uint32_t id = init_trains[i];
         trains[id].id = id;
         trainset_speed(&trains[id], 0);
     }
