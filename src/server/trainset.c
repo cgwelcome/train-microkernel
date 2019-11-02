@@ -171,6 +171,7 @@ void trainset_server_task() {
         switch (request.type) {
             case TSREQUESTTYPE_GO:
                 trainset_go();
+                Reply(tid, NULL, 0);
                 break;
             case TSREQUESTTYPE_STOP:
                 trainset_stop();
