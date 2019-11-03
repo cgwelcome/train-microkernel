@@ -27,6 +27,14 @@ int Send(int tid, const char *msg, size_t msglen, char *reply, size_t rplen);
 int Receive(int *tid, char *msg, size_t msglen);
 
 /**
+ * Retrieves the message sent by a reply-blocked task.
+ * @return the size of the message sent by the specific task.
+ * or -1 tid is not the task id of an existing task,
+ * or -2 tid is not the task id of a reply-blocked task.
+ */
+int Peek(int tid, char *msg, size_t msglen);
+
+/**
  * Sends a reply to a task that previously sent a message.
  * @return the size of the reply message transmitted to the original sender task,
  * or -1 tid is not the task id of an existing task,

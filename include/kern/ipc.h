@@ -27,6 +27,11 @@ void ipc_send(int tid, int recvtid, char *msg, size_t msglen, char *reply, size_
 void ipc_receive(int tid, int *sendtid, char *msg, size_t msglen);
 
 /**
+ * Copies the sent message from peektid Task to tid Task.
+ */
+void ipc_peek(int tid, int peektid, char *msg, size_t msglen);
+
+/**
  * Copies the reply message from tid Task to replytid Task.
  */
 void ipc_reply(int tid, int replytid, char *reply, size_t rplen);

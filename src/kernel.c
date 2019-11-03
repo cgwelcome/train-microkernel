@@ -77,6 +77,12 @@ void handle_request(int tid, uint32_t request) {
         size_t msglen = (size_t) current_task->tf->r2;
         ipc_receive(tid, sendtid, msg, msglen);
     }
+    else if (request == SYSCALL_IPC_PEEK) {
+        int peektid   = (int)    current_task->tf->r0;
+        char *msg     = (char *) current_task->tf->r1;
+        size_t msglen = (size_t) current_task->tf->r2;
+        ipc_peek(tid, peektid, msg, msglen);
+    }
     else if (request == SYSCALL_IPC_REPLY) {
         int replytid = (int)    current_task->tf->r0;
         char *reply  = (char *) current_task->tf->r1;
