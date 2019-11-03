@@ -17,7 +17,7 @@ typedef enum {
   NODE_MERGE,
   NODE_ENTER,
   NODE_EXIT,
-} TrackNodeType;
+} TrainTrackNodeType;
 
 typedef struct PathEdge {
   struct PathEdge *reverse;
@@ -29,16 +29,16 @@ typedef struct PathEdge {
 
 typedef struct PathNode {
   const char *name;
-  TrackNodeType type;
+  TrainTrackNodeType type;
   /* sensor or switch number */
   uint32_t num;
   /* same location, but opposite direction */
   struct PathNode *reverse;
   struct PathEdge edge[MAX_EDGE_DEGREE];
-} TrackNode;
+} TrainTrackNode;
 
-void init_tracka(TrackNode *track);
+void init_tracka(TrainTrackNode *track);
 
-void init_trackb(TrackNode *track);
+void init_trackb(TrainTrackNode *track);
 
 #endif /*__UTILS_TRAINTRACK_H__*/

@@ -1,6 +1,6 @@
 #include <utils/traintrack.h>
 
-void init_tracka(TrackNode *track) {
+void init_tracka(TrainTrackNode *track) {
   track[0].name = "A1";
   track[0].type = NODE_SENSOR;
   track[0].num = 0;
@@ -1183,7 +1183,7 @@ void init_tracka(TrackNode *track) {
   track[143].reverse = &track[142];
 }
 
-void init_trackb(TrackNode *track) {
+void init_trackb(TrainTrackNode *track) {
   track[0].name = "A1";
   track[0].type = NODE_SENSOR;
   track[0].num = 0;
