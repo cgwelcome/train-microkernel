@@ -1,12 +1,12 @@
 #include <server/name.h>
 #include <user/name.h>
 #include <user/tasks.h>
-#include <utils/kassert.h>
+#include <utils/assert.h>
 
 void register_test() {
     RegisterAs("Winnie");
     int tid = WhoIs("Winnie");
-    kassert(tid == MyTid());
+    assert(tid == MyTid());
     Exit();
 }
 

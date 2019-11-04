@@ -3,8 +3,8 @@
 #include <user/ipc.h>
 #include <user/name.h>
 #include <user/tasks.h>
+#include <utils/assert.h>
 #include <utils/bwio.h>
-#include <utils/kassert.h>
 
 static RPSResponse rps_quit(int tid)  {
     RPSResponse response;
@@ -28,7 +28,7 @@ static void rps_setup(int tid) {
     RPSRequest request;
     request.type = RPS_SIGNUP;
     Send(tid, (char *)&request, sizeof(request), (char *)&response, sizeof(response));
-    kassert(response == RPS_READY);
+    assert(response == RPS_READY);
 }
 
 static void rpstest_client1() {
@@ -36,17 +36,17 @@ static void rpstest_client1() {
     int rpstid = WhoIs("RPS");
     rps_setup(rpstid);
     response = rps_sendmove(rpstid, 'P');
-    kassert(response == RPS_TIE);
+    assert(response == RPS_TIE);
     response = rps_sendmove(rpstid, 'P');
-    kassert(response == RPS_LOST);
+    assert(response == RPS_LOST);
     response = rps_sendmove(rpstid, 'P');
-    kassert(response == RPS_WIN);
+    assert(response == RPS_WIN);
     response = rps_sendmove(rpstid, 'S');
-    kassert(response == RPS_LOST);
+    assert(response == RPS_LOST);
     response = rps_sendmove(rpstid, 'S');
-    kassert(response == RPS_OTHERQUIT);
+    assert(response == RPS_OTHERQUIT);
     response = rps_quit(rpstid);
-    kassert(response == RPS_ACKQUIT);
+    assert(response == RPS_ACKQUIT);
     Exit();
 }
 
@@ -55,15 +55,15 @@ static void rpstest_client2() {
     int rpstid = WhoIs("RPS");
     rps_setup(rpstid);
     response = rps_sendmove(rpstid, 'P');
-    kassert(response == RPS_TIE);
+    assert(response == RPS_TIE);
     response = rps_sendmove(rpstid, 'S');
-    kassert(response == RPS_WIN);
+    assert(response == RPS_WIN);
     response = rps_sendmove(rpstid, 'R');
-    kassert(response == RPS_LOST);
+    assert(response == RPS_LOST);
     response = rps_sendmove(rpstid, 'R');
-    kassert(response == RPS_WIN);
+    assert(response == RPS_WIN);
     response = rps_quit(rpstid);
-    kassert(response == RPS_ACKQUIT);
+    assert(response == RPS_ACKQUIT);
     Exit();
 }
 

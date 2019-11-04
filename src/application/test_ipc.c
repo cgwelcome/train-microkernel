@@ -3,14 +3,14 @@
 #include <application.h>
 #include <user/ipc.h>
 #include <user/tasks.h>
+#include <utils/assert.h>
 #include <utils/bwio.h>
-#include <utils/kassert.h>
 
 // Send String to the Parent Task
 void recvblock_child_test() {
     const char *msg = "Wei-Wei";
     Send(MyParentTid(), msg, strlen(msg)+1, NULL, 0);
-    kassert(1 == 2); // Shouldn't get here, no one to reply
+    assert(1 == 2); // Shouldn't get here, no one to reply
     Exit();
 }
 
@@ -22,8 +22,8 @@ void recvblock_test() {
     char msg[msglen];
     int sendtid = Create(2000, &recvblock_child_test);
     Receive(&tid, msg, msglen);
-    kassert(tid == sendtid);
-    kassert(strcmp("Wei-Wei", msg) == 0);
+    assert(tid == sendtid);
+    assert(strcmp("Wei-Wei", msg) == 0);
     Exit();
 }
 
@@ -32,17 +32,17 @@ void senderror_test() {
     int returncode;
     /* Send to out of bound task*/
     returncode = Send(-1, NULL, 0, NULL, 0);
-    kassert(returncode == -1);
+    assert(returncode == -1);
     /* Send to an unused task*/
     Send(100, NULL, 0, NULL, 0);
-    kassert(returncode == -1);
+    assert(returncode == -1);
     Exit();
 }
 
 // Send a message, the receiver dies before it retrieve the message
 void sendtransacterror_child_test() {
     int returncode = Send(MyParentTid(), NULL, 0, NULL, 0);
-    kassert(returncode == -2);
+    assert(returncode == -2);
     Exit();
 }
 
@@ -58,8 +58,8 @@ void sendblock_child_test() {
     size_t msglen = 9;
     char msg[msglen];
     Receive(&tid, msg, msglen);
-    kassert(strcmp("Wei-Wei", msg) == 0);
-    kassert(tid == MyParentTid());
+    assert(strcmp("Wei-Wei", msg) == 0);
+    assert(tid == MyParentTid());
     Exit();
 }
 
@@ -76,7 +76,7 @@ void reply_child_test() {
     size_t msglen = 9;
     char msg[msglen];
     Send(MyParentTid(), NULL, 0, msg, msglen);
-    kassert(strcmp("Wei-Wei", msg) == 0);
+    assert(strcmp("Wei-Wei", msg) == 0);
     Exit();
 }
 
@@ -94,11 +94,11 @@ void reply_test() {
 void replyerror_test() {
     int returncode;
     returncode = Reply(-1, NULL, 0);
-    kassert(returncode == -1);
+    assert(returncode == -1);
     returncode = Reply(100, NULL, 0);
-    kassert(returncode == -1);
+    assert(returncode == -1);
     returncode = Reply(MyTid(), NULL, 0);
-    kassert(returncode == -2);
+    assert(returncode == -2);
     Exit();
 }
 
@@ -109,8 +109,8 @@ void ipclength_child_test() {
 
     int returncode = Send(MyParentTid(), sendmsg, strlen(sendmsg)+1, replymsg, replylen);
     replymsg[replylen] = '\0';
-    kassert(returncode == 5);
-    kassert(strcmp(replymsg, "NiHao") == 0);
+    assert(returncode == 5);
+    assert(strcmp(replymsg, "NiHao") == 0);
     Exit();
 }
 
@@ -122,13 +122,13 @@ void ipclength_test() {
 
     Create(2000, &ipclength_child_test);
     returncode = Receive(&tid, receivemsg, receivelen);
-    kassert(returncode == 3);
+    assert(returncode == 3);
     receivemsg[receivelen] = '\0';
-    kassert(strcmp(receivemsg, "Wei") == 0);
+    assert(strcmp(receivemsg, "Wei") == 0);
 
     const char *replymsg = "NiHaoMa";
     returncode = Reply(tid, replymsg, strlen(replymsg)+1);
-    kassert(returncode == 5);
+    assert(returncode == 5);
     Exit();
 }
 

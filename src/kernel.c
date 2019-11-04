@@ -9,6 +9,7 @@
 #include <server/clock.h>
 #include <server/io.h>
 #include <server/name.h>
+#include <utils/assert.h>
 #include <utils/bwio.h>
 
 uint64_t boot_time, halt_time;
@@ -43,7 +44,7 @@ void handle_request(int tid, uint32_t request) {
     }
     else if (request == SYSCALL_TASK_CREATE) {
         uint32_t priority = (uint32_t) current_task->tf->r0;
-        void *entry       = (void *)       current_task->tf->r1;
+        void *   entry    = (void *)   current_task->tf->r1;
         current_task->tf->r0 = (uint32_t) task_create(tid, priority, entry);
     }
     else if (request == SYSCALL_TASK_EXIT) {
@@ -64,34 +65,40 @@ void handle_request(int tid, uint32_t request) {
         task_shutdown();
     }
     else if (request == SYSCALL_IPC_SEND) {
-        int recvtid   = (int)    current_task->tf->r0;
-        char *msg     = (char *) current_task->tf->r1;
-        size_t msglen = (size_t) current_task->tf->r2;
-        char *reply   = (char *) current_task->tf->r3;
-        size_t rplen  = (size_t) current_task->tf->r4;
+        int    recvtid = (int)    current_task->tf->r0;
+        char * msg     = (char *) current_task->tf->r1;
+        size_t msglen  = (size_t) current_task->tf->r2;
+        char * reply   = (char *) current_task->tf->r3;
+        size_t rplen   = (size_t) current_task->tf->r4;
         ipc_send(tid, recvtid, msg, msglen, reply, rplen);
     }
     else if (request == SYSCALL_IPC_RECV) {
-        int *sendtid  = (int *)  current_task->tf->r0;
-        char *msg     = (char *) current_task->tf->r1;
-        size_t msglen = (size_t) current_task->tf->r2;
+        int *  sendtid = (int *)  current_task->tf->r0;
+        char * msg     = (char *) current_task->tf->r1;
+        size_t msglen  = (size_t) current_task->tf->r2;
         ipc_receive(tid, sendtid, msg, msglen);
     }
     else if (request == SYSCALL_IPC_PEEK) {
-        int peektid   = (int)    current_task->tf->r0;
-        char *msg     = (char *) current_task->tf->r1;
-        size_t msglen = (size_t) current_task->tf->r2;
+        int    peektid = (int)    current_task->tf->r0;
+        char * msg     = (char *) current_task->tf->r1;
+        size_t msglen  = (size_t) current_task->tf->r2;
         ipc_peek(tid, peektid, msg, msglen);
     }
     else if (request == SYSCALL_IPC_REPLY) {
-        int replytid = (int)    current_task->tf->r0;
-        char *reply  = (char *) current_task->tf->r1;
-        size_t rplen = (size_t) current_task->tf->r2;
+        int    replytid = (int)    current_task->tf->r0;
+        char * reply    = (char *) current_task->tf->r1;
+        size_t rplen    = (size_t) current_task->tf->r2;
         ipc_reply(tid, replytid, reply, rplen);
     }
     else if (request == SYSCALL_IRQ_AWAITEVENT) {
         int event = (int) current_task->tf->r0;
         event_await(tid, event);
+    }
+    else if (request == SYSCALL_PANIC) {
+        char * expr = (char *) current_task->tf->r0;
+        char * file = (char *) current_task->tf->r1;
+        int    line = (int)    current_task->tf->r2;
+        panic(expr, file, line);
     }
 }
 

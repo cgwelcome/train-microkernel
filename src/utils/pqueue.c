@@ -1,4 +1,4 @@
-#include <utils/kassert.h>
+#include <utils/assert.h>
 #include <utils/pqueue.h>
 
 void pqueue_init(PQueue *pqueue) {
@@ -37,7 +37,7 @@ static void pqueue_bubbledown(PQueue *pqueue, uint32_t i) {
 }
 
 int pqueue_pop(PQueue *pqueue) {
-    kassert(pqueue->size > 0);
+    assert(pqueue->size > 0);
 
     int id = pqueue->array[0].id;
     pqueue->array[0] = pqueue->array[pqueue->size-1];
@@ -47,7 +47,7 @@ int pqueue_pop(PQueue *pqueue) {
 }
 
 void pqueue_insert(PQueue *pqueue, int id, int priority) {
-    kassert(pqueue->size < PQUEUE_SIZE);
+    assert(pqueue->size < PQUEUE_SIZE);
 
     pqueue->array[pqueue->size].id = id;
     pqueue->array[pqueue->size].priority = priority;
@@ -56,6 +56,6 @@ void pqueue_insert(PQueue *pqueue, int id, int priority) {
 }
 
 int pqueue_peek(PQueue *pqueue) {
-    kassert(pqueue->size > 0);
+    assert(pqueue->size > 0);
     return pqueue->array[0].priority;
 }

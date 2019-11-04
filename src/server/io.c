@@ -7,7 +7,7 @@
 #include <user/ipc.h>
 #include <user/name.h>
 #include <user/tasks.h>
-#include <utils/kassert.h>
+#include <utils/assert.h>
 #include <utils/queue.h>
 
 static int io_server_tid, com1_notifier_tid, com2_notifier_tid;
@@ -77,7 +77,7 @@ static bool iochannel_haltable(IOChannel *channel) {
 }
 
 static size_t iochannel_buffer_put(IOChannel *channel, char *buffer, size_t size) {
-    kassert(size <= QUEUE_SIZE);
+    assert(size <= QUEUE_SIZE);
     if (queue_size(&channel->send_buffer) + size <= QUEUE_SIZE) {
         for (size_t i = 0; i < size; i++) {
             queue_push(&channel->send_buffer, (int) buffer[i]);
@@ -88,7 +88,7 @@ static size_t iochannel_buffer_put(IOChannel *channel, char *buffer, size_t size
 }
 
 static size_t iochannel_buffer_get(IOChannel *channel, char *buffer, size_t size) {
-    kassert(size <= QUEUE_SIZE);
+    assert(size <= QUEUE_SIZE);
     if (queue_size(&channel->recv_buffer) >= size) {
         for (size_t i = 0; i < size; i++) {
             buffer[i] = (char) queue_pop(&channel->recv_buffer);

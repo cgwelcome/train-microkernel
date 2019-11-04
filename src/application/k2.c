@@ -5,8 +5,8 @@
 #include <user/ipc.h>
 #include <user/name.h>
 #include <user/tasks.h>
+#include <utils/assert.h>
 #include <utils/bwio.h>
-#include <utils/kassert.h>
 
 #define RPS_MAX_ROUNDS 6
 #define RPS_CLIENT_NUM 6
@@ -22,7 +22,7 @@ static void rps_setup(int tid) {
     RPSRequest request;
     request.type = RPS_SIGNUP;
     Send(tid, (char *)&request, sizeof(request), (char *)&response, sizeof(response));
-    kassert(response == RPS_READY);
+    assert(response == RPS_READY);
 }
 
 static RPSResponse rps_play(int tid, char move) {
