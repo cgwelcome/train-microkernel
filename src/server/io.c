@@ -1,5 +1,6 @@
 #include <event.h>
 #include <hardware/uart.h>
+#include <hardware/timer.h>
 #include <server/idle.h>
 #include <server/io.h>
 #include <user/event.h>
@@ -208,18 +209,12 @@ static void io_server_update_channel(IOChannel *channel) {
 
 void io_server_task() {
     int tid; IORequest request; IOChannel *channel; size_t len;
-    bool is_halting = false; int halting_error = -1;
+    bool is_halting = false; uint64_t halting_start = 0;
     Queue halting_queue; queue_init(&halting_queue);
 
     RegisterAs(IO_SERVER_NAME);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
-        if (is_halting) {
-            if (request.type != IO_REQUEST_INT_UART && request.type != IO_REQUEST_SHUTDOWN) {
-                Reply(tid, (char *) &halting_error, sizeof(halting_error));
-                continue;
-            }
-        }
         switch (request.type) {
             case IO_REQUEST_INT_UART:
                 channel = iochannel(request.uart);
@@ -230,6 +225,10 @@ void io_server_task() {
                 break;
             case IO_REQUEST_PUT:
                 channel = iochannel(request.uart);
+                if (queue_size(&channel->send_queue) > 0) {
+                    queue_push(&channel->send_queue, tid);
+                    break;
+                }
                 len = iochannel_buffer_put(channel, (char *)request.data, request.size);
                 if (len > 0) {
                     Reply(tid, NULL, 0);
@@ -240,6 +239,10 @@ void io_server_task() {
                 break;
             case IO_REQUEST_GET:
                 channel = iochannel(request.uart);
+                if (queue_size(&channel->recv_queue) > 0) {
+                    queue_push(&channel->recv_queue, tid);
+                    break;
+                }
                 len = iochannel_buffer_get(channel, (char *)request.data, request.size);
                 if (len > 0) {
                     Reply(tid, NULL, 0);
@@ -249,11 +252,11 @@ void io_server_task() {
                 }
                 break;
             case IO_REQUEST_SHUTDOWN:
+                is_halting = true;
+                halting_start = timer_read(TIMER3);
                 if (iochannel_haltable(&com1_channel) && iochannel_haltable(&com2_channel)) {
-                    is_halting = true;
                     Reply(tid, NULL, 0);
                 } else {
-                    is_halting = true;
                     queue_push(&halting_queue, tid);
                 }
                 break;
@@ -261,7 +264,9 @@ void io_server_task() {
                 break;
         }
         if (is_halting) {
-            if (iochannel_haltable(&com1_channel) && iochannel_haltable(&com2_channel)) {
+            uint64_t now = timer_read(TIMER3);
+            bool haltable = iochannel_haltable(&com1_channel) && iochannel_haltable(&com2_channel);
+            if (now - halting_start > 1000 || haltable) { // ensure the IO server get halted in 1 seconds.
                 while (queue_size(&halting_queue)) {
                     int tid = queue_pop(&halting_queue);
                     Reply(tid, NULL, 0);

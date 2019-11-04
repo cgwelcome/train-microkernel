@@ -105,7 +105,7 @@ void kernel_entry() {
         handle_request(nextTID, request);
     }
     halt_time = timer_read_raw(TIMER3);
-    bwprintf(COM2, "Kernel terminates after %u ms.", (halt_time - boot_time)/TIMER_HIGHFREQ);
+    bwprintf(COM2, "\033[30;1HKernel terminates after %u ms.", (halt_time - boot_time)/TIMER_HIGHFREQ);
 
     icu_disableall();
     uart_disable_all_interrupts(COM1);

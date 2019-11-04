@@ -116,7 +116,6 @@ static void shell_keyboard_task() {
             case '\r':                         // execute command if get "ENTER"
                 if (cmd_len != 0) {
                     if (cmd_buffer[0] == 'q') {
-                        Printf(iotid, COM2, "\033[%u;%uH", LINE_DEBUG, 1);
                         Trainset_Done(traintid);
                         ShutdownIOServer();
                         Shutdown();
