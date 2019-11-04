@@ -94,14 +94,17 @@ uint32_t task_activate(int tid) {
 }
 
 void task_kill(int tid) {
-    tasks[tid].status = ZOMBIE;
-    alive_task_count -= 1;
-    total_task_priority -= tasks[tid].priority;
+    if (tasks[tid].status == UNUSED) return;
+    if (tasks[tid].status != ZOMBIE) {
+        tasks[tid].status = ZOMBIE;
+        alive_task_count -= 1;
+        total_task_priority -= tasks[tid].priority;
+    }
 }
 
 void task_shutdown() {
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
         if (tasks[tid].status == UNUSED) break;
-        if (tasks[tid].status != ZOMBIE) task_kill(tid);
+        task_kill(tid);
     }
 }
