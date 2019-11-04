@@ -28,7 +28,9 @@ static void clock_delay(int tid, int ticks) {
     if (ticks == 0) {
         clock_time(tid);
     } else {
-        pqueue_insert(&pqdelay, tid, clockticks + ticks);
+        if (pqueue_size(&pqdelay) < PQUEUE_SIZE) {
+            pqueue_insert(&pqdelay, tid, clockticks + ticks);
+        }
     }
 }
 
@@ -36,7 +38,9 @@ static void clock_delayuntil(int tid, int ticks) {
     if (ticks <= clockticks) {
         clock_time(tid);
     } else {
-        pqueue_insert(&pqdelay, tid, ticks);
+        if (pqueue_size(&pqdelay) < PQUEUE_SIZE) {
+            pqueue_insert(&pqdelay, tid, ticks);
+        }
     }
 }
 
