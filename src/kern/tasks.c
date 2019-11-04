@@ -101,6 +101,7 @@ void task_kill(int tid) {
 
 void task_shutdown() {
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
-        task_kill(tid);
+        if (tasks[tid].status == UNUSED) break;
+        if (tasks[tid].status != ZOMBIE) task_kill(tid);
     }
 }
