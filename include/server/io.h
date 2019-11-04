@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include <utils/queue.h>
 
 /**
@@ -35,6 +36,7 @@ typedef enum {
 typedef struct {
     int uart;
     bool fifo;
+    Queue send_queue;
     Queue recv_queue;
     Queue send_buffer;
     Queue recv_buffer;
@@ -45,9 +47,8 @@ typedef struct {
 
 typedef enum {
     IO_REQUEST_INT_UART,
-    IO_REQUEST_PUTC,
-    IO_REQUEST_PUTW,
-    IO_REQUEST_GETC,
+    IO_REQUEST_PUT,
+    IO_REQUEST_GET,
     IO_REQUEST_SHUTDOWN,
 } IORequestType;
 
@@ -55,6 +56,7 @@ typedef struct {
     IORequestType type;
     int uart;
     uint32_t data;
+    size_t size;
 } IORequest;
 
 void InitIOServer();

@@ -4,32 +4,48 @@
 #include <user/name.h>
 
 int Getc(int tid, int uart) {
+    char c;
     IORequest request = {
-        .type = IO_REQUEST_GETC,
-        .uart = uart
+        .type = IO_REQUEST_GET,
+        .uart = uart,
+        .data = (uint32_t) &c,
+        .size = 1,
     };
-    int response;
-    int status = Send(tid, (char *)&request, sizeof(request), (char *)&response, sizeof(response));
+    int status = Send(tid, (char *)&request, sizeof(request), NULL, 0);
     if (status < 0) return status;
-    return response;
+    return (int)c;
 }
 
 int Putc(int tid, int uart, char c) {
     IORequest request = {
-        .type = IO_REQUEST_PUTC,
+        .type = IO_REQUEST_PUT,
         .uart = uart,
-        .data = c,
+        .data = (uint32_t) &c,
+        .size = 1,
     };
     int status = Send(tid, (char *)&request, sizeof(request), NULL, 0);
     if (status < 0) return status;
     return 0;
 }
 
-int Putw(int tid, int uart, char *buffer) {
+int Getw(int tid, int uart, char *buffer, size_t size) {
     IORequest request = {
-        .type = IO_REQUEST_PUTW,
+        .type = IO_REQUEST_GET,
         .uart = uart,
-        .data = (uint32_t) buffer
+        .data = (uint32_t) buffer,
+        .size = size,
+    };
+    int status = Send(tid, (char *)&request, sizeof(request), NULL, 0);
+    if (status < 0) return status;
+    return 0;
+}
+
+int Putw(int tid, int uart, char *buffer, size_t size) {
+    IORequest request = {
+        .type = IO_REQUEST_PUT,
+        .uart = uart,
+        .data = (uint32_t) buffer,
+        .size = size,
     };
     int status = Send(tid, (char *)&request, sizeof(request), NULL, 0);
     if (status < 0) return status;
@@ -146,8 +162,7 @@ void format(int tid, int uart, char *fmt, va_list va) {
             }
         }
     }
-    bf[i] = '\0';
-    Putw(tid, uart, bf);
+    Putw(tid, uart, bf, (size_t) i);
 }
 
 void Printf(int tid, int uart, char *fmt, ...) {
