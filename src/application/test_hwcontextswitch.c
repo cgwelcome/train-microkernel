@@ -6,6 +6,6 @@
 
 void hw_context_switch_test_root_task() {
     icu_softirq(TC2UI_EVENT);
-    bwprintf(COM2, "He is back\n\r");
+    bwprintf(COM2, "He is back\r\n");
     Exit();
 }

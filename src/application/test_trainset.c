@@ -13,12 +13,12 @@ void trainset_sensor_test() {
     int servertid = WhoIs(TRAINSET_SERVER_NAME);
     int iotid = WhoIs(IO_SERVER_NAME);
     for (;;) {
-        Printf(iotid, COM2, "Waiting for input\n\r");
+        Printf(iotid, COM2, "Waiting for input\r\n");
         Getc(iotid, COM2);
         list = Trainset_Sensor_Readall(servertid);
         for (uint32_t i = 0; i < list.size; i++) {
             Printf(iotid, COM2, "%c", list.sensors[i].module);
-            Printf(iotid, COM2, "%d\n\r", list.sensors[i].id);
+            Printf(iotid, COM2, "%d\r\n", list.sensors[i].id);
         };
     }
     Exit();

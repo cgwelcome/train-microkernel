@@ -25,7 +25,7 @@ void ctxcom_read_and_write_test() {
             Putc(iotid, COM1, 78);
         }
         Putc(iotid, COM1, 0x80 + 5);
-        Printf(iotid, COM2, "\n\r");
+        Printf(iotid, COM2, "\r\n");
         for (int i = 0; i < 10; i++) {
             Printf(iotid, COM2, "%02x", Getc(iotid, COM1));
         }

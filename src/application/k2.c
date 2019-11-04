@@ -49,25 +49,25 @@ static void rps_client() {
     srand((unsigned int) timer_read_raw(TIMER3));
     int rounds = rand() % (RPS_MAX_ROUNDS + 1);
 #ifdef OUTPUT
-    bwprintf(COM2, "RPS Client %d: Game Start. Want to play %d rounds\n\r", MyTid(), rounds);
+    bwprintf(COM2, "RPS Client %d: Game Start. Want to play %d rounds\r\n", MyTid(), rounds);
 #endif // OUTPUT
     for (int i = 0; i < rounds; i++) {
         char move = moves[rand() % 3];
         response = rps_play(rpstid, move);
         if (response == RPS_OTHERQUIT) {
 #ifdef OUTPUT
-            bwprintf(COM2, "RPS Client %d: Round %d, the other player quit.\n\r", MyTid(), i + 1);
+            bwprintf(COM2, "RPS Client %d: Round %d, the other player quit.\r\n", MyTid(), i + 1);
 #endif // OUTPUT
             break;
         }
 #ifdef OUTPUT
-        bwprintf(COM2, "RPS Client %d: Round %d, Move: %c, Result: %s\n\r", MyTid(), i + 1, move, response2str[response]);
+        bwprintf(COM2, "RPS Client %d: Round %d, Move: %c, Result: %s\r\n", MyTid(), i + 1, move, response2str[response]);
         bwgetc(COM2);
 #endif // OUTPUT
     }
     response = rps_quit(rpstid);
 #ifdef OUTPUT
-    bwprintf(COM2, "RPS Client %d: Quit with %s\n\r", MyTid(), response2str[response]);
+    bwprintf(COM2, "RPS Client %d: Quit with %s\r\n", MyTid(), response2str[response]);
 #endif // OUTPUT
     Exit();
 }

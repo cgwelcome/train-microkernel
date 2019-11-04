@@ -8,6 +8,6 @@
 #include <utils/bwio.h>
 
 #define kassert(expr) \
-    if (!(expr)) bwprintf(COM2, "%s: %d: Assertion '%s' failed.\n\r", __FILE__, __LINE__, #expr)
+    if (!(expr)) bwprintf(COM2, "%s: %d: Assertion '%s' failed.\r\n", __FILE__, __LINE__, #expr)
 
 #endif

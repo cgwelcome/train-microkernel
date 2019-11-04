@@ -20,7 +20,7 @@ static void child_task() {
     int cstid = WhoIs(CLOCK_SERVER_NAME);
     for (int i = 0; i < request.num; i++) {
         Delay(cstid, request.ticks);
-        bwprintf(COM2, "TID: %d - Ticks: %d - Num: %d\n\r", mytid, request.ticks, i+1);
+        bwprintf(COM2, "TID: %d - Ticks: %d - Num: %d\r\n", mytid, request.ticks, i+1);
     }
     Exit();
 }

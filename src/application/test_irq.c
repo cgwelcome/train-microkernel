@@ -7,9 +7,9 @@
 
 void await_test() {
     for (;;) {
-        bwprintf(COM2, "Enter\n\r");
+        bwprintf(COM2, "Enter\r\n");
         AwaitEvent(TC2UI_EVENT);
-        bwprintf(COM2, "Exit\n\r");
+        bwprintf(COM2, "Exit\r\n");
     }
 }
 
