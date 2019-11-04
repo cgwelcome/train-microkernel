@@ -1,3 +1,4 @@
+#include <utils/kassert.h>
 #include <utils/pqueue.h>
 
 void pqueue_init(PQueue *pqueue) {
