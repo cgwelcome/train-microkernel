@@ -30,9 +30,9 @@ static void io_init_uart(int uart) {
         default:
             return;
     }
-    uart_setspeed(uart, speed);
-    uart_setbitconfig(uart, bitconfig);
-    uart_enableintr(uart, interrupts);
+    uart_set_speed(uart, speed);
+    uart_set_bitconfig(uart, bitconfig);
+    uart_enable_interrupts(uart, interrupts);
 }
 
 static void io_init_channel(int uart) {

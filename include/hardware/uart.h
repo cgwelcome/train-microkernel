@@ -69,25 +69,25 @@
 #define UART_HDLCRIB_OFFSET	0x218
 #define UART_HDLCSTS_OFFSET	0x21c
 
-int uart_setbitconfig(int channel, uint8_t buf);
+int uart_set_bitconfig(int channel, uint8_t buf);
 
-int uart_setspeed(int channel, int speed);
+int uart_set_speed(int channel, int speed);
 
 int uart_putc(int channel, uint8_t c);
 
 int uart_getc(int channel);
 
-int uart_enableintr(int channel, uint8_t flag);
+int uart_read_flags(int channel);
 
-int uart_readintr(int channel);
+int uart_enable_interrupts(int channel, uint8_t flag);
 
-int uart_clearmsintr(int channel);
+int uart_read_interrupts(int channel);
 
-int uart_readflag(int channel);
+int uart_clear_interrupts(int channel);
 
-int uart_disableintr(int channel, uint8_t flag);
+int uart_disable_interrupts(int channel, uint8_t flag);
 
-int uart_disableall(int channel);
+int uart_disable_all_interrupts(int channel);
 
 /** @} */
 

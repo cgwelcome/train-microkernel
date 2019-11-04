@@ -34,10 +34,10 @@ void event_handle() {
             return_value = 0;
             break;
         case INT_UART1:
-            return_value = (uint32_t) uart_readintr(COM1);
+            return_value = (uint32_t) uart_read_interrupts(COM1);
             break;
         case INT_UART2:
-            return_value = (uint32_t) uart_readintr(COM2);
+            return_value = (uint32_t) uart_read_interrupts(COM2);
             break;
         default:
             return;
