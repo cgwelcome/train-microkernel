@@ -270,29 +270,17 @@ void io_server_task() {
     }
 }
 
-static void io_com1_notifier_task() {
-    int event = INT_UART1;
-    IORequest request = {
-        .type = IO_REQUEST_INT_UART,
-        .uart = COM1
-    };
-    for (;;) {
-        uint32_t interrupts = (uint32_t) AwaitEvent(event);
-        uart_clear_interrupts(COM1);
-        request.data = interrupts;
-        Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0);
-    }
-}
+static void io_notifier_task(uint32_t uart) {
+    assert(uart == COM1 || uart == COM2);
 
-static void io_com2_notifier_task() {
-    int event = INT_UART2;
+    int event = (uart == COM1 ? INT_UART1 : INT_UART2);
     IORequest request = {
         .type = IO_REQUEST_INT_UART,
-        .uart = COM2
+        .uart = (int) uart,
     };
     for (;;) {
         uint32_t interrupts = (uint32_t) AwaitEvent(event);
-        uart_clear_interrupts(COM2);
+        uart_clear_interrupts((int) uart);
         request.data = interrupts;
         Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0);
     }
@@ -314,10 +302,10 @@ int CreateIOServer() {
         io_server_tid = Create(PRIORITY_SERVER_IO, &io_server_task);
     }
     if (com1_notifier_tid < 0) {
-        com1_notifier_tid = Create(PRIORITY_NOTIFIER_IO_COM1, &io_com1_notifier_task);
+        com1_notifier_tid = CreateWithArg(PRIORITY_NOTIFIER_IO_COM1, &io_notifier_task, COM1);
     }
     if (com2_notifier_tid < 0) {
-        com2_notifier_tid = Create(PRIORITY_NOTIFIER_IO_COM2, &io_com2_notifier_task);
+        com2_notifier_tid = CreateWithArg(PRIORITY_NOTIFIER_IO_COM2, &io_notifier_task, COM2);
     }
     return io_server_tid;
 }

@@ -8,6 +8,12 @@ int Create(uint32_t priority, void (*entry)()) {
     return ret;
 }
 
+int CreateWithArg(uint32_t priority, void (*entry)(uint32_t), uint32_t arg) {
+    register int ret asm("r0");
+    SYSCALL_INVOKE(SYSCALL_TASK_CREATE);
+    return ret;
+}
+
 void Yield() {
     SYSCALL_INVOKE(SYSCALL_TASK_YIELD);
 }

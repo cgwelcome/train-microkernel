@@ -35,7 +35,7 @@ void initialize() {
     InitNameServer();
     InitClockServer();
     // Create first user task.
-    task_create(-1, PRIORITY_ROOT_TASK, &k4_root_task);
+    task_create(-1, PRIORITY_ROOT_TASK, &k4_root_task, 0);
 }
 
 void handle_request(int tid, uint32_t request) {
@@ -46,7 +46,8 @@ void handle_request(int tid, uint32_t request) {
     else if (request == SYSCALL_TASK_CREATE) {
         uint32_t priority = (uint32_t) current_task->tf->r0;
         void *   entry    = (void *)   current_task->tf->r1;
-        current_task->tf->r0 = (uint32_t) task_create(tid, priority, entry);
+        uint32_t arg      = (uint32_t) current_task->tf->r2;
+        current_task->tf->r0 = (uint32_t) task_create(tid, priority, entry, arg);
     }
     else if (request == SYSCALL_TASK_EXIT) {
         task_kill(tid);
