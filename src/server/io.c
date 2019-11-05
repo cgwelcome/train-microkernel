@@ -259,7 +259,7 @@ void io_server_task() {
         if (is_halting) {
             uint64_t now = timer_read(TIMER3);
             bool haltable = iochannel_haltable(&com1_channel) && iochannel_haltable(&com2_channel);
-            if (now - halting_start > 1000 || haltable) { // ensure the IO server get halted in 1 second.
+            if (now - halting_start > 5000 || haltable) { // ensure the IO server get halted in 1 second.
                 while (queue_size(&halting_queue)) {
                     int tid = queue_pop(&halting_queue);
                     Reply(tid, NULL, 0);

@@ -1,10 +1,12 @@
-#ifndef __UTILS_TRAINTRACK_H__
-#define __UTILS_TRAINTRACK_H__
+#ifndef __TRAIN_TRACK_H__
+#define __TRAIN_TRACK_H__
 
 #include <stdint.h>
+#include <server/trainmanager.h>
 
-#define MAX_PATHNODE_NAME 10
-#define MAX_EDGE_DEGREE 2
+#define MAX_PATHNODE_NAME    10
+#define MAX_EDGE_DEGREE       2
+#define MAX_NODE_PER_TRACK  140
 
 #define DIR_AHEAD 0
 #define DIR_STRAIGHT 0
@@ -24,21 +26,32 @@ typedef struct PathEdge {
   struct PathNode *src;
   struct PathNode *dest;
   /* in millimetres */
-  int dist;
-} TrackEdge;
+  uint32_t dist;
+} TrainTrackEdge;
 
 typedef struct PathNode {
+  uint32_t id;
   const char *name;
   TrainTrackNodeType type;
-  /* sensor or switch number */
   uint32_t num;
   /* same location, but opposite direction */
   struct PathNode *reverse;
   struct PathEdge edge[MAX_EDGE_DEGREE];
 } TrainTrackNode;
 
+typedef struct {
+	TrainTrackType type;
+	TrainTrackNode nodes[MAX_NODE_PER_TRACK];
+} TrainTrack;
+
+/**
+ * Load Train Track A from a generated C function
+ */
 void init_tracka(TrainTrackNode *track);
 
+/**
+ * Load Train Track B from a generated C function
+ */
 void init_trackb(TrainTrackNode *track);
 
-#endif /*__UTILS_TRAINTRACK_H__*/
+#endif /*__TRAIN_TRACK_H__*/

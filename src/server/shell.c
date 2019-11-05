@@ -2,15 +2,14 @@
 #include <server/clock.h>
 #include <server/io.h>
 #include <server/shell.h>
-#include <server/trainset.h>
+#include <server/trainmanager.h>
 #include <user/io.h>
 #include <user/clock.h>
 #include <user/name.h>
 #include <user/tasks.h>
-#include <user/trainset.h>
+#include <user/trainmanager.h>
 #include <utils/queue.h>
 #include <utils/bwio.h>
-#include <user/trainset.h>
 
 static int find(char *str, int len, char ch) {
     int i = 0;
@@ -63,46 +62,46 @@ static void shell_print_terminal(int iotid, char *cmd_buffer, unsigned int cmd_l
 }
 
 static void shell_execute_command(int iotid, int traintid, char *cmd_buffer, unsigned int cmd_len) {
-    int arg1_len, arg2_len, code, speed, direction;
-    switch (cmd_buffer[0]) {
-        case 't':                // set train speed
-            arg1_len = find(cmd_buffer + 3, (int) cmd_len - 3, ' ');
-            code     = atoi(cmd_buffer + 3, arg1_len);
-            arg2_len = (int)cmd_len - 3 - arg1_len - 1;
-            speed    = atoi(cmd_buffer + 3 + arg1_len + 1, arg2_len);
-            if ((code > 0 && code < 81) && (speed >= 0 && speed <= 14)) {
-                Trainset_Speed(traintid, (uint32_t)code, (uint32_t)speed);
-            }
-            break;
-        case 'r':                // reverse the train
-            code = atoi(cmd_buffer + 3, (int)cmd_len - 3);
-            if (code > 0 && code < 81) {
-                Trainset_Reverse(traintid, (uint32_t)code);
-            }
-            break;
-        case 's':                // turn on/off the switch
-            arg1_len  = find(cmd_buffer + 3, (int)cmd_len - 3, ' ');
-            code      = atoi(cmd_buffer + 3, arg1_len);
-            direction = (cmd_buffer + 3)[arg1_len + 1];
-            if (direction != 'S' && direction != 'C') break;
-            if ((code > 0 && code < 19) || (code > 0x98 && code < 0x9D)) {
-                TrainSwitchStatus status;
-                switch (direction) {
-                    case 'C':
-                        status = SWITCHSTATUS_CURVED;
-                        break;
-                    case 'S':
-                        status =  SWITCHSTATUS_STRAIGHT;
-                        break;
-                    default:
-                        return;
-                        break;
-                }
-                Trainset_Switchone(traintid, (uint32_t)code, status);
-                shell_print_switch(iotid, (unsigned int) code, (char) direction);
-            }
-            break;
-    }
+	int arg1_len, arg2_len, code, speed, direction;
+	switch (cmd_buffer[0]) {
+		case 't':                // set train speed
+			arg1_len = find(cmd_buffer + 3, (int) cmd_len - 3, ' ');
+			code     = atoi(cmd_buffer + 3, arg1_len);
+			arg2_len = (int)cmd_len - 3 - arg1_len - 1;
+			speed    = atoi(cmd_buffer + 3 + arg1_len + 1, arg2_len);
+			if ((code > 0 && code < 81) && (speed >= 0 && speed <= 14)) {
+				TrainManager_Speed(traintid, (uint32_t)code, (uint32_t)speed);
+				break;
+				case 'r':                // reverse the train
+				code = atoi(cmd_buffer + 3, (int)cmd_len - 3);
+				if (code > 0 && code < 81) {
+					TrainManager_Reverse(traintid, (uint32_t)code);
+				}
+				break;
+				case 's':                // turn on/off the switch
+				arg1_len  = find(cmd_buffer + 3, (int)cmd_len - 3, ' ');
+				code      = atoi(cmd_buffer + 3, arg1_len);
+				direction = (cmd_buffer + 3)[arg1_len + 1];
+				if (direction != 'S' && direction != 'C') break;
+				if ((code > 0 && code < 19) || (code > 0x98 && code < 0x9D)) {
+					TrainSwitchStatus status;
+					switch (direction) {
+						case 'C':
+							status = TRAINSWITCHSTATUS_CURVED;
+							break;
+						case 'S':
+							status =  TRAINSWITCHSTATUS_STRAIGHT;
+							break;
+						default:
+							return;
+							break;
+					}
+					TrainManager_Switch_One(traintid, (uint32_t)code, status);
+					shell_print_switch(iotid, (unsigned int) code, (char) direction);
+				}
+				break;
+			}
+	}
 }
 
 static void shell_keyboard_task() {
@@ -110,16 +109,17 @@ static void shell_keyboard_task() {
     char cmd_buffer[CMD_BUFFER_SIZE];
 
     int iotid = WhoIs(IO_SERVER_NAME);
-    int traintid = WhoIs(TRAINSET_SERVER_NAME);
+    int traintid = WhoIs(TRAINMANAGER_SERVER_NAME);
     for (;;) {
         char in = (char) Getc(iotid, COM2);
         switch (in) {
             case '\r':                         // execute command if get "ENTER"
                 if (cmd_len != 0) {
                     if (cmd_buffer[0] == 'q') {
-                        Trainset_Done(traintid);
-                        ShutdownIOServer();
-                        Shutdown();
+                        Printf(iotid, COM2, "\033[%u;%uH", LINE_DEBUG, 1);
+                        TrainManager_Done(traintid);
+						ShutdownIOServer();
+						Shutdown();
                     }
                     shell_execute_command(iotid, traintid, cmd_buffer, cmd_len);
                     cmd_len = 0;
@@ -187,36 +187,36 @@ static void shell_clock_task() {
     Exit();
 }
 
-static void shell_sensor_task() {
-    ActiveTrainSensorList active_list; active_list.size = 0;
-    ActiveTrainSensorList output_list; output_list.size = 0;
+/*static void shell_sensor_task() {*/
+    /*activetrainsensorlist active_list; active_list.size = 0;*/
+    /*activetrainsensorlist output_list; output_list.size = 0;*/
 
-    int clocktid = WhoIs(CLOCK_SERVER_NAME);
-    int iotid = WhoIs(IO_SERVER_NAME);
-    int traintid = WhoIs(TRAINSET_SERVER_NAME);
+    /*int clocktid = whois(clock_server_name);*/
+    /*int iotid = whois(io_server_name);*/
+    /*int traintid = whois(trainset_server_name);*/
 
-    for (;;) {
-        Delay(clocktid, SENSOR_READ_INTERVAL/10);
-        active_list = Trainset_Sensor_Readall(traintid);
-        for (uint32_t i = 0; i < active_list.size; i++) {
-            if (output_list.size < SENSOR_LIST_SIZE) {
-                output_list.size += 1;
-            }
-            for (int t = SENSOR_LIST_SIZE - 1; t > 0; t--) {
-                output_list.sensors[t] = output_list.sensors[t - 1];
-            }
-            output_list.sensors[0] = active_list.sensors[i];
-        }
-        for (uint32_t i = 0; i < output_list.size; i++) {
-            Printf(iotid, COM2, "\033[%d;%dH\033[K%c%u",
-                LINE_SENSOR_START + i, 3,
-                output_list.sensors[i].module,
-                output_list.sensors[i].id
-            );
-        };
-    }
-    Exit();
-}
+    /*for (;;) {*/
+        /*delay(clocktid, sensor_read_interval/10);*/
+        /*active_list = trainset_sensor_readall(traintid);*/
+        /*for (uint32_t i = 0; i < active_list.size; i++) {*/
+            /*if (output_list.size < sensor_list_size) {*/
+                /*output_list.size += 1;*/
+            /*}*/
+            /*for (int t = sensor_list_size - 1; t > 0; t--) {*/
+                /*output_list.sensors[t] = output_list.sensors[t - 1];*/
+            /*}*/
+            /*output_list.sensors[0] = active_list.sensors[i];*/
+        /*}*/
+        /*for (uint32_t i = 0; i < output_list.size; i++) {*/
+            /*printf(iotid, com2, "\033[%d;%dh\033[k%c%u",*/
+                /*line_sensor_start + i, 3,*/
+                /*output_list.sensors[i].module,*/
+                /*output_list.sensors[i].id*/
+            /*);*/
+        /*};*/
+    /*}*/
+    /*exit();*/
+/*}*/
 
 void shell_server_root_task() {
     int iotid = WhoIs(IO_SERVER_NAME);
@@ -225,11 +225,11 @@ void shell_server_root_task() {
     // Hide the cursor
     Printf(iotid, COM2, "\033[?25l");
     // Initialize the interface
-    shell_print_interface(iotid);
+    /*shell_print_interface(iotid);*/
 
     Create(PRIORITY_SERVER_SHELL, &shell_keyboard_task);
-    Create(PRIORITY_SERVER_SHELL, &shell_clock_task);
-    Create(PRIORITY_SERVER_SHELL, &shell_sensor_task);
+	Create(PRIORITY_SERVER_SHELL, &shell_clock_task);
+	/*Create(PRIORITY_SERVER_SHELL, &shell_sensor_task);*/
     Exit();
 }
 
