@@ -233,6 +233,6 @@ void shell_server_root_task() {
     Exit();
 }
 
-int CreateShellServer() {
-    return Create(PRIORITY_SERVER_SHELL, &shell_server_root_task);
+void CreateShellServer() {
+    Create(PRIORITY_SERVER_SHELL, &shell_server_root_task);
 }

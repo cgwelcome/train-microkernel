@@ -21,7 +21,7 @@ static void rps_setup(int tid) {
     RPSResponse response;
     RPSRequest request;
     request.type = RPS_SIGNUP;
-    Send(tid, (char *)&request, sizeof(request), (char *)&response, sizeof(response));
+    assert(Send(tid, (char *)&request, sizeof(request), (char *)&response, sizeof(response)) >= 0);
     assert(response == RPS_READY);
 }
 
@@ -30,7 +30,7 @@ static RPSResponse rps_play(int tid, char move) {
     RPSRequest request;
     request.type = RPS_PLAY;
     request.move = move;
-    Send(tid, (char *)&request, sizeof(request), (char *)&response, sizeof(response));
+    assert(Send(tid, (char *)&request, sizeof(request), (char *)&response, sizeof(response)) >= 0);
     return response;
 }
 
@@ -38,7 +38,7 @@ static RPSResponse rps_quit(int tid)  {
     RPSResponse response;
     RPSRequest request;
     request.type = RPS_QUIT;
-    Send(tid, (char *)&request, sizeof(request), (char *)&response, sizeof(response));
+    assert(Send(tid, (char *)&request, sizeof(request), (char *)&response, sizeof(response)) >= 0);
     return response;
 }
 

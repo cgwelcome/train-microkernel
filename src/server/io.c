@@ -11,7 +11,6 @@
 #include <utils/assert.h>
 #include <utils/queue.h>
 
-static int io_server_tid, com1_notifier_tid, com2_notifier_tid;
 static IOChannel com1_channel;
 static IOChannel com2_channel;
 
@@ -270,6 +269,7 @@ void io_server_task() {
 static void io_notifier_task(uint32_t uart) {
     assert(uart == COM1 || uart == COM2);
 
+    int io_server_tid = WhoIs(IO_SERVER_NAME);
     int event = (uart == COM1 ? INT_UART1 : INT_UART2);
     IORequest request = {
         .type = IO_REQUEST_INT_UART,
@@ -279,37 +279,27 @@ static void io_notifier_task(uint32_t uart) {
         uint32_t interrupts = (uint32_t) AwaitEvent(event);
         uart_clear_interrupts((int) uart);
         request.data = interrupts;
-        Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0);
+        assert(Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
     }
 }
 
 void InitIOServer() {
-    io_server_tid = -1;
-    com1_notifier_tid = -1;
-    com2_notifier_tid = -1;
-
     io_init_uart(COM1);
     io_init_uart(COM2);
     io_init_channel(COM1);
     io_init_channel(COM2);
 }
 
-int CreateIOServer() {
-    if (io_server_tid < 0) {
-        io_server_tid = Create(PRIORITY_SERVER_IO, &io_server_task);
-    }
-    if (com1_notifier_tid < 0) {
-        com1_notifier_tid = CreateWithArg(PRIORITY_NOTIFIER_IO_COM1, &io_notifier_task, COM1);
-    }
-    if (com2_notifier_tid < 0) {
-        com2_notifier_tid = CreateWithArg(PRIORITY_NOTIFIER_IO_COM2, &io_notifier_task, COM2);
-    }
-    return io_server_tid;
+void CreateIOServer() {
+    Create(PRIORITY_SERVER_IO, &io_server_task);
+    CreateWithArg(PRIORITY_NOTIFIER_IO_COM1, &io_notifier_task, COM1);
+    CreateWithArg(PRIORITY_NOTIFIER_IO_COM2, &io_notifier_task, COM2);
 }
 
 void ShutdownIOServer() {
     IORequest request = {
         .type = IO_REQUEST_SHUTDOWN
     };
-    Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0);
+    int io_server_tid = WhoIs(IO_SERVER_NAME);
+    assert(Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }

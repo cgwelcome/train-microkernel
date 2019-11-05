@@ -76,6 +76,6 @@ static void trainmanager_root_task() {
     }
 }
 
-int CreateTrainManagerServer() {
-    return Create(PRIORITY_SERVER_TMR, &trainmanager_root_task);
+void CreateTrainManagerServer() {
+    Create(PRIORITY_SERVER_TMR, &trainmanager_root_task);
 }

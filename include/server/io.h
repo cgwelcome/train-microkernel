@@ -61,7 +61,7 @@ typedef struct {
 
 void InitIOServer();
 
-int CreateIOServer();
+void CreateIOServer();
 
 void ShutdownIOServer();
 

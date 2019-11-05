@@ -6,6 +6,7 @@
 #include <user/ipc.h>
 #include <user/name.h>
 #include <user/tasks.h>
+#include <utils/assert.h>
 #include <utils/bwio.h>
 
 typedef struct {
@@ -16,7 +17,7 @@ typedef struct {
 static void child_task() {
     int mytid = MyTid();
     DelayRequest request;
-    Send(MyParentTid(), NULL, 0, (char *)&request, sizeof(request));
+    assert(Send(MyParentTid(), NULL, 0, (char *)&request, sizeof(request)) >= 0);
     int cstid = WhoIs(CLOCK_SERVER_NAME);
     for (int i = 0; i < request.num; i++) {
         Delay(cstid, request.ticks);

@@ -13,7 +13,7 @@
 /**
  * Creates an idle task for diagnostic purpose.
  */
-int CreateIdleTask();
+void CreateIdleTask();
 
 /** @}*/
 

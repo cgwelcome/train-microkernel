@@ -43,6 +43,6 @@ void trainmanager_dispatch_action(TMRequest *request);
  * Create Train Manager Sever responsible at tracking trains state,
  * which are not detectable from the Trainset
  */
-int CreateTrainManagerServer();
+void CreateTrainManagerServer();
 
 #endif /*__SERVER_TRAINMANAGER_H__*/

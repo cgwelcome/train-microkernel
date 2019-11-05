@@ -33,7 +33,7 @@ typedef struct {
 /**
  * Creates a Shell Server
  */
-int CreateShellServer();
+void CreateShellServer();
 
 /** @}*/
 

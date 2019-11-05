@@ -24,7 +24,7 @@ static void sendreplymsg(int tid) {
     assert(sizeof(sendmsg) == MESSAGESIZE);
     assert(sizeof(replymsg) == MESSAGESIZE);
     for (int i = 0; i < SRR_NUM; i++) {
-        Send(tid, sendmsg, sizeof(sendmsg), replymsg, sizeof(replymsg));
+        assert(Send(tid, sendmsg, sizeof(sendmsg), replymsg, sizeof(replymsg)) >= 0);
     }
 }
 

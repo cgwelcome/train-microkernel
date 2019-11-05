@@ -10,7 +10,6 @@
 #include <utils/assert.h>
 #include <utils/pqueue.h>
 
-static int clock_server_tid, clock_notifier_tid;
 static int clockticks;
 static PQueue pqdelay;
 
@@ -70,6 +69,7 @@ void clock_server_task() {
 }
 
 void clock_notifier_task() {
+    int clock_server_tid = WhoIs(CLOCK_SERVER_NAME);
     timer_init(TIMER2, CLOCK_NOTIFY_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
     CSRequest request = {
         .type = CS_TICKUPDATE
@@ -77,23 +77,16 @@ void clock_notifier_task() {
     for (;;) {
         timer_clear(TIMER2);
         AwaitEvent(TC2UI_EVENT);
-        Send(clock_server_tid, (char *)&request, sizeof(request), NULL, 0);
+        assert(Send(clock_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
     }
 }
 
 void InitClockServer() {
-    clock_server_tid = -1;
-    clock_notifier_tid = -1;
     clockticks = 0;
     pqueue_init(&pqdelay);
 }
 
-int CreateClockServer() {
-    if (clock_server_tid < 0) {
-        clock_server_tid = Create(PRIORITY_SERVER_CLOCK, &clock_server_task);
-    }
-    if (clock_notifier_tid < 0) {
-        clock_notifier_tid = Create(PRIORITY_NOTIFIER_CLOCK, &clock_notifier_task);
-    }
-    return clock_server_tid;
+void CreateClockServer() {
+    Create(PRIORITY_SERVER_CLOCK, &clock_server_task);
+    Create(PRIORITY_NOTIFIER_CLOCK, &clock_notifier_task);
 }

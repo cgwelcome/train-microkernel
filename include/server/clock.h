@@ -33,7 +33,7 @@ void InitClockServer();
 /**
  * Creates a global Clock Server
  */
-int CreateClockServer();
+void CreateClockServer();
 
 /** @}*/
 

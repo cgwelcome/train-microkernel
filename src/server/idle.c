@@ -9,9 +9,6 @@
 
 static void idle_task() {
     int io_server_id = WhoIs(IO_SERVER_NAME);
-    if (io_server_id < 0) {
-        io_server_id = CreateIOServer();
-    }
 
     const char *save_cursor = "\033[s";
     const char *retn_cursor = "\033[u";
@@ -33,6 +30,6 @@ static void idle_task() {
     Exit();
 }
 
-int CreateIdleTask() {
-    return Create(PRIORITY_IDLE_TASK, &idle_task);
+void CreateIdleTask() {
+    Create(PRIORITY_IDLE_TASK, &idle_task);
 }
