@@ -61,7 +61,7 @@ typedef struct {
 
 void InitIOServer();
 
-int CreateIOServer(uint32_t server_priority, uint32_t com1_priority, uint32_t com2_priority);
+int CreateIOServer();
 
 void ShutdownIOServer();
 

@@ -96,7 +96,7 @@ typedef struct {
 /**
  * Create a Trainset Server
  */
-int CreateTrainSetServer(uint32_t priority);
+int CreateTrainSetServer();
 
 /** @}*/
 

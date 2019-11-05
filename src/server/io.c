@@ -1,4 +1,5 @@
 #include <event.h>
+#include <priority.h>
 #include <hardware/uart.h>
 #include <hardware/timer.h>
 #include <server/idle.h>
@@ -316,15 +317,15 @@ void InitIOServer() {
     io_init_channel(COM2);
 }
 
-int CreateIOServer(uint32_t server_priority, uint32_t com1_priority, uint32_t com2_priority) {
+int CreateIOServer() {
     if (io_server_tid < 0) {
-        io_server_tid = Create(server_priority, &io_server_task);
+        io_server_tid = Create(PRIORITY_SERVER_IO, &io_server_task);
     }
     if (com1_notifier_tid < 0) {
-        com1_notifier_tid = Create(com1_priority, &io_com1_notifier_task);
+        com1_notifier_tid = Create(PRIORITY_NOTIFIER_IO_COM1, &io_com1_notifier_task);
     }
     if (com2_notifier_tid < 0) {
-        com2_notifier_tid = Create(com2_priority, &io_com2_notifier_task);
+        com2_notifier_tid = Create(PRIORITY_NOTIFIER_IO_COM2, &io_com2_notifier_task);
     }
     return io_server_tid;
 }

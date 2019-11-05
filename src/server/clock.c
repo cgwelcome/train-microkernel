@@ -1,5 +1,6 @@
 #include <stddef.h>
 #include <event.h>
+#include <priority.h>
 #include <hardware/timer.h>
 #include <server/clock.h>
 #include <user/event.h>
@@ -90,12 +91,12 @@ void InitClockServer() {
     pqueue_init(&pqdelay);
 }
 
-int CreateClockServer(uint32_t priority) {
+int CreateClockServer() {
     if (clock_server_tid < 0) {
-        clock_server_tid = Create(priority, &clock_server_task);
+        clock_server_tid = Create(PRIORITY_SERVER_CLOCK, &clock_server_task);
     }
     if (clock_notifier_tid < 0) {
-        clock_notifier_tid = Create(priority - 1000, &clock_notifier_task);
+        clock_notifier_tid = Create(PRIORITY_NOTIFIER_CLOCK, &clock_notifier_task);
     }
     return clock_server_tid;
 }

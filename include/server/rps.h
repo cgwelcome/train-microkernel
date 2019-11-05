@@ -54,7 +54,7 @@ typedef struct {
 /**
  * Creates a Rock Paper Server
  */
-int CreateRPS(uint32_t priority);
+int CreateRPS();
 
 /** @}*/
 

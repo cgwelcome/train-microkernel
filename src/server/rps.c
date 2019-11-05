@@ -1,3 +1,4 @@
+#include <priority.h>
 #include <server/rps.h>
 #include <user/ipc.h>
 #include <user/name.h>
@@ -143,6 +144,6 @@ static void rsp_task() {
     }
 }
 
-int CreateRPS(uint32_t priority) {
-    return Create(priority, &rsp_task);
+int CreateRPS() {
+    return Create(PRIORITY_SERVER_RPS, &rsp_task);
 }

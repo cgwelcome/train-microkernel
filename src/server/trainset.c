@@ -1,3 +1,4 @@
+#include <priority.h>
 #include <server/io.h>
 #include <server/clock.h>
 #include <server/trainset.h>
@@ -225,6 +226,6 @@ void trainset_server_task() {
 }
 
 
-int CreateTrainSetServer(uint32_t priority) {
-    return Create(priority, &trainset_server_task);
+int CreateTrainSetServer() {
+    return Create(PRIORITY_SERVER_TRAINSET, &trainset_server_task);
 }

@@ -1,3 +1,4 @@
+#include <priority.h>
 #include <hardware/syscon.h>
 #include <server/idle.h>
 #include <server/io.h>
@@ -9,7 +10,7 @@
 static void idle_task() {
     int io_server_id = WhoIs(IO_SERVER_NAME);
     if (io_server_id < 0) {
-        io_server_id = CreateIOServer(3000, 3000, 3000);
+        io_server_id = CreateIOServer();
     }
 
     const char *save_cursor = "\033[s";
@@ -32,6 +33,6 @@ static void idle_task() {
     Exit();
 }
 
-int CreateIdleTask(uint32_t priority) {
-    return Create(priority, &idle_task);
+int CreateIdleTask() {
+    return Create(PRIORITY_IDLE_TASK, &idle_task);
 }

@@ -10,11 +10,11 @@
 #include <user/trainset.h>
 
 void k4_root_task() {
-    CreateNameServer(4000);
-    CreateClockServer(3700);
-    CreateIOServer(3500, 3500, 3500);
-    CreateTrainSetServer(3000);
-    CreateShellServer(2000);
-    CreateIdleTask(1);
+    CreateNameServer();
+    CreateClockServer();
+    CreateIOServer();
+    CreateTrainSetServer();
+    CreateShellServer();
+    CreateIdleTask();
     Exit();
 }

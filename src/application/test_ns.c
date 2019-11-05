@@ -11,7 +11,7 @@ void register_test() {
 }
 
 void ns_test_root_task() {
-    CreateNameServer(2000);
+    CreateNameServer();
     Create(500, &register_test);
     Exit();
 }

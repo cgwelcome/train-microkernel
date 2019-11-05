@@ -1,3 +1,4 @@
+#include <priority.h>
 #include <server/clock.h>
 #include <server/io.h>
 #include <server/shell.h>
@@ -226,12 +227,12 @@ void shell_server_root_task() {
     // Initialize the interface
     shell_print_interface(iotid);
 
-    Create(SHELL_PRIORITY, &shell_keyboard_task);
-    Create(SHELL_PRIORITY, &shell_clock_task);
-    Create(SHELL_PRIORITY, &shell_sensor_task);
+    Create(PRIORITY_SERVER_SHELL, &shell_keyboard_task);
+    Create(PRIORITY_SERVER_SHELL, &shell_clock_task);
+    Create(PRIORITY_SERVER_SHELL, &shell_sensor_task);
     Exit();
 }
 
-int CreateShellServer(uint32_t priority) {
-    return Create(priority, &shell_server_root_task);
+int CreateShellServer() {
+    return Create(PRIORITY_SERVER_SHELL, &shell_server_root_task);
 }

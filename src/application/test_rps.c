@@ -68,8 +68,8 @@ static void rpstest_client2() {
 }
 
 void rps_test_root_task() {
-    CreateNameServer(2000);
-    CreateRPS(2000);
+    CreateNameServer();
+    CreateRPS();
     Create(1000, &rpstest_client1);
     Create(1000, &rpstest_client2);
     Exit();

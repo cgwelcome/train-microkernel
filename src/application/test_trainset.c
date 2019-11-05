@@ -84,11 +84,11 @@ void trainset_single_speed_test() {
 }
 
 void trainset_test_root_task() {
-    CreateNameServer(4000);
-    CreateClockServer(3700);
-    CreateIOServer(3500, 3500, 3500);
-    CreateTrainSetServer(3000);
+    CreateNameServer();
+    CreateClockServer();
+    CreateIOServer();
+    CreateTrainSetServer();
     Create(2000, &trainset_multiple_speed_test);
-    CreateIdleTask(1);
+    CreateIdleTask();
     Exit();
 }

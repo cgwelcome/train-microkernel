@@ -1,4 +1,5 @@
 #include <string.h>
+#include <priority.h>
 #include <server/name.h>
 #include <user/ipc.h>
 #include <user/name.h>
@@ -74,9 +75,9 @@ void InitNameServer() {
     record_count = 0;
 }
 
-int CreateNameServer(uint32_t priority) {
+int CreateNameServer() {
     if (name_server_tid < 0) {
-        name_server_tid = Create(priority, &name_server_task);
+        name_server_tid = Create(PRIORITY_SERVER_NAME, &name_server_task);
     }
     return name_server_tid;
 }

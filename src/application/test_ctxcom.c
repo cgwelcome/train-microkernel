@@ -66,9 +66,9 @@ void ctxcom_write_single_test() {
 }
 
 void ctxcom_test_root_task() {
-    CreateNameServer(4000);
-    CreateIOServer(3000, 2500, 2500);
+    CreateNameServer();
+    CreateIOServer();
     Create(2000, &ctxcom_read_and_write_test);
-    CreateIdleTask(1);
+    CreateIdleTask();
     Exit();
 }

@@ -15,6 +15,6 @@ void await_test() {
 
 void irq_test_root_task() {
     Create(3000, &await_test);
-    CreateIdleTask(1);
+    CreateIdleTask();
     Exit();
 }

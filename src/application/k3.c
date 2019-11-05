@@ -39,9 +39,9 @@ void k3_root_task() {
     bwprintf(COM2, "[2J");
     bwputc(COM2, (char)27);
     bwprintf(COM2, "[2;1H");
-    CreateNameServer(4000);
-    CreateClockServer(3500);
-    CreateIdleTask(1);
+    CreateNameServer();
+    CreateClockServer();
+    CreateIdleTask();
 
     Create(600, &child_task);
     Create(500, &child_task);

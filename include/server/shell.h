@@ -13,8 +13,6 @@
 #define SENSOR_READ_INTERVAL 100
 #define CLOCK_PRECISION 100
 
-#define SHELL_PRIORITY 3000
-
 #define LINE_TIME         2
 #define LINE_SWITCH_TITLE 3
 #define LINE_SWITCH_START 4
@@ -35,7 +33,7 @@ typedef struct {
 /**
  * Creates a Shell Server
  */
-int CreateShellServer(uint32_t priority);
+int CreateShellServer();
 
 /** @}*/
 

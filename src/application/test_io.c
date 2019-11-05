@@ -53,8 +53,8 @@ void io_race_test() {
 }
 
 void io_test_root_task() {
-    CreateNameServer(4000);
-    CreateIOServer(3000, 3000, 3000);
+    CreateNameServer();
+    CreateIOServer();
 
     int servertid = WhoIs(IO_SERVER_NAME);
     Printf(servertid, COM2, "\033[2J");
@@ -65,6 +65,6 @@ void io_test_root_task() {
     // Create(3000, &io_putc_test);
     // Create(3000, &io_getc_test);
     // Create(3000, &io_perf_test);
-    CreateIdleTask(1);
+    CreateIdleTask();
     Exit();
 }
