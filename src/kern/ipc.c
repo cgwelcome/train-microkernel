@@ -25,6 +25,7 @@ void ipc_send(int tid, int recvtid, char *msg, size_t msglen, char *reply, size_
         current_task->tf->r0 = (uint32_t) -1;
         return;
     }
+
     current_task->send_msg.array = msg;
     current_task->send_msg.len = msglen;
     current_task->reply_msg.array = reply;
@@ -57,14 +58,9 @@ void ipc_receive(int tid, int *sendtid, char *msg, size_t msglen) {
 void ipc_peek(int tid, int peektid, char *msg, size_t msglen) {
     Task *current_task = task_at(tid);
     Task *peek_task = task_at(peektid);
-    if (!ipc_connectable(peek_task)) {
-        current_task->tf->r0 = (uint32_t) -1;
-        return;
-    }
-    if (peek_task->status != REPLYBLOCKED) {
-        current_task->tf->r0 = (uint32_t) -2;
-        return;
-    }
+    assert(ipc_connectable(peek_task));
+    assert(peek_task->status == REPLYBLOCKED);
+
     Message dest = {
         .array = msg,
         .len = msglen
@@ -76,14 +72,9 @@ void ipc_peek(int tid, int peektid, char *msg, size_t msglen) {
 void ipc_reply(int tid, int replytid, char *reply, size_t rplen) {
     Task *current_task = task_at(tid);
     Task *reply_task = task_at(replytid);
-    if (!ipc_connectable(reply_task)) {
-        current_task->tf->r0 = (uint32_t) -1;
-        return;
-    }
-    if (reply_task->status != REPLYBLOCKED) {
-        current_task->tf->r0 = (uint32_t) -2;
-        return;
-    }
+    assert(ipc_connectable(reply_task));
+    assert(reply_task->status == REPLYBLOCKED);
+
     Message source = {
         .array = reply,
         .len = rplen
