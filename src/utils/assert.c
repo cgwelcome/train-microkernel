@@ -8,7 +8,7 @@ void panic(char *expr, char *file, int line) {
         SYSCALL_INVOKE(SYSCALL_PANIC);
     } else {
         bwprintf(COM2, "\033[2J\033[1;1H");
-        bwprintf(COM2, "Assertion failed: %s, file %s, line %d.\r\n", expr, file, line);
-        while (1);
+        bwprintf(COM2, "Panic: %s, at %s:%d.\r\n", expr, file, line);
     }
+    while (1);
 }

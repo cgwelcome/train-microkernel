@@ -2,6 +2,7 @@
 #include <user/io.h>
 #include <user/ipc.h>
 #include <user/name.h>
+#include <utils/assert.h>
 
 int Getc(int tid, int uart) {
     char c;
@@ -11,45 +12,38 @@ int Getc(int tid, int uart) {
         .data = (uint32_t) &c,
         .size = 1,
     };
-    int status = Send(tid, (char *)&request, sizeof(request), NULL, 0);
-    if (status < 0) return status;
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
     return (int)c;
 }
 
-int Putc(int tid, int uart, char c) {
+void Putc(int tid, int uart, char c) {
     IORequest request = {
         .type = IO_REQUEST_PUT,
         .uart = uart,
         .data = (uint32_t) &c,
         .size = 1,
     };
-    int status = Send(tid, (char *)&request, sizeof(request), NULL, 0);
-    if (status < 0) return status;
-    return 0;
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
-int Getw(int tid, int uart, char *buffer, size_t size) {
+void Getw(int tid, int uart, char *buffer, size_t size) {
     IORequest request = {
         .type = IO_REQUEST_GET,
         .uart = uart,
         .data = (uint32_t) buffer,
         .size = size,
     };
-    int status = Send(tid, (char *)&request, sizeof(request), NULL, 0);
-    if (status < 0) return status;
-    return 0;
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
-int Putw(int tid, int uart, char *buffer, size_t size) {
+void Putw(int tid, int uart, char *buffer, size_t size) {
     IORequest request = {
         .type = IO_REQUEST_PUT,
         .uart = uart,
         .data = (uint32_t) buffer,
         .size = size,
     };
-    int status = Send(tid, (char *)&request, sizeof(request), NULL, 0);
-    if (status < 0) return status;
-    return 0;
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 int a2d(char ch) {

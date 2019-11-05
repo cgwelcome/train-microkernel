@@ -7,6 +7,7 @@
 #include <user/ipc.h>
 #include <user/name.h>
 #include <user/tasks.h>
+#include <utils/assert.h>
 #include <utils/pqueue.h>
 
 static int clock_server_tid, clock_notifier_tid;
@@ -29,9 +30,7 @@ static void clock_delay(int tid, int ticks) {
     if (ticks == 0) {
         clock_time(tid);
     } else {
-        if (pqueue_size(&pqdelay) < PQUEUE_SIZE) {
-            pqueue_insert(&pqdelay, tid, clockticks + ticks);
-        }
+        pqueue_insert(&pqdelay, tid, clockticks + ticks);
     }
 }
 
@@ -39,9 +38,7 @@ static void clock_delayuntil(int tid, int ticks) {
     if (ticks <= clockticks) {
         clock_time(tid);
     } else {
-        if (pqueue_size(&pqdelay) < PQUEUE_SIZE) {
-            pqueue_insert(&pqdelay, tid, ticks);
-        }
+        pqueue_insert(&pqdelay, tid, ticks);
     }
 }
 
@@ -67,7 +64,7 @@ void clock_server_task() {
                 clock_delayuntil(tid, request.data);
                 break;
             default:
-                break;
+                throw("unknown request");
         }
     }
 }

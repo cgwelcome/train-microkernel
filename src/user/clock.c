@@ -1,37 +1,35 @@
 #include <server/clock.h>
 #include <user/clock.h>
 #include <user/ipc.h>
+#include <utils/assert.h>
 
 int Time(int tid) {
-    int tick;
     CSRequest request = {
         .type = CS_TIME,
     };
-    int status = Send(tid, (char *)&request, sizeof(request), (char *)&tick, sizeof(tick));
-    if (status < 0) return -1;
-    return tick;
+    int time;
+    assert(Send(tid, (char *)&request, sizeof(request), (char *)&time, sizeof(time)) >= 0);
+    return time;
 }
 
 int Delay(int tid, int ticks) {
-    if (ticks < 0) return -2;
-    int tick;
+    assert(ticks >= 0);
     CSRequest request = {
         .type = CS_DELAY,
         .data = ticks,
     };
-    int status = Send(tid, (char *)&request, sizeof(request), (char *)&tick, sizeof(tick));
-    if (status < 0) return -1;
-    return tick;
+    int time;
+    assert(Send(tid, (char *)&request, sizeof(request), (char *)&time, sizeof(time)) >= 0);
+    return time;
 }
 
 int DelayUntil(int tid, int ticks) {
-    if (ticks < 0) return -2;
-    int tick;
+    assert(ticks >= 0);
     CSRequest request = {
         .type = CS_DELAYUNTIL,
         .data = ticks,
     };
-    int status = Send(tid, (char *)&request, sizeof(request), (char *)&tick, sizeof(tick));
-    if (status < 0) return -1;
-    return tick;
+    int time;
+    assert(Send(tid, (char *)&request, sizeof(request), (char *)&time, sizeof(time)) >= 0);
+    return time;
 }

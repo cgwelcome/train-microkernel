@@ -11,7 +11,7 @@ void syscon_lock(int state) {
         *flag = SWLOCK_OFF;
         break;
     default:
-        panic("unknown state", __FILE__, __LINE__);
+        throw("unknown state");
     }
 }
 

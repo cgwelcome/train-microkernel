@@ -2,39 +2,47 @@
 #include <server/name.h>
 #include <user/ipc.h>
 #include <user/name.h>
+#include <user/tasks.h>
+#include <utils/assert.h>
 
 extern int name_server_tid;
 
-int RegisterAs(const char *name) {
-    int result;
-    NSRequest request;
-
-    // Name too long to be stored
-    if (strlen(name) > MAX_NAME_SIZE) {
-        return -2;
+static int PingNameServer() {
+    int retry = 0;
+    while (name_server_tid < 0) {
+        if (retry >= 500) return -1;
+        retry++;
+        Yield();
     }
+    return 0;
+}
+
+void RegisterAs(const char *name) {
+    assert(strlen(name) <= MAX_NAME_SIZE);
+
+    NSRequest request;
     request.type = NS_REGISTER;
     strcpy(request.name, name);
-    int retval = Send(name_server_tid, (char *)&request, sizeof(request), (char *)&result, sizeof(result));
-    if (retval == -1) {
-        return -1;
+
+    if (PingNameServer() < 0) {
+        throw("RegisterAs failed, name server not ready");
     }
-    return result;
+
+    assert(Send(name_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 int WhoIs(const char *name) {
-    int result;
-    NSRequest request;
+    assert(strlen(name) <= MAX_NAME_SIZE);
 
-    // Name too long to be stored
-    if (strlen(name) > MAX_NAME_SIZE) {
-        return -2;
-    }
+    NSRequest request;
     request.type = NS_WHOIS;
     strcpy(request.name, name);
-    int retval = Send(name_server_tid, (char *)&request, sizeof(request), (char *)&result, sizeof(result));
-    if (retval == -1) {
-        return -1;
+
+    if (PingNameServer() < 0) {
+        throw("WhoIs failed, name server not ready");
     }
+
+    int result;
+    assert(Send(name_server_tid, (char *)&request, sizeof(request), (char *)&result, sizeof(result)) >= 0);
     return result;
 }

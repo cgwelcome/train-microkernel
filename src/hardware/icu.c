@@ -17,7 +17,7 @@ void icu_activate(int event) {
     volatile uint32_t *flag;
     uint32_t mask;
 
-    assert(event < 64);
+    assert(event >= 0 && event < 64);
     if (event < 32) {
         flag = (uint32_t *) (VIC1_BASE + INTENABLE_OFFSET);
         mask = 1U << event;
@@ -32,7 +32,7 @@ void icu_softirq(int event) {
     volatile uint32_t *flag;
     uint32_t mask;
 
-    assert(event < 64);
+    assert(event >= 0 && event < 64);
     if (event < 32) {
         flag = (uint32_t *) (VIC1_BASE + SOFTINT_OFFSET);
         mask = 1U << event;
@@ -61,7 +61,7 @@ void icu_disable(int event) {
     volatile uint32_t *flag;
     uint32_t mask;
 
-    assert(event < 64);
+    assert(event >= 0 && event < 64);
     if (event < 32) {
         flag = (uint32_t *) (VIC1_BASE + INTENCLEAR_OFFSET);
         mask = 1U << event;

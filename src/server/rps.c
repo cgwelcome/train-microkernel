@@ -3,6 +3,7 @@
 #include <user/ipc.h>
 #include <user/name.h>
 #include <user/tasks.h>
+#include <utils/assert.h>
 
 static uint32_t rpsmatch_count;
 static RPSMatch rpsmatches[MAX_MATCH_NUM];
@@ -116,7 +117,7 @@ static void rps_quit(int tid) {
     }
 }
 
-static void rsp_task() {
+static void rps_task() {
     int tid;
     RPSRequest request;
 
@@ -139,11 +140,11 @@ static void rsp_task() {
                 rps_quit(tid);
                 break;
             default:
-                break;
+                throw("unknown request");
         }
     }
 }
 
 int CreateRPS() {
-    return Create(PRIORITY_SERVER_RPS, &rsp_task);
+    return Create(PRIORITY_SERVER_RPS, &rps_task);
 }
