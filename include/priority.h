@@ -1,6 +1,7 @@
 #ifndef __PRIORITY_H__
 #define __PRIORITY_H__
 
+#define PRIORITY_ROOT_TASK         500
 #define PRIORITY_IDLE_TASK           1
 
 #define PRIORITY_SERVER_CLOCK     3500

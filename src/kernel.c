@@ -1,5 +1,6 @@
 #include <kernel.h>
 #include <application.h>
+#include <priority.h>
 #include <stdint.h>
 #include <hardware/icu.h>
 #include <hardware/timer.h>
@@ -34,7 +35,7 @@ void initialize() {
     InitNameServer();
     InitClockServer();
     // Create first user task.
-    task_create(-1, 500, &k4_root_task);
+    task_create(-1, PRIORITY_ROOT_TASK, &k4_root_task);
 }
 
 void handle_request(int tid, uint32_t request) {
