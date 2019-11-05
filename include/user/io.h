@@ -24,29 +24,24 @@ typedef char *va_list;
 
 /**
  * Returns next unreturned character from the given UART.
- * @return New character from the given UART,
- * or -1 tid is not a valid uart server task,
+ * @return New character from the given UART.
  */
 int Getc(int tid, int uart);
 
 /**
  * Queues the given character for transmission by the given UART.
- * @return 0 sucess,
- * or -1 tid is not a valid uart server task.
  */
-int Putc(int tid, int uart, char c);
+void Putc(int tid, int uart, char c);
 
 /**
  * Returns a fixed-size string from the given UART.
- * @return 0 success, or -1 tid is not a valid uart server task.
  */
-int Getw(int tid, int uart, char *buffer, size_t size);
+void Getw(int tid, int uart, char *buffer, size_t size);
 
 /**
  * Queues the given string for transmission by the given UART.
- * @return 0 success, or -1 tid is not a valid uart server task.
  */
-int Putw(int tid, int uart, char *buffer, size_t size);
+void Putw(int tid, int uart, char *buffer, size_t size);
 
 /**
  * Queues the given formatted string

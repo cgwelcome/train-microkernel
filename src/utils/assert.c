@@ -9,6 +9,6 @@ void panic(char *expr, char *file, int line) {
     } else {
         bwprintf(COM2, "\033[2J\033[1;1H");
         bwprintf(COM2, "Panic: %s, at %s:%d.\r\n", expr, file, line);
-        while (1);
     }
+    while (1);
 }
