@@ -9,9 +9,7 @@
  */
 
 /** Blocks until the event identified by eventid occurs then returns with volatile data, if any.
- * @return Volatile data, in the form of a positive integer,
- * or -1 invalid event,
- * or -2 corrupted volatile data.
+ * @return Volatile data, in the form of a positive integer.
  */
 int AwaitEvent(int eventid);
 
