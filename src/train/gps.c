@@ -103,65 +103,66 @@ TrainSensor traingps_node_to_sensor(TrainTrackNode *node) {
     return sensor;
 }
 
-/**
- * Pop until the next position of a sensor, or the last position
- */
-static TrainPosition traingps_pop_next_position(TrainPath *path) {
-    TrainTrackNode src, dest;
+TrainPosition traingps_next_relative(TrainPath *path) {
+    TrainTrackNode src = {
+        .type = NODE_NONE,
+    };
+    TrainTrackNode dest = {
+        .type = NODE_NONE,
+    };
     TrainPosition position = {
         .offset = 0,
     };
-    while (path->index < path->size) {
+    while (path->index < path->size-1 && dest.type != NODE_SENSOR) {
         src = path->nodes[path->index];
         dest = path->nodes[path->index+1];
         position.offset -= (int32_t)traingps_find_edge(&src, &dest).dist;
         path->index++;
-        if (dest.type == NODE_SENSOR) {
-            break;
-        }
     }
     position.base = dest;
     return position;
 }
 
-static TrainPath traingps_get_subpath(TrainPath *path, uint32_t max_length) {
+TrainPath traingps_get_subpath(TrainPath *path, uint32_t max_length) {
     TrainPath subpath = {
         .index = 0,
         .size = 0,
     };
     uint32_t length = 0;
     for (uint32_t i = path->index; i < path->size-1; i++) {
-        // Read the next edge of the path
-        TrainTrackNode src = path->nodes[path->index];
-        TrainTrackNode dest = path->nodes[path->index+1];
+        TrainTrackNode src = path->nodes[i];
+        TrainTrackNode dest = path->nodes[i+1];
         TrainTrackEdge edge = traingps_find_edge(&src, &dest);
+        subpath.nodes[subpath.size] = src;
+        subpath.size++;
         if (length + edge.dist > max_length) {
             return subpath;
         }
-        subpath.nodes[subpath.size] = dest;
-        subpath.size++;
         length = length + edge.dist;
     }
     return subpath;
 }
 
 void traingps_update_next(Train *train, uint32_t time, TrainTrackStatus *status) {
+    TrainPosition position;
     (void)status;
     (void)time;
     switch (train->mode) {
         case TRAINMODE_FREE:
             break;
         case TRAINMODE_PATH:
-            train->next_position = traingps_pop_next_position(&train->path);
+            position = traingps_next_relative(&train->path);
+            train->next_position.base = position.base;
+            train->next_position.offset = 0;
+            // TODO: Estimate arrival time of train
             break;
     }
 }
 
 TrainJobQueue traingps_next_jobs(Train *train, TrainTrackStatus *status) {
-    (void)status;
-    (void)train;
     TrainJobQueue tjqueue = {
         .size = 0,
     };
+    TrainPath visibility = traingps_get_subpath(&train->path, 9000);
     return tjqueue;
 }

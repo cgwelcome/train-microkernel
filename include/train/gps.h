@@ -25,6 +25,17 @@ uint32_t traingps_is_sensor(TrainPosition *position);
 TrainSensor traingps_node_to_sensor(TrainTrackNode *node);
 
 /**
+ * Get the current positive as the next relative distance,
+ * if the path has no more sensors, then postion base node is NODE_NONE
+ */
+TrainPosition traingps_next_relative(TrainPath *path);
+
+/**
+ * Get the subpath within max_length
+ */
+TrainPath traingps_get_subpath(TrainPath *path, uint32_t max_length);
+
+/**
  * Update the train next position, and the Estimated time of clock
  * to the next dest. The time depends on the train position, velocity,
  * acceleration, any other interferences from other trains, and track calibration
