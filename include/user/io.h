@@ -1,6 +1,8 @@
 #ifndef __USER_IO_H__
 #define __USER_IO_H__
 
+#include <stddef.h>
+
 /**
  * @defgroup io
  * @ingroup user
