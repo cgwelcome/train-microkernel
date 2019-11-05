@@ -35,7 +35,7 @@ void initialize() {
     InitNameServer();
     InitClockServer();
     // Create first user task.
-    task_create(-1, PRIORITY_ROOT_TASK, &k4_root_task, 0);
+    task_create(-1, PRIORITY_ROOT_TASK, &traingps_test_root_task, 0);
 }
 
 void handle_request(int tid, uint32_t request) {
