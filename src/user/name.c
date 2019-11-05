@@ -17,7 +17,7 @@ static int PingNameServer() {
     return 0;
 }
 
-int RegisterAs(const char *name) {
+void RegisterAs(const char *name) {
     assert(strlen(name) <= MAX_NAME_SIZE);
 
     NSRequest request;
@@ -28,7 +28,7 @@ int RegisterAs(const char *name) {
         throw("RegisterAs failed, name server not ready");
     }
 
-    return Send(name_server_tid, (char *)&request, sizeof(request), NULL, 0);
+    assert(Send(name_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 int WhoIs(const char *name) {
@@ -43,9 +43,6 @@ int WhoIs(const char *name) {
     }
 
     int result;
-    int error = Send(name_server_tid, (char *)&request, sizeof(request), (char *)&result, sizeof(result));
-    if (error < 0) {
-        return error;
-    }
+    assert(Send(name_server_tid, (char *)&request, sizeof(request), (char *)&result, sizeof(result)) >= 0);
     return result;
 }

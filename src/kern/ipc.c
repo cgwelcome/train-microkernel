@@ -1,6 +1,7 @@
 #include <string.h>
 #include <kern/ipc.h>
 #include <kern/tasks.h>
+#include <utils/assert.h>
 
 static size_t msg_copy(Message *dest, Message *source) {
     size_t size = source->len < dest->len ? source->len : dest->len;

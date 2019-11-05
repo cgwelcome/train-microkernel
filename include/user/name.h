@@ -10,9 +10,8 @@
 
 /**
  * Registers the task id of the caller under the given name.
- * @return 0 success.
  */
-int RegisterAs(const char *name);
+void RegisterAs(const char *name);
 
 /**
  * Asks the name server for the task id of the task that is registered under the given name.
