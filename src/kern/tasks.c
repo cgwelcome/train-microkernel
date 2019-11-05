@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <hardware/timer.h>
 #include <kern/tasks.h>
+#include <utils/assert.h>
 #include <utils/queue.h>
 
 static uint32_t total_task_count;
@@ -20,9 +21,7 @@ void task_init() {
 }
 
 Task *task_at(int tid) {
-    if (tid < 0 || tid >= MAX_TASK_NUM) {
-        return NULL;
-    }
+    assert(tid >= 0 && tid < MAX_TASK_NUM);
     return (tasks + tid);
 }
 
@@ -94,11 +93,13 @@ uint32_t task_activate(int tid) {
 }
 
 void task_kill(int tid) {
-    if (tasks[tid].status == UNUSED) return;
-    if (tasks[tid].status != ZOMBIE) {
-        tasks[tid].status = ZOMBIE;
+    Task *task = task_at(tid);
+
+    if (task->status == UNUSED) return;
+    if (task->status != ZOMBIE) {
+        task->status = ZOMBIE;
         alive_task_count -= 1;
-        total_task_priority -= tasks[tid].priority;
+        total_task_priority -= task->priority;
     }
 }
 
