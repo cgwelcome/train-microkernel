@@ -30,11 +30,11 @@ uint32_t tjqueue_size(TrainJobQueue *queue) {
 }
 
 TrainJob create_trainjob(TMRequest request, uint32_t delay) {
-	 TrainJob job = {
-		 .request = request,
-		 .delay = delay,
-	 };
-	 return job;
+     TrainJob job = {
+         .request = request,
+         .delay = delay,
+     };
+     return job;
 }
 
 void trainjob_notifier_task() {

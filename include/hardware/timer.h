@@ -20,17 +20,17 @@
 #define TIMER_MAXNUM 3
 #define TIMER_MAXVAL 0xFFFFFFFF
 
-#define	TIMER1_BASE	0x80810000
-#define	TIMER2_BASE	0x80810020
-#define	TIMER3_BASE	0x80810080
+#define TIMER1_BASE 0x80810000
+#define TIMER2_BASE 0x80810020
+#define TIMER3_BASE 0x80810080
 
-#define	LDR_OFFSET	0x00000000	// 16/32 bits, RW
-#define	VAL_OFFSET	0x00000004	// 16/32 bits, RO
-#define CRTL_OFFSET	0x00000008	// 3 bits, RW
-	#define	ENABLE_MASK	0x00000080
-	#define	MODE_MASK	0x00000040
-	#define	CLKSEL_MASK	0x00000008
-#define CLR_OFFSET	0x0000000c	// no data, WO
+#define LDR_OFFSET  0x00000000  // 16/32 bits, RW
+#define VAL_OFFSET  0x00000004  // 16/32 bits, RO
+#define CRTL_OFFSET 0x00000008  // 3 bits, RW
+    #define ENABLE_MASK 0x00000080
+    #define MODE_MASK   0x00000040
+    #define CLKSEL_MASK 0x00000008
+#define CLR_OFFSET  0x0000000c  // no data, WO
 
 /**
  * Initialize the a timers in the EP93XX processor.

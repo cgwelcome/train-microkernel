@@ -7,12 +7,12 @@
 #include <server/trainmanager.h>
 
 typedef struct {
-	TMRequest request;
-	uint32_t delay;
+    TMRequest request;
+    uint32_t delay;
 } TrainJob;
 
 typedef struct {
-	TrainJob jobs[TJQUEUE_SIZE];
+    TrainJob jobs[TJQUEUE_SIZE];
     uint32_t head;
     uint32_t tail;
     uint32_t size;

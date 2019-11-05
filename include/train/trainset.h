@@ -9,9 +9,9 @@
 #define TRAIN_REVERSE    15
 #define TRAIN_LIGHT      16
 
-#define TRAINSWITCH_STRAIGHT  		 33
-#define TRAINSWITCH_CURVED    		 34
-#define TRAINSWITCH_DONE      		 32
+#define TRAINSWITCH_STRAIGHT     33
+#define TRAINSWITCH_CURVED       34
+#define TRAINSWITCH_DONE         32
 
 #define TRAINSENSOR_ALL        0x80
 #define TRAINSENSOR_ONE        0xC0
@@ -21,8 +21,8 @@
 #define MAX_SENSOR_NUM           80
 
 typedef struct {
-	int tid;
-	int uart;
+    int tid;
+    int uart;
 } TrainIO;
 
 // We have TrainSwitch -> TrainSensor

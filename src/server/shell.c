@@ -62,46 +62,46 @@ static void shell_print_terminal(int iotid, char *cmd_buffer, unsigned int cmd_l
 }
 
 static void shell_execute_command(int iotid, int traintid, char *cmd_buffer, unsigned int cmd_len) {
-	int arg1_len, arg2_len, code, speed, direction;
-	switch (cmd_buffer[0]) {
-		case 't':                // set train speed
-			arg1_len = find(cmd_buffer + 3, (int) cmd_len - 3, ' ');
-			code     = atoi(cmd_buffer + 3, arg1_len);
-			arg2_len = (int)cmd_len - 3 - arg1_len - 1;
-			speed    = atoi(cmd_buffer + 3 + arg1_len + 1, arg2_len);
-			if ((code > 0 && code < 81) && (speed >= 0 && speed <= 14)) {
-				TrainManager_Speed(traintid, (uint32_t)code, (uint32_t)speed);
-				break;
-				case 'r':                // reverse the train
-				code = atoi(cmd_buffer + 3, (int)cmd_len - 3);
-				if (code > 0 && code < 81) {
-					TrainManager_Reverse(traintid, (uint32_t)code);
-				}
-				break;
-				case 's':                // turn on/off the switch
-				arg1_len  = find(cmd_buffer + 3, (int)cmd_len - 3, ' ');
-				code      = atoi(cmd_buffer + 3, arg1_len);
-				direction = (cmd_buffer + 3)[arg1_len + 1];
-				if (direction != 'S' && direction != 'C') break;
-				if ((code > 0 && code < 19) || (code > 0x98 && code < 0x9D)) {
-					TrainSwitchStatus status;
-					switch (direction) {
-						case 'C':
-							status = TRAINSWITCHSTATUS_CURVED;
-							break;
-						case 'S':
-							status =  TRAINSWITCHSTATUS_STRAIGHT;
-							break;
-						default:
-							return;
-							break;
-					}
-					TrainManager_Switch_One(traintid, (uint32_t)code, status);
-					shell_print_switch(iotid, (unsigned int) code, (char) direction);
-				}
-				break;
-			}
-	}
+    int arg1_len, arg2_len, code, speed, direction;
+    switch (cmd_buffer[0]) {
+        case 't':                // set train speed
+            arg1_len = find(cmd_buffer + 3, (int) cmd_len - 3, ' ');
+            code     = atoi(cmd_buffer + 3, arg1_len);
+            arg2_len = (int)cmd_len - 3 - arg1_len - 1;
+            speed    = atoi(cmd_buffer + 3 + arg1_len + 1, arg2_len);
+            if ((code > 0 && code < 81) && (speed >= 0 && speed <= 14)) {
+                TrainManager_Speed(traintid, (uint32_t)code, (uint32_t)speed);
+                break;
+                case 'r':                // reverse the train
+                code = atoi(cmd_buffer + 3, (int)cmd_len - 3);
+                if (code > 0 && code < 81) {
+                    TrainManager_Reverse(traintid, (uint32_t)code);
+                }
+                break;
+                case 's':                // turn on/off the switch
+                arg1_len  = find(cmd_buffer + 3, (int)cmd_len - 3, ' ');
+                code      = atoi(cmd_buffer + 3, arg1_len);
+                direction = (cmd_buffer + 3)[arg1_len + 1];
+                if (direction != 'S' && direction != 'C') break;
+                if ((code > 0 && code < 19) || (code > 0x98 && code < 0x9D)) {
+                    TrainSwitchStatus status;
+                    switch (direction) {
+                        case 'C':
+                            status = TRAINSWITCHSTATUS_CURVED;
+                            break;
+                        case 'S':
+                            status =  TRAINSWITCHSTATUS_STRAIGHT;
+                            break;
+                        default:
+                            return;
+                            break;
+                    }
+                    TrainManager_Switch_One(traintid, (uint32_t)code, status);
+                    shell_print_switch(iotid, (unsigned int) code, (char) direction);
+                }
+                break;
+            }
+    }
 }
 
 static void shell_keyboard_task() {
@@ -118,8 +118,8 @@ static void shell_keyboard_task() {
                     if (cmd_buffer[0] == 'q') {
                         Printf(iotid, COM2, "\033[%u;%uH", LINE_DEBUG, 1);
                         TrainManager_Done(traintid);
-						ShutdownIOServer();
-						Shutdown();
+                        ShutdownIOServer();
+                        Shutdown();
                     }
                     shell_execute_command(iotid, traintid, cmd_buffer, cmd_len);
                     cmd_len = 0;
@@ -225,11 +225,11 @@ void shell_server_root_task() {
     // Hide the cursor
     Printf(iotid, COM2, "\033[?25l");
     // Initialize the interface
-    /*shell_print_interface(iotid);*/
+    shell_print_interface(iotid);
 
     Create(PRIORITY_SERVER_SHELL, &shell_keyboard_task);
-	Create(PRIORITY_SERVER_SHELL, &shell_clock_task);
-	/*Create(PRIORITY_SERVER_SHELL, &shell_sensor_task);*/
+    Create(PRIORITY_SERVER_SHELL, &shell_clock_task);
+    /*Create(PRIORITY_SERVER_SHELL, &shell_sensor_task);*/
     Exit();
 }
 

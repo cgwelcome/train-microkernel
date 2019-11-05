@@ -31,9 +31,9 @@ void TrainManager_Move(int tid, uint32_t train_id, uint32_t speed, uint32_t node
     TMRequest request = {
         .type = TMREQUESTTYPE_REVERSE,
         .arg1 = train_id,
-		.arg2 = speed,
-		.arg3 = node_id,
-		.arg4 = (uint32_t)offset,
+        .arg2 = speed,
+        .arg3 = node_id,
+        .arg4 = (uint32_t)offset,
     };
     Send(tid, (char *)&request, sizeof(request), NULL, 0);
 }

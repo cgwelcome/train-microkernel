@@ -14,41 +14,41 @@
 
 typedef struct {
     uint32_t id;
-	TrainSwitchStatus status;
+    TrainSwitchStatus status;
 } TrainSwitch;
 
 typedef enum {
-	TRAINMODE_FREE, /** Train roaming without a destination */
-	TRAINMODE_PATH, /** Train with a specific path */
+    TRAINMODE_FREE, /** Train roaming without a destination */
+    TRAINMODE_PATH, /** Train with a specific path */
 } TrainMode;
 
 typedef struct {
-	TrainTrackNode base;
-	int32_t offset; /** offset in mm from the base node */
+    TrainTrackNode base;
+    int32_t offset; /** offset in mm from the base node */
 } TrainPosition;
 
 typedef struct {
-	TrainTrackNode nodes[MAX_NODE_PER_TRACK];
-	uint32_t index; /** Edge >= index that has not yet been visited by train */
-	uint32_t size;
-	TrainPosition dest; /** Destination node is usually the last node of path, with offset */
+    TrainTrackNode nodes[MAX_NODE_PER_TRACK];
+    uint32_t index; /** Edge >= index that has not yet been visited by train */
+    uint32_t size;
+    TrainPosition dest; /** Destination node is usually the last node of path, with offset */
 } TrainPath;
 
 typedef struct {
     uint32_t id;
-	TrainMode mode;
+    TrainMode mode;
     uint32_t speed;
-	TrainPath path;
-	TrainPosition last_position; /** Last seen position */
-	TrainPosition next_position; /** Next position */
-	uint64_t next_time; /** Estimated Arrival Time to Next dest */
+    TrainPath path;
+    TrainPosition last_position; /** Last seen position */
+    TrainPosition next_position; /** Next position */
+    uint64_t next_time; /** Estimated Arrival Time to Next dest */
 } Train;
 
 typedef struct {
-	Train trains[MAX_TRAIN_NUM];
-	TrainSwitch trainswitches[MAX_SWITCH_NUM];
-	TrainTrack track;
-	TrainJobQueue jobqueue;
+    Train trains[MAX_TRAIN_NUM];
+    TrainSwitch trainswitches[MAX_SWITCH_NUM];
+    TrainTrack track;
+    TrainJobQueue jobqueue;
 } TrainTrackStatus;
 
 /**

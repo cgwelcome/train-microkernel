@@ -40,8 +40,8 @@ typedef struct PathNode {
 } TrainTrackNode;
 
 typedef struct {
-	TrainTrackType type;
-	TrainTrackNode nodes[MAX_NODE_PER_TRACK];
+    TrainTrackType type;
+    TrainTrackNode nodes[MAX_NODE_PER_TRACK];
 } TrainTrack;
 
 /**
