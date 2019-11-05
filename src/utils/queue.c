@@ -11,6 +11,11 @@ uint32_t queue_size(Queue *queue) {
     return queue->size;
 }
 
+int *queue_at(Queue* queue, size_t index) {
+    assert(index < queue->size);
+    return (queue->array + (queue->head + index) % QUEUE_SIZE);
+}
+
 int queue_pop(Queue *queue) {
     assert(queue->size > 0);
 

@@ -31,7 +31,7 @@ void InitNameServer();
 /**
  * Creates a global Name Server
  */
-int CreateNameServer();
+void CreateNameServer();
 
 /** @}*/
 

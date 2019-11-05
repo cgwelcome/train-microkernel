@@ -10,7 +10,7 @@
 
 /**
  * Registers the task id of the caller under the given name.
- * @return  0 success,
+ * @return 0 success,
  * or -1 invalid name server task id inside wrapper.
  */
 int RegisterAs(const char *name);
