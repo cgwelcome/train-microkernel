@@ -1,7 +1,6 @@
 #ifndef __HARDWARE_ICU_H__
 #define __HARDWARE_ICU_H__
 
-#include <stddef.h>
 #include <stdint.h>
 
 /**

@@ -86,16 +86,13 @@ static void shell_execute_command(int iotid, int traintid, char *cmd_buffer, uns
             direction = (cmd_buffer + 3)[arg1_len + 1];
             if (direction != 'S' && direction != 'C') break;
             if ((code > 0 && code < 19) || (code > 0x98 && code < 0x9D)) {
-                TrainSwitchStatus status;
+                TrainSwitchStatus status = SWITCHSTATUS_CURVED;
                 switch (direction) {
                     case 'C':
                         status = SWITCHSTATUS_CURVED;
                         break;
                     case 'S':
-                        status =  SWITCHSTATUS_STRAIGHT;
-                        break;
-                    default:
-                        return;
+                        status = SWITCHSTATUS_STRAIGHT;
                         break;
                 }
                 Trainset_Switchone(traintid, (uint32_t)code, status);

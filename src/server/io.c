@@ -31,8 +31,7 @@ static void io_init_uart(int uart) {
             interrupts = UARTEN_MASK | RTIEN_MASK;
             break;
         default:
-            panic("unknown uart", __FILE__, __LINE__);
-            return;
+            throw("unknown uart");
     }
     uart_set_speed(uart, speed);
     uart_set_bitconfig(uart, bitconfig);
@@ -52,8 +51,7 @@ static void io_init_channel(int uart) {
             iochannel->fifo = true;
             break;
         default:
-            panic("unknown uart", __FILE__, __LINE__);
-            return;
+            throw("unknown uart");
     }
     queue_init(&iochannel->send_queue);
     queue_init(&iochannel->recv_queue);
@@ -71,8 +69,7 @@ static IOChannel *iochannel(int uart) {
         case COM2:
             return &com2_channel;
         default:
-            panic("unknown uart", __FILE__, __LINE__);
-            return NULL;
+            throw("unknown uart");
     }
 }
 
@@ -254,12 +251,12 @@ void io_server_task() {
                 }
                 break;
             default:
-                break;
+                throw("unknown request");
         }
         if (is_halting) {
             uint64_t now = timer_read(TIMER3);
             bool haltable = iochannel_haltable(&com1_channel) && iochannel_haltable(&com2_channel);
-            if (now - halting_start > 1000 || haltable) { // ensure the IO server get halted in 1 second.
+            if (now - halting_start > 5000 || haltable) { // ensure the IO server get halted in 1 second.
                 while (queue_size(&halting_queue)) {
                     int tid = queue_pop(&halting_queue);
                     Reply(tid, NULL, 0);

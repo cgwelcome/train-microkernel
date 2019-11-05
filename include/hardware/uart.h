@@ -1,7 +1,6 @@
 #ifndef __HARDWARE_UART_H__
 #define __HARDWARE_UART_H__
 
-#include <stddef.h>
 #include <stdint.h>
 
 /**

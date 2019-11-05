@@ -7,12 +7,16 @@
 
 #include <arm.h>
 #include <stdint.h>
+#include <stdnoreturn.h>
 #include <kernel.h>
 #include <utils/bwio.h>
 
-void panic(char *expr, char *file, int line);
+noreturn void panic(char *expr, char *file, int line);
 
 #define assert(expr) \
-    if (!(expr)) panic(#expr, __FILE__, __LINE__)
+    if (!(expr)) panic("Assertion failed: "#expr, __FILE__, __LINE__)
+
+#define throw(error_msg) \
+    panic(error_msg, __FILE__, __LINE__)
 
 #endif

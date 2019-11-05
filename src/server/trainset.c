@@ -7,8 +7,9 @@
 #include <user/ipc.h>
 #include <user/name.h>
 #include <user/tasks.h>
-#include <utils/tsqueue.h>
+#include <utils/assert.h>
 #include <utils/bwio.h>
+#include <utils/tsqueue.h>
 
 // Trainset Server variables
 static const uint32_t active_trains[] = {
@@ -78,6 +79,8 @@ static void trainset_switch(TrainSwitch *trainswitch, TrainSwitchStatus status) 
         case SWITCHSTATUS_CURVED:
             Putc(iotid, uart, SWITCH_CURVED);
             break;
+        default:
+            throw("unknown switch status");
     }
     Putc(iotid, uart, (char)trainswitch->id);
     trainswitch->status = status;
@@ -219,7 +222,7 @@ void trainset_server_task() {
                 Reply(tid, NULL, 0);
                 break;
             default:
-                break;
+                throw("unknown request");
         }
     }
     Exit();

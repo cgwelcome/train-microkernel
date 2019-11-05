@@ -88,9 +88,8 @@ static void name_server_task() {
                     Reply(tid, (char *)&retval, sizeof(retval));
                 }
                 break;
-            default: // TODO: add such panic to other servers
-                panic("unknown request", __FILE__, __LINE__);
-                return;
+            default:
+                throw("unknown request");
         }
     }
 }
