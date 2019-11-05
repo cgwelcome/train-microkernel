@@ -31,6 +31,7 @@ static void io_init_uart(int uart) {
             interrupts = UARTEN_MASK | RTIEN_MASK;
             break;
         default:
+            panic("unknown uart", __FILE__, __LINE__);
             return;
     }
     uart_set_speed(uart, speed);
@@ -51,6 +52,7 @@ static void io_init_channel(int uart) {
             iochannel->fifo = true;
             break;
         default:
+            panic("unknown uart", __FILE__, __LINE__);
             return;
     }
     queue_init(&iochannel->send_queue);
@@ -69,6 +71,7 @@ static IOChannel *iochannel(int uart) {
         case COM2:
             return &com2_channel;
         default:
+            panic("unknown uart", __FILE__, __LINE__);
             return NULL;
     }
 }
