@@ -10,15 +10,14 @@
 
 /**
  * Registers the task id of the caller under the given name.
- * @return 0 success,
- * or -1 invalid name server task id inside wrapper.
+ * @return 0 success.
  */
 int RegisterAs(const char *name);
 
 /**
  * Asks the name server for the task id of the task that is registered under the given name.
- * @return the task id of the registered task,
- * or -1 invalid name server task id inside wrapper.
+ * It blocks if the name hasn't been registered yet.
+ * @return the task id of the registered task.
  */
 int WhoIs(const char *name);
 
