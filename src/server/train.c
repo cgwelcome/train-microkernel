@@ -54,6 +54,7 @@ static void train_manager_root_task() {
             default:
                 throw("unknown request");
         }
+        Reply(tid, NULL, 0);
     }
 }
 

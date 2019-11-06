@@ -25,6 +25,7 @@ void PrintTime(int io_tid) {
 
 void PrintSwitch(int io_tid, unsigned int code, char direction) {
     unsigned int row = 0, col = 0;
+    assert((code > 0 && code < 19) || (code > 0x98 && code < 0x9D));
     if (code > 0 && code < 19) {
         row = (code - 1) / 6;
         col = (code - 1) % 6;
@@ -33,7 +34,6 @@ void PrintSwitch(int io_tid, unsigned int code, char direction) {
         row = 3;
         col = code - 0x99;
     }
-    assert(row != 0 && col != 0);
     Printf(io_tid, COM2, "\033[%u;%uH%c", LINE_SWITCH_START + row, 6 + col * 5, direction);
 }
 
