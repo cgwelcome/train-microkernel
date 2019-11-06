@@ -1,7 +1,7 @@
 #include <priority.h>
 #include <server/clock.h>
 #include <server/io.h>
-#include <server/shell.h>
+#include <server/ui.h>
 #include <server/train.h>
 #include <user/io.h>
 #include <user/clock.h>
@@ -29,7 +29,7 @@ static int atoi(char *str, int len) {
     return result;
 }
 
-static void shell_print_interface(int iotid) {
+static void ui_print_interface(int iotid) {
     Printf(iotid, COM2, "\033[%u;%uHTIME: "                          , LINE_TIME            , 1);
     Printf(iotid, COM2, "\033[%u;%uHSWITCHES: "                      , LINE_SWITCH_TITLE    , 1);
     Printf(iotid, COM2, "\033[%u;%uH  01:C 02:C 03:C 04:C 05:C 06:C ", LINE_SWITCH_START + 0, 1);
@@ -40,7 +40,7 @@ static void shell_print_interface(int iotid) {
     Printf(iotid, COM2, "\033[%u;%uH> █"                             , LINE_TERMINAL        , 1);
 }
 
-static void shell_print_switch(int iotid, unsigned int code, char direction) {
+static void ui_print_switch(int iotid, unsigned int code, char direction) {
     unsigned int row, col;
     if (code > 0 && code < 19) {
         row = (code - 1) / 6;
@@ -53,7 +53,7 @@ static void shell_print_switch(int iotid, unsigned int code, char direction) {
     Printf(iotid, COM2, "\033[%u;%uH%c", LINE_SWITCH_START + row, 6 + col * 5, direction);
 }
 
-static void shell_print_terminal(int iotid, char *cmd_buffer, unsigned int cmd_len) {
+static void ui_print_terminal(int iotid, char *cmd_buffer, unsigned int cmd_len) {
     cmd_buffer[cmd_len] = '\0';
     Printf(iotid, COM2, "\033[%u;%uH\033[K%s█",
         LINE_TERMINAL, 3,
@@ -61,7 +61,7 @@ static void shell_print_terminal(int iotid, char *cmd_buffer, unsigned int cmd_l
     );
 }
 
-static void shell_execute_command(int iotid, int traintid, char *cmd_buffer, unsigned int cmd_len) {
+static void ui_execute_command(int iotid, int traintid, char *cmd_buffer, unsigned int cmd_len) {
     int arg1_len, arg2_len, code, speed, direction;
     switch (cmd_buffer[0]) {
         case 't':                // set train speed
@@ -96,13 +96,13 @@ static void shell_execute_command(int iotid, int traintid, char *cmd_buffer, uns
                         return;
                 }
                 TrainManager_Switch_One(traintid, (uint32_t)code, status);
-                shell_print_switch(iotid, (unsigned int) code, (char) direction);
+                ui_print_switch(iotid, (unsigned int) code, (char) direction);
             }
             break;
     }
 }
 
-static void shell_keyboard_task() {
+static void ui_keyboard_task() {
     unsigned int cmd_len = 0;
     char cmd_buffer[CMD_BUFFER_SIZE];
 
@@ -119,22 +119,22 @@ static void shell_keyboard_task() {
                         ShutdownIOServer();
                         Shutdown();
                     }
-                    shell_execute_command(iotid, traintid, cmd_buffer, cmd_len);
+                    ui_execute_command(iotid, traintid, cmd_buffer, cmd_len);
                     cmd_len = 0;
-                    shell_print_terminal(iotid, cmd_buffer, cmd_len);
+                    ui_print_terminal(iotid, cmd_buffer, cmd_len);
                 }
                 break;
             case '\b':                         // delete character if get "BACKSPACE"
                 if (cmd_len != 0) {
                     cmd_len -= 1;
-                    shell_print_terminal(iotid, cmd_buffer, cmd_len);
+                    ui_print_terminal(iotid, cmd_buffer, cmd_len);
                 }
                 break;
             default:                           // otherwise just store the character
                 if (cmd_len < CMD_BUFFER_SIZE) {
                     cmd_buffer[cmd_len] = in;
                     cmd_len += 1;
-                    shell_print_terminal(iotid, cmd_buffer, cmd_len);
+                    ui_print_terminal(iotid, cmd_buffer, cmd_len);
                 }
                 break;
         }
@@ -143,49 +143,49 @@ static void shell_keyboard_task() {
     Exit();
 }
 
-static void shell_clock_init(ShellClock *shellclock) {
-    shellclock->minute = 0;
-    shellclock->second = 0;
-    shellclock->decisecond = 0;
+static void ui_clock_init(UIClock *clock) {
+    clock->minute = 0;
+    clock->second = 0;
+    clock->decisecond = 0;
 }
 
-static void shell_clock_update(ShellClock *shellclock) {
-    if (shellclock->decisecond < 9) {
-        shellclock->decisecond++;
+static void ui_clock_update(UIClock *clock) {
+    if (clock->decisecond < 9) {
+        clock->decisecond++;
         return;
     }
-    shellclock->decisecond = 0;
-    if (shellclock->second < 59) {
-        shellclock->second++;
+    clock->decisecond = 0;
+    if (clock->second < 59) {
+        clock->second++;
         return;
     }
-    shellclock->second = 0;
-    shellclock->minute++;
+    clock->second = 0;
+    clock->minute++;
 }
 
-static void shell_clock_display(int iotid, ShellClock *shellclock) {
+static void ui_clock_display(int iotid, UIClock *clock) {
     Printf(iotid, COM2, "\033[%u;%uH\033[K%04u:%02u.%u",
         LINE_TIME, 7,
-        shellclock->minute,
-        shellclock->second,
-        shellclock->decisecond
+        clock->minute,
+        clock->second,
+        clock->decisecond
     );
 }
 
-static void shell_clock_task() {
-    ShellClock shellclock;
-    shell_clock_init(&shellclock);
+static void ui_clock_task() {
+    UIClock clock;
+    ui_clock_init(&clock);
     int clocktid = WhoIs(CLOCK_SERVER_NAME);
     int iotid = WhoIs(IO_SERVER_NAME);
     for (;;) {
         Delay(clocktid, CLOCK_PRECISION/10);
-        shell_clock_update(&shellclock);
-        shell_clock_display(iotid, &shellclock);
+        ui_clock_update(&clock);
+        ui_clock_display(iotid, &clock);
     }
     Exit();
 }
 
-/*static void shell_sensor_task() {*/
+/*static void ui_sensor_task() {*/
     /*activetrainsensorlist active_list; active_list.size = 0;*/
     /*activetrainsensorlist output_list; output_list.size = 0;*/
 
@@ -216,21 +216,21 @@ static void shell_clock_task() {
     /*exit();*/
 /*}*/
 
-void shell_server_root_task() {
+void ui_server_root_task() {
     int iotid = WhoIs(IO_SERVER_NAME);
     // Clear the screen
     Printf(iotid, COM2, "\033[2J");
     // Hide the cursor
     Printf(iotid, COM2, "\033[?25l");
     // Initialize the interface
-    shell_print_interface(iotid);
+    ui_print_interface(iotid);
 
-    Create(PRIORITY_SERVER_SHELL, &shell_keyboard_task);
-    Create(PRIORITY_SERVER_SHELL, &shell_clock_task);
-    /*Create(PRIORITY_SERVER_SHELL, &shell_sensor_task);*/
+    Create(PRIORITY_SERVER_UI, &ui_keyboard_task);
+    Create(PRIORITY_SERVER_UI, &ui_clock_task);
+    /*Create(PRIORITY_SERVER_UI, &ui_sensor_task);*/
     Exit();
 }
 
-void CreateShellServer() {
-    Create(PRIORITY_SERVER_SHELL, &shell_server_root_task);
+void CreateUIServer() {
+    Create(PRIORITY_SERVER_UI, &ui_server_root_task);
 }

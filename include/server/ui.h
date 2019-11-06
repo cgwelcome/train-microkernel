@@ -1,10 +1,10 @@
-#ifndef __SERVER_SHELL_H__
-#define __SERVER_SHELL_H__
+#ifndef __SERVER_UI_H__
+#define __SERVER_UI_H__
 
 #include <stdint.h>
 
 /**
- * @defgroup shell
+ * @defgroup ui
  * @ingroup server
  *
  * @{
@@ -27,13 +27,13 @@ typedef struct {
     uint32_t minute;
     uint32_t second;
     uint32_t decisecond;
-} ShellClock;
+} UIClock;
 
 /**
- * Creates a Shell Server
+ * Creates a UI Server
  */
-void CreateShellServer();
+void CreateUIServer();
 
 /** @}*/
 
-#endif /*__SERVER_SHELL_H__*/
+#endif /*__SERVER_UI_H__*/
