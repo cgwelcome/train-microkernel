@@ -5,19 +5,19 @@
 #include <train/manager.h>
 
 /**
- * Calculate the path length from src
- */
-uint64_t traingps_length(TrainPath *path, TrainPosition *src);
-
-/**
  * Find the path from src to destination based on traffic
  */
-TrainPath traingps_find(TrainPosition *src, TrainPosition *dest, TrainTrackStatus *status);
+TrainPath traingps_find(TrainTrackEdge *src, TrainTrackEdge *dest, TrainTrackStatus *status);
 
 /**
  * Check wheter a position is on top of a sensor
  */
-uint32_t traingps_is_sensor(TrainPosition *position);
+uint32_t traingps_is_sensor(TrainTrackEdge *position);
+
+/**
+ * Make self-referencing edge to node with offset zero
+ */
+TrainTrackEdge traingps_node_to_edge(TrainTrackNode *node);
 
 /**
  * Convert a node to sensor
@@ -25,15 +25,21 @@ uint32_t traingps_is_sensor(TrainPosition *position);
 TrainSensor traingps_node_to_sensor(TrainTrackNode *node);
 
 /**
+ * Convert from a node to a switch id
+ */
+uint32_t traingps_node_to_switch(TrainTrackNode *node);
+
+/**
  * Get the current positive as the next relative distance,
  * if the path has no more sensors, then postion base node is NODE_NONE
  */
-TrainPosition traingps_next_relative(TrainPath *path);
+TrainTrackEdge traingps_next_dest(TrainPath *path);
 
 /**
- * Get the subpath within max_length
+ * Return any train job that is need to be schedule, i.e. stop a train after
+ * a time delay
  */
-TrainPath traingps_get_subpath(TrainPath *path, uint32_t max_length);
+TrainJobQueue traingps_next_jobs(Train *train, TrainTrackStatus *status);
 
 /**
  * Update the train next position, and the Estimated time of clock
@@ -41,11 +47,5 @@ TrainPath traingps_get_subpath(TrainPath *path, uint32_t max_length);
  * acceleration, any other interferences from other trains, and track calibration
  */
 void traingps_update_next(Train *train, uint32_t time, TrainTrackStatus *status);
-
-/**
- * Return any train job that is need to be schedule, i.e. stop a train after
- * a time delay
- */
-TrainJobQueue traingps_next_jobs(Train *train, TrainTrackStatus *status);
 
 #endif /*__TRAIN_GPS_H__*/

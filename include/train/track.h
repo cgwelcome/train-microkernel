@@ -7,6 +7,7 @@
 #define MAX_PATHNODE_NAME    10
 #define MAX_EDGE_DEGREE       2
 #define MAX_NODE_PER_TRACK  140
+#define MAX_EDGE_PER_TRACK  280
 
 #define DIR_AHEAD 0
 #define DIR_STRAIGHT 0

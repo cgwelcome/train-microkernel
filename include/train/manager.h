@@ -18,20 +18,16 @@ typedef struct {
 } TrainSwitch;
 
 typedef enum {
-    TRAINMODE_FREE, /** Train roaming without a destination */
     TRAINMODE_PATH, /** Train with a specific path */
+    TRAINMODE_FREE, /** Train roaming without a destination */
 } TrainMode;
 
 typedef struct {
-    TrainTrackNode base;
-    int32_t offset; /** offset in mm from the base node */
-} TrainPosition;
-
-typedef struct {
-    TrainTrackNode nodes[MAX_NODE_PER_TRACK];
-    uint32_t index; /** Edge >= index that has not yet been visited by train */
+    TrainTrackNode *nodes[MAX_NODE_PER_TRACK]; /** Nodes to be visited, reference to track */
     uint32_t size;
-    TrainPosition dest; /** Destination node is usually the last node of path, with offset */
+    uint32_t index; /** Node >= index that has not yet been visited by train */
+	TrainTrackEdge src;
+	TrainTrackEdge dest;
 } TrainPath;
 
 typedef struct {
@@ -39,8 +35,8 @@ typedef struct {
     TrainMode mode;
     uint32_t speed;
     TrainPath path;
-    TrainPosition last_position; /** Last seen position */
-    TrainPosition next_position; /** Next position */
+    TrainTrackEdge last_position; /** Pointer to track of last position seen position */
+    TrainTrackEdge next_position; /** Pointer to track of next position */
     uint64_t next_time; /** Estimated Arrival Time to Next dest */
 } Train;
 
@@ -64,10 +60,10 @@ void trainmanager_init_track(TrainTrackType type);
  */
 void trainmanager_speed(uint32_t train_id, uint32_t speed);
 /**
- * Move train to a node_id with a positive or negative offset
+ * Move train to a node_id with a positive offset
  * running at speed
  */
-void trainmanager_move(uint32_t train_id, uint32_t speed, uint32_t node_id, int32_t offset);
+void trainmanager_move(uint32_t train_id, uint32_t speed, uint32_t node_id, uint32_t offset);
 /**
  * Reverse Train with same speed
  */

@@ -55,15 +55,16 @@ static void trainmanager_schedule(TrainJob *job) {
 }
 
 static void trainmanager_setup_next(Train *train, uint32_t time) {
-    traingps_update_next(train, time, &status);
     TrainJobQueue jobs = traingps_next_jobs(train, &status);
     while (tjqueue_size(&jobs) > 0) {
         TrainJob job = tjqueue_pop(&jobs);
         trainmanager_schedule(&job);
     }
-    /** Train wait on a sensor */
+    traingps_update_next(train, time, &status);
+    /** Check if next position is a sensor */
     if (traingps_is_sensor(&train->next_position)) {
-        TrainSensor sensor = traingps_node_to_sensor(&train->next_position.base);
+		/** src or dest is the same */
+        TrainSensor sensor = traingps_node_to_sensor(train->next_position.src);
         queue_push(&awaitsensors[trainsensor_hash(&sensor)], (int)train->id);
     }
 }
@@ -71,8 +72,10 @@ static void trainmanager_setup_next(Train *train, uint32_t time) {
 void trainmanager_dispatch_sensor(TrainSensor *sensor, uint32_t time) {
     Queue train_ids = awaitsensors[trainsensor_hash(sensor)];
     while (queue_size(&train_ids) > 0) {
-        Train train = status.trains[queue_pop(&train_ids)];
-        trainmanager_setup_next(&train, time);
+        Train *train = &status.trains[queue_pop(&train_ids)];
+		TrainTrackNode *node = &status.track.nodes[trainsensor_hash(sensor)];
+		train->last_position = traingps_node_to_edge(node);
+        trainmanager_setup_next(train, time);
     }
 }
 
@@ -85,14 +88,13 @@ void trainmanager_speed(uint32_t train_id, uint32_t speed) {
     trainset_speed(&io, train->id, train->speed);
 }
 
-void trainmanager_move(uint32_t train_id, uint32_t speed, uint32_t node_id, int32_t offset) {
+void trainmanager_move(uint32_t train_id, uint32_t speed, uint32_t node_id, uint32_t offset) {
     Train *train = &status.trains[train_id];
-    TrainTrack *track = &status.track;
-    TrainPosition dest = {
-        .base = track->nodes[node_id],
-        .offset = offset,
-    };
-
+	TrainTrackEdge dest = {
+		.src = &status.track.nodes[node_id],
+		.dest = &status.track.nodes[node_id],
+		.dist = offset,
+	};
     train->path = traingps_find(&train->last_position, &dest, &status);
     train->mode = TRAINMODE_PATH;
     train->speed = speed;
@@ -116,8 +118,7 @@ void trainmanager_switch_all(TrainSwitchStatus status) {
             code = TRAINSWITCH_CURVED;
             break;
     }
-    for (uint32_t id = 1; id <= 18; id++) {
-        trainset_switch(&io, id, code);
+    for (uint32_t id = 1; id <= 18; id++) { trainset_switch(&io, id, code);
     }
     for (uint32_t id = 0x99; id <= 0x9C; id++) {
         trainset_switch(&io, id, code);
