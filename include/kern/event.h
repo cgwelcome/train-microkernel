@@ -1,6 +1,8 @@
 #ifndef __KERN_EVENT_H___
 #define __KERN_EVENT_H___
 
+#include <event.h>
+
 /**
  * @defgroup event
  * @ingroup kernel

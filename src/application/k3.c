@@ -1,4 +1,3 @@
-#include <stddef.h>
 #include <server/clock.h>
 #include <server/idle.h>
 #include <server/name.h>

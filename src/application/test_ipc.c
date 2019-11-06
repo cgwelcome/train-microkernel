@@ -1,4 +1,3 @@
-#include <stddef.h>
 #include <string.h>
 #include <application.h>
 #include <user/ipc.h>

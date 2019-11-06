@@ -1,6 +1,8 @@
 #ifndef __USER_EVENT_H__
 #define __USER_EVENT_H__
 
+#include <event.h>
+
 /**
  * @defgroup event
  * @ingroup user

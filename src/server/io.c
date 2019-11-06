@@ -1,4 +1,3 @@
-#include <event.h>
 #include <kernel.h>
 #include <hardware/uart.h>
 #include <hardware/timer.h>

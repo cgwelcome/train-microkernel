@@ -1,8 +1,6 @@
 #include <kernel.h>
-#include <server/clock.h>
 #include <server/io.h>
 #include <server/ui.h>
-#include <server/train.h>
 #include <user/io.h>
 #include <user/clock.h>
 #include <user/name.h>

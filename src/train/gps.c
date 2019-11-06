@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <train/gps.h>
 #include <utils/queue.h>
 

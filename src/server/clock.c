@@ -1,5 +1,3 @@
-#include <stddef.h>
-#include <event.h>
 #include <kernel.h>
 #include <hardware/timer.h>
 #include <server/clock.h>

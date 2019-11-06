@@ -1,6 +1,5 @@
 #include <arm.h>
 #include <kernel.h>
-#include <stddef.h>
 #include <hardware/timer.h>
 #include <kern/tasks.h>
 #include <utils/assert.h>

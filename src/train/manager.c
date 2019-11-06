@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <kernel.h>
 #include <train/gps.h>
 #include <train/job.h>

@@ -1,7 +1,7 @@
-#include <event.h>
 #include <hardware/icu.h>
 #include <hardware/timer.h>
 #include <hardware/uart.h>
+#include <kern/event.h>
 #include <kern/tasks.h>
 #include <utils/assert.h>
 #include <utils/queue.h>

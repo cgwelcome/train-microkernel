@@ -1,7 +1,6 @@
 #include <kernel.h>
 #include <hardware/syscon.h>
 #include <server/idle.h>
-#include <server/io.h>
 #include <user/io.h>
 #include <user/name.h>
 #include <user/tasks.h>
