@@ -13,9 +13,9 @@ void PrintBasicInterface(int io_tid) {
     Printf(io_tid, COM2, "\033[%u;%uH> █"                             , LINE_TERMINAL        , 1);
 }
 
-void PrintTime(int iotid) {
-    uint64_t now = timer_read(TIMER3);
-    Printf(iotid, COM2, "\033[%u;%uH\033[K%04u:%02u.%u",
+void PrintTime(int io_tid) {
+    uint32_t now = (uint32_t) timer_read(TIMER3);
+    Printf(io_tid, COM2, "\033[%u;%uH\033[K%04u:%02u.%u",
         LINE_TIME, 7,
         now / 60000,        // minute
         now / 1000 % 60,    // second

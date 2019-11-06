@@ -28,16 +28,6 @@ static int atoi(char *str, int len) {
     return result;
 }
 
-static void ui_clock_task() {
-    int clock_tid = WhoIs(SERVER_NAME_CLOCK);
-    int io_tid = WhoIs(SERVER_NAME_IO);
-    for (;;) {
-        Delay(clock_tid, CLOCK_PRECISION/10);
-        PrintTime(io_tid);
-    }
-    Exit();
-}
-
 static void ui_execute_command(int io_tid, int traintid, char *cmd_buffer, unsigned int cmd_len) {
     int arg1_len, arg2_len, code, speed, direction;
     switch (cmd_buffer[0]) {
@@ -77,6 +67,16 @@ static void ui_execute_command(int io_tid, int traintid, char *cmd_buffer, unsig
             }
             break;
     }
+}
+
+static void ui_clock_task() {
+    int clock_tid = WhoIs(SERVER_NAME_CLOCK);
+    int io_tid = WhoIs(SERVER_NAME_IO);
+    for (;;) {
+        Delay(clock_tid, CLOCK_PRECISION/10);
+        PrintTime(io_tid);
+    }
+    Exit();
 }
 
 static void ui_keyboard_task() {
