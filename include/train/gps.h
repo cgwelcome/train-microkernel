@@ -30,10 +30,14 @@ TrainSensor traingps_node_to_sensor(TrainTrackNode *node);
 uint32_t traingps_node_to_switch(TrainTrackNode *node);
 
 /**
- * Get the current positive as the next relative distance,
- * if the path has no more sensors, then postion base node is NODE_NONE
+ * Get the next sensor, with dist, and dest = sensor in Path Mode
  */
 TrainTrackEdge traingps_next_dest(TrainPath *path);
+
+/**
+ * Get the next sensor, with dist, and dest = sensor in Free Runnning Mode
+ */
+TrainTrackEdge traingps_next_dest_free(Train *train, TrainTrackStatus *status);
 
 /**
  * Return any train job that is need to be schedule, i.e. stop a train after

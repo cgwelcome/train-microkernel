@@ -39,6 +39,12 @@ void trainmanager_init() {
 		train->last_position.src = NULL;
 		train->mode = TRAINMODE_FREE;
 	}
+    for (uint32_t id = 1; id <= 18; id++) {
+		status.trainswitches[id].id = id;
+    }
+    for (uint32_t id = 0x99; id <= 0x9C; id++) {
+		status.trainswitches[id].id = id;
+    }
 	for (uint32_t i = 0; i < active_trains_size; i++) {
 		trainset_speed(&io, active_trains[i], 0);
 	}
@@ -71,9 +77,12 @@ static void trainmanager_setup_next(Train *train, uint32_t time) {
 	}
 	traingps_update_next(train, time, &status);
 	/** Check if next position is a sensor */
+	Printf(io.tid, COM2, "\033[%u;%uH : %s" , 22, 1, train->next_position.src->name);
 	if (traingps_is_sensor(&train->next_position)) {
 		/** src or dest is the same */
 		TrainSensor sensor = traingps_node_to_sensor(train->next_position.src);
+		Printf(io.tid, COM2, "\033[%u;%uH : %c" , 20, 1, sensor.module);
+		Printf(io.tid, COM2, "\033[%u;%uH : %u" , 21, 1, sensor.id);
 		queue_push(&status.awaitsensors[trainsensor_hash(&sensor)], (int)train->id);
 	}
 }
@@ -132,9 +141,9 @@ void trainmanager_reverse(uint32_t train_id) {
     (void)train_id;
 }
 
-void trainmanager_switch_all(TrainSwitchStatus status) {
+void trainmanager_switch_all(TrainSwitchStatus switch_status) {
     uint32_t code = 0;
-    switch (status) {
+    switch (switch_status) {
         case TRAINSWITCHSTATUS_STRAIGHT:
             code = TRAINSWITCH_STRAIGHT;
             break;
@@ -143,9 +152,11 @@ void trainmanager_switch_all(TrainSwitchStatus status) {
             break;
     }
     for (uint32_t id = 1; id <= 18; id++) {
+		status.trainswitches[id].status = switch_status;
 		trainset_switch(&io, id, code);
     }
     for (uint32_t id = 0x99; id <= 0x9C; id++) {
+		status.trainswitches[id].status = switch_status;
         trainset_switch(&io, id, code);
     }
 	TMRequest request = {
@@ -155,8 +166,8 @@ void trainmanager_switch_all(TrainSwitchStatus status) {
 	trainmanager_schedule(&job);
 }
 
-void trainmanager_switch_one(uint32_t switch_id, TrainSwitchStatus status) {
-    switch (status) {
+void trainmanager_switch_one(uint32_t switch_id, TrainSwitchStatus switch_status) {
+    switch (switch_status) {
         case TRAINSWITCHSTATUS_STRAIGHT:
             trainset_switch(&io, switch_id, TRAINSWITCH_STRAIGHT);
             break;
@@ -164,6 +175,7 @@ void trainmanager_switch_one(uint32_t switch_id, TrainSwitchStatus status) {
             trainset_switch(&io, switch_id, TRAINSWITCH_CURVED);
             break;
     }
+	status.trainswitches[switch_id].status = switch_status;
     TMRequest request = {
         .type = TMREQUESTTYPE_SWITCH_DONE,
     };
@@ -179,6 +191,8 @@ void trainmanager_update_status() {
     ActiveTrainSensorList list = trainset_sensor_readall(&io);
     uint32_t time = (uint32_t)Time(clocktid);
     for (uint32_t i = 0; i < list.size; i++) {
+		Printf(io.tid, COM2, "\033[%u;%uH : %c" , 17, 1, list.sensors[i].module);
+		Printf(io.tid, COM2, "\033[%u;%uH : %u" , 18, 1, list.sensors[i].id);
         trainmanager_dispatch_sensor(&list.sensors[i], time);
     }
 }

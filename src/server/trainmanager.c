@@ -79,5 +79,5 @@ static void trainmanager_root_task() {
 
 void CreateTrainManagerServer() {
     Create(PRIORITY_SERVER_TMS, &trainmanager_root_task);
-	/*Create(PRIORITY_NOTIFIER_TMS_SENSORS, &trainnotifier_sensor_task);*/
+	Create(PRIORITY_NOTIFIER_TMS_SENSORS, &trainnotifier_sensor_task);
 }

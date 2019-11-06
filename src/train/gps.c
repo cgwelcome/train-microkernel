@@ -98,9 +98,9 @@ uint32_t traingps_is_sensor(TrainTrackEdge *position) {
 
 TrainSensor traingps_node_to_sensor(TrainTrackNode *node) {
     TrainSensor sensor = {
-        .id = (uint32_t)(node->name[1]-'0'),
         .module = node->name[0],
     };
+	sensor.id = node->num-(uint32_t)(sensor.module-'A')*MAX_SENSOR_PER_MODULE+1;
     return sensor;
 }
 
@@ -129,7 +129,10 @@ TrainTrackEdge traingps_next_dest(TrainPath *path) {
 }
 
 uint32_t traingps_node_to_switch(TrainTrackNode *node) {
-	return (node->id - 80) >> 1;
+    if (0x99 <= node->num && node->num <= 0x9C) {
+		return node->num;
+	}
+	return ((node->id-80) >> 1)+1;
 }
 
 TrainTrackEdge traingps_next_dest_free(Train *train, TrainTrackStatus *status) {
@@ -178,7 +181,7 @@ void traingps_update_next(Train *train, uint32_t time, TrainTrackStatus *status)
     (void)time;
     switch (train->mode) {
         case TRAINMODE_FREE:
-			/*displacement = traingps_next_dest_free(train, status);*/
+			displacement = traingps_next_dest_free(train, status);
             break;
         case TRAINMODE_PATH:
             displacement = traingps_next_dest(&train->path);
