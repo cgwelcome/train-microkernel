@@ -1,6 +1,5 @@
 #include <kernel.h>
 #include <train/gps.h>
-#include <train/job.h>
 #include <train/manager.h>
 #include <train/track.h>
 #include <train/trainset.h>
@@ -8,10 +7,13 @@
 #include <user/io.h>
 #include <user/ipc.h>
 #include <user/name.h>
+#include <user/scheduler.h>
 #include <user/tasks.h>
+#include <utils/assert.h>
 
 static TrainIO io;
-static int clocktid;
+static int clock_tid;
+static int scheduler_tid;
 static TrainTrackStatus status;
 static const uint32_t active_trains[] = {
     1, 24, 58, 74, 78, 79,
@@ -21,10 +23,10 @@ static uint32_t active_trains_size = sizeof(active_trains)/sizeof(active_trains[
 void trainmanager_init() {
     io.tid = WhoIs(SERVER_NAME_IO);
     io.uart = COM1;
-    clocktid = WhoIs(SERVER_NAME_CLOCK);
+    clock_tid = WhoIs(SERVER_NAME_CLOCK);
+    scheduler_tid = WhoIs(SERVER_NAME_SCHEDULER);
 	trainset_go(&io);
-	trainmanager_init_track(TRAINTRACKTYPE_B);
-	tjqueue_init(&status.jobqueue);
+	trainmanager_init_track(TRAIN_TRACK_B);
 	for (uint32_t i = 0; i < MAX_SENSOR_NUM; i++) {
 		queue_init(&status.awaitsensors[i]);
 	}
@@ -48,36 +50,29 @@ void trainmanager_init() {
 	trainmanager_switch_all(DEFAULTSWITCH_STATUS);
 }
 
-void trainmanager_init_track(TrainTrackType type) {
-    switch (type) {
-        case TRAINTRACKTYPE_A:
-            status.track.type = type;
+void trainmanager_init_track(TrainTrackName name) {
+    switch (name) {
+        case TRAIN_TRACK_A:
+            status.track.name = name;
             init_tracka(status.track.nodes);
             break;
-        case TRAINTRACKTYPE_B:
-            status.track.type = type;
+        case TRAIN_TRACK_B:
+            status.track.name = name;
             init_trackb(status.track.nodes);
             break;
+        default:
+            throw("unknown track name");
     }
 }
 
-static void trainmanager_schedule(TrainJob *job) {
-    tjqueue_push(&status.jobqueue, job);
-    Create(PRIORITY_NOTIFIER_TMS_DELAY, &trainjob_notifier_task);
-}
-
 static void trainmanager_setup_next(Train *train, uint32_t time) {
-	TrainJobQueue jobs = traingps_next_jobs(train, &status);
-	while (tjqueue_size(&jobs) > 0) {
-		TrainJob job = tjqueue_pop(&jobs);
-		trainmanager_schedule(&job);
-	}
-	traingps_update_next(train, time, &status);
+	gps_schedule_path(train, &status);
+	gps_update_next(train, time, &status);
 	/** Check if next position is a sensor */
 	Printf(io.tid, COM2, "\033[%u;%uH : %s" , 22, 1, train->next_position.src->name);
-	if (traingps_is_sensor(&train->next_position)) {
+	if (gps_is_sensor(&train->next_position)) {
 		/** src or dest is the same */
-		TrainSensor sensor = traingps_node_to_sensor(train->next_position.src);
+		TrainSensor sensor = gps_node_to_sensor(train->next_position.src);
 		Printf(io.tid, COM2, "\033[%u;%uH : %c" , 20, 1, sensor.module);
 		Printf(io.tid, COM2, "\033[%u;%uH : %u" , 21, 1, sensor.id);
 		queue_push(&status.awaitsensors[trainsensor_hash(&sensor)], (int)train->id);
@@ -98,7 +93,7 @@ void trainmanager_dispatch_sensor(TrainSensor *sensor, uint32_t time) {
 	}
 	Train *train = &status.trains[train_id];
 	TrainTrackNode *node = &status.track.nodes[sensor_id];
-	train->last_position = traingps_node_to_edge(node);
+	train->last_position = gps_node_to_edge(node);
 	trainmanager_setup_next(train, time);
 }
 
@@ -109,7 +104,7 @@ void trainmanager_speed(uint32_t train_id, uint32_t speed) {
 	if (train->last_position.src == NULL) {
 		queue_push(&status.initialtrains, (int)train_id);
 	} else {
-		uint32_t time = (uint32_t)Time(clocktid);
+		uint32_t time = (uint32_t)Time(clock_tid);
 		trainmanager_setup_next(train, time);
 	}
     trainset_speed(&io, train->id, train->speed);
@@ -127,8 +122,8 @@ void trainmanager_move(uint32_t train_id, uint32_t speed, uint32_t node_id, uint
 	if (train->last_position.src == NULL) {
 		queue_push(&status.initialtrains, (int)train_id);
 	} else {
-		train->path = traingps_find(&train->last_position, &dest, &status);
-		uint32_t time = (uint32_t)Time(clocktid);
+		train->path = gps_find(&train->last_position, &dest, &status);
+		uint32_t time = (uint32_t)Time(clock_tid);
 		trainmanager_setup_next(train, time);
 	}
     trainset_speed(&io, train->id, speed);
@@ -141,10 +136,10 @@ void trainmanager_reverse(uint32_t train_id) {
 void trainmanager_switch_all(TrainSwitchStatus switch_status) {
     uint32_t code = 0;
     switch (switch_status) {
-        case TRAINSWITCHSTATUS_STRAIGHT:
+        case TRAIN_SWITCH_STRAIGHT:
             code = TRAINSWITCH_STRAIGHT;
             break;
-        case TRAINSWITCHSTATUS_CURVED:
+        case TRAIN_SWITCH_CURVED:
             code = TRAINSWITCH_CURVED;
             break;
     }
@@ -156,28 +151,26 @@ void trainmanager_switch_all(TrainSwitchStatus switch_status) {
 		status.trainswitches[id].status = switch_status;
         trainset_switch(&io, id, code);
     }
-	TMRequest request = {
-		.type = TM_REQUEST_SWITCH_DONE,
+	TrainRequest request = {
+		.type = TRAIN_REQUEST_SWITCH_DONE,
 	};
-	TrainJob job = create_trainjob(request, TRAINSWITCH_DONE_INTERVAL);
-	trainmanager_schedule(&job);
+    Schedule(scheduler_tid, TRAINSWITCH_DONE_INTERVAL, MyTid(), (char *)&request, sizeof(request));
 }
 
 void trainmanager_switch_one(uint32_t switch_id, TrainSwitchStatus switch_status) {
     switch (switch_status) {
-        case TRAINSWITCHSTATUS_STRAIGHT:
+        case TRAIN_SWITCH_STRAIGHT:
             trainset_switch(&io, switch_id, TRAINSWITCH_STRAIGHT);
             break;
-        case TRAINSWITCHSTATUS_CURVED:
+        case TRAIN_SWITCH_CURVED:
             trainset_switch(&io, switch_id, TRAINSWITCH_CURVED);
             break;
     }
 	status.trainswitches[switch_id].status = switch_status;
-    TMRequest request = {
-        .type = TM_REQUEST_SWITCH_DONE,
+    TrainRequest request = {
+        .type = TRAIN_REQUEST_SWITCH_DONE,
     };
-    TrainJob job = create_trainjob(request, TRAINSWITCH_DONE_INTERVAL);
-    trainmanager_schedule(&job);
+    Schedule(scheduler_tid, TRAINSWITCH_DONE_INTERVAL, MyTid(), (char *)&request, sizeof(request));
 }
 
 void trainmanager_switch_done() {
@@ -186,17 +179,12 @@ void trainmanager_switch_done() {
 
 void trainmanager_update_status() {
     ActiveTrainSensorList list = trainset_sensor_readall(&io);
-    uint32_t time = (uint32_t)Time(clocktid);
+    uint32_t time = (uint32_t)Time(clock_tid);
     for (uint32_t i = 0; i < list.size; i++) {
 		Printf(io.tid, COM2, "\033[%u;%uH : %c" , 17, 1, list.sensors[i].module);
 		Printf(io.tid, COM2, "\033[%u;%uH : %u" , 18, 1, list.sensors[i].id);
         trainmanager_dispatch_sensor(&list.sensors[i], time);
     }
-}
-
-void trainmanager_init_job(int32_t tid) {
-    TrainJob job = tjqueue_pop(&status.jobqueue);
-    Reply(tid, (char *)&job, sizeof(job));
 }
 
 void trainmanager_park(uint32_t train_id) {

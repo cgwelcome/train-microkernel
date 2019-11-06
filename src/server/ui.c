@@ -5,7 +5,7 @@
 #include <user/clock.h>
 #include <user/name.h>
 #include <user/tasks.h>
-#include <user/trainmanager.h>
+#include <user/train.h>
 #include <utils/queue.h>
 #include <utils/bwio.h>
 
@@ -68,13 +68,13 @@ static void ui_execute_command(int iotid, int traintid, char *cmd_buffer, unsign
             arg2_len = (int)cmd_len - 3 - arg1_len - 1;
             speed    = atoi(cmd_buffer + 3 + arg1_len + 1, arg2_len);
             if ((code > 0 && code < 81) && (speed >= 0 && speed <= 14)) {
-                TrainManager_Speed(traintid, (uint32_t)code, (uint32_t)speed);
+                TrainSetSpeed(traintid, (uint32_t)code, (uint32_t)speed);
             }
             break;
         case 'r':                // reverse the train
             code = atoi(cmd_buffer + 3, (int)cmd_len - 3);
             if (code > 0 && code < 81) {
-                TrainManager_Reverse(traintid, (uint32_t)code);
+                TrainReverse(traintid, (uint32_t)code);
             }
             break;
         case 's':                // turn on/off the switch
@@ -85,15 +85,15 @@ static void ui_execute_command(int iotid, int traintid, char *cmd_buffer, unsign
                 TrainSwitchStatus status;
                 switch (direction) {
                     case 'C':
-                        status = TRAINSWITCHSTATUS_CURVED;
+                        status = TRAIN_SWITCH_CURVED;
                         break;
                     case 'S':
-                        status =  TRAINSWITCHSTATUS_STRAIGHT;
+                        status =  TRAIN_SWITCH_STRAIGHT;
                         break;
                     default:
                         return;
                 }
-                TrainManager_Switch_One(traintid, (uint32_t)code, status);
+                TrainSwitchOne(traintid, (uint32_t)code, status);
                 ui_print_switch(iotid, (unsigned int) code, (char) direction);
             }
             break;
@@ -113,7 +113,7 @@ static void ui_keyboard_task() {
                 if (cmd_len != 0) {
                     if (cmd_buffer[0] == 'q') {
                         Printf(iotid, COM2, "\033[%u;%uH", LINE_DEBUG, 1);
-                        TrainManager_Done(traintid);
+                        TrainExit(traintid);
                         ShutdownIOServer();
                         Shutdown();
                     }

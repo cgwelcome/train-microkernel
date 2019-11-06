@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <server/train.h>
-#include <train/job.h>
 #include <train/track.h>
 #include <train/trainset.h>
 #include <utils/queue.h>
@@ -13,7 +12,7 @@
 #define MAX_SWITCH_NUM            157
 #define TRAINSWITCH_DONE_INTERVAL  15 /** Interval in ticks (10 ms) */
 
-#define DEFAULTSWITCH_STATUS TRAINSWITCHSTATUS_CURVED
+#define DEFAULTSWITCH_STATUS TRAIN_SWITCH_CURVED
 
 typedef struct {
     uint32_t id;
@@ -47,7 +46,6 @@ typedef struct {
     Train trains[MAX_TRAIN_NUM];
     TrainSwitch trainswitches[MAX_SWITCH_NUM];
     TrainTrack track;
-    TrainJobQueue jobqueue;
 	Queue awaitsensors[MAX_SENSOR_NUM];
 	Queue initialtrains;
 } TrainTrackStatus;
@@ -59,7 +57,7 @@ void trainmanager_init();
 /**
  * Initialize Train Tracks
  */
-void trainmanager_init_track(TrainTrackType type);
+void trainmanager_init_track(TrainTrackName name);
 /**
  * Set train to speed
  */
@@ -89,10 +87,6 @@ void trainmanager_switch_done();
  * Update the status of Train Manager
  */
 void trainmanager_update_status();
-/**
- * Respond with a job to be scheduled
- */
-void trainmanager_init_job(int32_t tid);
 /**
  * Notify manager the train has fully stopped
  */

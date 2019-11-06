@@ -11,7 +11,7 @@
  */
 
 #define MAX_NAME_SIZE 64
-#define MAX_NAMERECORD_NUM 248
+#define MAX_NAMERECORD_NUM 16
 
 typedef enum {
     NS_REGISTER,

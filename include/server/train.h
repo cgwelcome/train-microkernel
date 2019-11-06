@@ -6,42 +6,41 @@
 #define SENSOR_READ_INTERVAL 5
 
 typedef enum {
-    TRAINTRACKTYPE_A,
-    TRAINTRACKTYPE_B,
-} TrainTrackType;
+    TRAIN_TRACK_A,
+    TRAIN_TRACK_B,
+} TrainTrackName;
 
 typedef enum {
-    TRAINSWITCHSTATUS_STRAIGHT,
-    TRAINSWITCHSTATUS_CURVED,
+    TRAIN_SWITCH_STRAIGHT,
+    TRAIN_SWITCH_CURVED,
 } TrainSwitchStatus;
 
 typedef enum {
-    TM_REQUEST_INIT_TRACK,
-    TM_REQUEST_SPEED,
-    TM_REQUEST_REVERSE,
-    TM_REQUEST_MOVE,
-    TM_REQUEST_SWITCH_ALL,
-    TM_REQUEST_SWITCH_ONE,
-    TM_REQUEST_SWITCH_DONE,
-    TM_REQUEST_UPDATE_STATUS,
-    TM_REQUEST_INIT_JOB,
-    TM_REQUEST_PARK,
-    TM_REQUEST_STOP,
-    TM_REQUEST_DONE,
-} TMRequestType;
+    TRAIN_REQUEST_INIT_TRACK,
+    TRAIN_REQUEST_SPEED,
+    TRAIN_REQUEST_REVERSE,
+    TRAIN_REQUEST_MOVE,
+    TRAIN_REQUEST_SWITCH_ALL,
+    TRAIN_REQUEST_SWITCH_ONE,
+    TRAIN_REQUEST_SWITCH_DONE,
+    TRAIN_REQUEST_UPDATE_STATUS,
+    TRAIN_REQUEST_PARK,
+    TRAIN_REQUEST_STOP,
+    TRAIN_REQUEST_EXIT,
+} TrainRequestType;
 
 typedef struct {
-    TMRequestType type;
+    TrainRequestType type;
     uint32_t arg1;
     uint32_t arg2;
     uint32_t arg3;
     uint32_t arg4;
-} TMRequest;
+} TrainRequest;
 
 /**
  * Create Train Manager Sever responsible at tracking trains state,
  * which are not detectable from the Trainset
  */
-void CreateTrainManagerServer();
+void CreateTrainServer();
 
 #endif /*__SERVER_TRAIN_H__*/

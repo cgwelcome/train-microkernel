@@ -4,7 +4,7 @@
 #include <utils/assert.h>
 #include <user/tasks.h>
 
-void traingps_test_find() {
+void gps_test_find() {
     TrainTrackStatus status;
     init_trackb(status.track.nodes);
     TrainTrackEdge src = *status.track.nodes[0].edge;
@@ -12,14 +12,14 @@ void traingps_test_find() {
     TrainTrackEdge dest = *status.track.nodes[64].edge;
 	dest.dist = 0;
 
-    TrainPath path = traingps_find(&src, &dest, &status);
+    TrainPath path = gps_find(&src, &dest, &status);
     for (uint32_t i = 0; i < path.size; i++) {
         bwprintf(COM2, "%s -> ", path.nodes[i]->name);
     }
     Exit();
 }
 
-void traingps_test_subpath() {
+void gps_test_subpath() {
     TrainSensor src_sensor = {
         .id = 1,
         .module = 'A',
@@ -36,55 +36,55 @@ void traingps_test_subpath() {
 	src.dist = 0;
     TrainTrackEdge dest = *status.track.nodes[64].edge;
 	dest.dist = 0;
-    TrainPath path = traingps_find(&src, &dest, &status);
+    TrainPath path = gps_find(&src, &dest, &status);
     for (uint32_t i = 0; i < path.size; i++) {
         bwprintf(COM2, "%s -> ", path.nodes[i]->name);
     }
     bwprintf(COM2, "\n\r");
     for (uint32_t i = 0; i < 12; i++) {
-		TrainTrackEdge edge = traingps_next_dest(&path);
+		TrainTrackEdge edge = gps_next_dest(&path);
         bwprintf(COM2, "%s-%s:%d", edge.src->name, edge.dest->name, edge.dist);
         bwprintf(COM2, "\n\r");
     }
     Exit();
 }
 
-void traingps_test_middle_free() {
+void gps_test_middle_free() {
 	Train train;
     TrainTrackStatus status;
 	init_trackb(status.track.nodes);
-    TrainTrackEdge dest = traingps_node_to_edge(&status.track.nodes[64]);
+    TrainTrackEdge dest = gps_node_to_edge(&status.track.nodes[64]);
 	train.last_position = dest;
     for (uint32_t id = 1; id <= 18; id++) {
 		status.trainswitches[id].id = id;
-		status.trainswitches[id].status = TRAINSWITCHSTATUS_CURVED;
+		status.trainswitches[id].status = TRAIN_SWITCH_CURVED;
     }
     for (uint32_t id = 0x99; id <= 0x9C; id++) {
 		status.trainswitches[id].id = id;
-		status.trainswitches[id].status = TRAINSWITCHSTATUS_CURVED;
+		status.trainswitches[id].status = TRAIN_SWITCH_CURVED;
     }
-	TrainTrackEdge edge = traingps_next_dest_free(&train, &status);
+	TrainTrackEdge edge = gps_next_dest_free(&train, &status);
 	bwprintf(COM2, "%s-%s:%d", edge.src->name, edge.dest->name, edge.dist);
 	bwprintf(COM2, "\n\r");
 	status.trainswitches[154].id = 154;
-	status.trainswitches[154].status = TRAINSWITCHSTATUS_STRAIGHT;
-	edge = traingps_next_dest_free(&train, &status);
+	status.trainswitches[154].status = TRAIN_SWITCH_STRAIGHT;
+	edge = gps_next_dest_free(&train, &status);
 	bwprintf(COM2, "%s-%s:%d", edge.src->name, edge.dest->name, edge.dist);
 	bwprintf(COM2, "\n\r");
 	status.trainswitches[153].id = 153;
-	status.trainswitches[153].status = TRAINSWITCHSTATUS_STRAIGHT;
-	edge = traingps_next_dest_free(&train, &status);
+	status.trainswitches[153].status = TRAIN_SWITCH_STRAIGHT;
+	edge = gps_next_dest_free(&train, &status);
 	bwprintf(COM2, "%s-%s:%d", edge.src->name, edge.dest->name, edge.dist);
 	bwprintf(COM2, "\n\r");
 	status.trainswitches[154].id = 154;
-	status.trainswitches[154].status = TRAINSWITCHSTATUS_CURVED;
-	edge = traingps_next_dest_free(&train, &status);
+	status.trainswitches[154].status = TRAIN_SWITCH_CURVED;
+	edge = gps_next_dest_free(&train, &status);
 	bwprintf(COM2, "%s-%s:%d", edge.src->name, edge.dest->name, edge.dist);
 	bwprintf(COM2, "\n\r");
 	Exit();
 }
 
-void traingps_test_next_dest_free() {
+void gps_test_next_dest_free() {
     TrainSensor src_sensor = {
         .id = 13,
         .module = 'A',
@@ -93,21 +93,21 @@ void traingps_test_next_dest_free() {
     TrainTrackStatus status;
 	init_trackb(status.track.nodes);
     TrainTrackNode *node = &status.track.nodes[trainsensor_hash(&src_sensor)];
-    TrainTrackEdge dest = traingps_node_to_edge(node);
+    TrainTrackEdge dest = gps_node_to_edge(node);
 	train.last_position = dest;
     for (uint32_t id = 1; id <= 18; id++) {
 		status.trainswitches[id].id = id;
-		status.trainswitches[id].status = TRAINSWITCHSTATUS_CURVED;
+		status.trainswitches[id].status = TRAIN_SWITCH_CURVED;
     }
-	TrainTrackEdge edge = traingps_next_dest_free(&train, &status);
+	TrainTrackEdge edge = gps_next_dest_free(&train, &status);
 	bwprintf(COM2, "%s-%s:%d", edge.src->name, edge.dest->name, edge.dist);
 	bwprintf(COM2, "\n\r");
 	Exit();
 }
 
-void traingps_test_root_task() {
-	/*Create(1, &traingps_test_find);*/
-    /*Create(2, &traingps_test_subpath);*/
-    Create(2, &traingps_test_next_dest_free);
+void gps_test_root_task() {
+	/*Create(1, &gps_test_find);*/
+    /*Create(2, &gps_test_subpath);*/
+    Create(2, &gps_test_next_dest_free);
 	Exit();
 }
