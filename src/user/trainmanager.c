@@ -7,7 +7,7 @@ void TrainManager_InitTrack(int tid, TrainTrackType type) {
         .type = TMREQUESTTYPE_INIT_TRACK,
         .arg1 = type,
     };
-    Send(tid, (char *)&request, sizeof(request), NULL, 0);
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 void TrainManager_Speed(int tid, uint32_t train_id, uint32_t speed) {
@@ -16,7 +16,7 @@ void TrainManager_Speed(int tid, uint32_t train_id, uint32_t speed) {
         .arg1 = train_id,
         .arg2 = speed,
     };
-    Send(tid, (char *)&request, sizeof(request), NULL, 0);
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 void TrainManager_Reverse(int tid, uint32_t train_id) {
@@ -24,7 +24,7 @@ void TrainManager_Reverse(int tid, uint32_t train_id) {
         .type = TMREQUESTTYPE_REVERSE,
         .arg1 = train_id,
     };
-    Send(tid, (char *)&request, sizeof(request), NULL, 0);
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 void TrainManager_Move(int tid, uint32_t train_id, uint32_t speed, uint32_t node_id, int32_t offset) {
@@ -35,7 +35,7 @@ void TrainManager_Move(int tid, uint32_t train_id, uint32_t speed, uint32_t node
         .arg3 = node_id,
         .arg4 = (uint32_t)offset,
     };
-    Send(tid, (char *)&request, sizeof(request), NULL, 0);
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 void TrainManager_Switch_All(int tid, TrainSwitchStatus status) {
@@ -43,7 +43,7 @@ void TrainManager_Switch_All(int tid, TrainSwitchStatus status) {
         .type = TMREQUESTTYPE_SWITCH_ALL,
         .arg1 = status,
     };
-    Send(tid, (char *)&request, sizeof(request), NULL, 0);
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 void TrainManager_Switch_One(int tid, uint32_t switch_id, TrainSwitchStatus status) {
@@ -52,19 +52,19 @@ void TrainManager_Switch_One(int tid, uint32_t switch_id, TrainSwitchStatus stat
         .arg1 = switch_id,
         .arg2 = status,
     };
-    Send(tid, (char *)&request, sizeof(request), NULL, 0);
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 void TrainManager_Stop(int tid) {
     TMRequest request = {
         .type = TMREQUESTTYPE_STOP,
     };
-    Send(tid, (char *)&request, sizeof(request), NULL, 0);
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 void TrainManager_Done(int tid) {
     TMRequest request = {
         .type = TMREQUESTTYPE_DONE,
     };
-    Send(tid, (char *)&request, sizeof(request), NULL, 0);
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
