@@ -8,16 +8,19 @@
 #include <utils/assert.h>
 #include <utils/pqueue.h>
 
-static int clockticks;
 static PQueue pqdelay;
 
-static void clock_time(int tid) {
-    Reply(tid, (char *)&clockticks, sizeof(clockticks));
+static int clock_ticks() {
+    return (int) (timer_read(TIMER3) / CLOCK_TICK_INTERVAL);
 }
 
-static void clock_updatetick() {
-    clockticks++;
-    while (pqueue_size(&pqdelay) > 0 && pqueue_peek(&pqdelay) <= clockticks) {
+static void clock_time(int tid) {
+    int now = clock_ticks();
+    Reply(tid, (char *)&now, sizeof(now));
+}
+
+static void clock_notify() {
+    while (pqueue_size(&pqdelay) > 0 && pqueue_peek(&pqdelay) <= clock_ticks()) {
         int tid = pqueue_pop(&pqdelay);
         clock_time(tid);
     }
@@ -27,12 +30,12 @@ static void clock_delay(int tid, int ticks) {
     if (ticks == 0) {
         clock_time(tid);
     } else {
-        pqueue_insert(&pqdelay, tid, clockticks + ticks);
+        pqueue_insert(&pqdelay, tid, clock_ticks() + ticks);
     }
 }
 
 static void clock_delayuntil(int tid, int ticks) {
-    if (ticks <= clockticks) {
+    if (ticks <= clock_ticks()) {
         clock_time(tid);
     } else {
         pqueue_insert(&pqdelay, tid, ticks);
@@ -47,9 +50,9 @@ void clock_server_task() {
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {
-            case CS_TICKUPDATE:
-                clock_updatetick();
+            case CS_NOTIFY:
                 Reply(tid, NULL, 0);
+                clock_notify();
                 break;
             case CS_TIME:
                 clock_time(tid);
@@ -68,10 +71,8 @@ void clock_server_task() {
 
 void clock_notifier_task() {
     int clock_server_tid = WhoIs(SERVER_NAME_CLOCK);
-    timer_init(TIMER2, CLOCK_NOTIFY_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
-    CSRequest request = {
-        .type = CS_TICKUPDATE
-    };
+    timer_init(TIMER2, CLOCK_TICK_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
+    CSRequest request = { .type = CS_NOTIFY };
     for (;;) {
         timer_clear(TIMER2);
         AwaitEvent(TC2UI_EVENT);
@@ -80,7 +81,6 @@ void clock_notifier_task() {
 }
 
 void InitClockServer() {
-    clockticks = 0;
     pqueue_init(&pqdelay);
 }
 

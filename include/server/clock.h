@@ -10,10 +10,10 @@
  * @{
  */
 
-#define CLOCK_NOTIFY_INTERVAL 10
+#define CLOCK_TICK_INTERVAL 10
 
 typedef enum {
-    CS_TICKUPDATE,
+    CS_NOTIFY,
     CS_TIME,
     CS_DELAY,
     CS_DELAYUNTIL,

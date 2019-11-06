@@ -59,30 +59,33 @@
 /**
  * Default task names for important servers
  */
-#define SERVER_NAME_CLOCK   "CS"
-#define SERVER_NAME_IO      "IO"
+#define SERVER_NAME_CLOCK       "CS"
+#define SERVER_NAME_IO          "IO"
+#define SERVER_NAME_SCHEDULER   "SS"
 
-#define SERVER_NAME_RPS     "RPS"
-#define SERVER_NAME_TMS     "TM"
+#define SERVER_NAME_RPS         "RPS"
+#define SERVER_NAME_TMS         "TMS"
 
 /**
  * Default priorities for important servers
  */
-#define PRIORITY_ROOT_TASK         500
-#define PRIORITY_IDLE_TASK           1
+#define PRIORITY_ROOT_TASK           500
+#define PRIORITY_IDLE_TASK             1
 
-#define PRIORITY_SERVER_CLOCK     3500
-#define PRIORITY_SERVER_IO        3500
-#define PRIORITY_SERVER_NAME      4000
+#define PRIORITY_SERVER_CLOCK       3500
+#define PRIORITY_SERVER_IO          3500
+#define PRIORITY_SERVER_NAME        4000
+#define PRIORITY_SERVER_SCHEDULER   3500
 
-#define PRIORITY_SERVER_RPS       2000
-#define PRIORITY_SERVER_UI     2000
-#define PRIORITY_SERVER_TMS       3000
+#define PRIORITY_SERVER_RPS         2000
+#define PRIORITY_SERVER_UI          2000
+#define PRIORITY_SERVER_TMS         3000
 
-#define PRIORITY_NOTIFIER_CLOCK        2500
-#define PRIORITY_NOTIFIER_IO_COM1      2500
-#define PRIORITY_NOTIFIER_IO_COM2      2500
-#define PRIORITY_NOTIFIER_TMS_SENSORS  2500
-#define PRIORITY_NOTIFIER_TMS_DELAY    2500
+#define PRIORITY_NOTIFIER_CLOCK         2500
+#define PRIORITY_NOTIFIER_IO_COM1       2500
+#define PRIORITY_NOTIFIER_IO_COM2       2500
+#define PRIORITY_NOTIFIER_SCHEDULER     2500
+#define PRIORITY_NOTIFIER_TMS_SENSORS   2500
+#define PRIORITY_NOTIFIER_TMS_DELAY     2500
 
 #endif /*__KERNEL_H__*/

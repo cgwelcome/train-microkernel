@@ -8,6 +8,7 @@
 #include <server/clock.h>
 #include <server/io.h>
 #include <server/name.h>
+#include <server/scheduler.h>
 #include <utils/assert.h>
 #include <utils/bwio.h>
 
@@ -32,6 +33,7 @@ void initialize() {
     InitIOServer();
     InitNameServer();
     InitClockServer();
+    InitSchedulerServer();
     // Create first user task.
     task_create(-1, PRIORITY_ROOT_TASK, &k4_root_task, 0);
 }
