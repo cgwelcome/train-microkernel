@@ -71,36 +71,33 @@ static void shell_execute_command(int iotid, int traintid, char *cmd_buffer, uns
             speed    = atoi(cmd_buffer + 3 + arg1_len + 1, arg2_len);
             if ((code > 0 && code < 81) && (speed >= 0 && speed <= 14)) {
                 TrainManager_Speed(traintid, (uint32_t)code, (uint32_t)speed);
-                break;
-                case 'r':                // reverse the train
-                code = atoi(cmd_buffer + 3, (int)cmd_len - 3);
-                if (code > 0 && code < 81) {
-                    TrainManager_Reverse(traintid, (uint32_t)code);
-                }
-                break;
-                case 's':                // turn on/off the switch
-                arg1_len  = find(cmd_buffer + 3, (int)cmd_len - 3, ' ');
-                code      = atoi(cmd_buffer + 3, arg1_len);
-                direction = (cmd_buffer + 3)[arg1_len + 1];
-                if (direction != 'S' && direction != 'C') break;
-                if ((code > 0 && code < 19) || (code > 0x98 && code < 0x9D)) {
-                    TrainSwitchStatus status;
-                    switch (direction) {
-                        case 'C':
-                            status = TRAINSWITCHSTATUS_CURVED;
-                            break;
-                        case 'S':
-                            status =  TRAINSWITCHSTATUS_STRAIGHT;
-                            break;
-                        default:
-                            return;
-                            break;
-                    }
-                    TrainManager_Switch_One(traintid, (uint32_t)code, status);
-                    shell_print_switch(iotid, (unsigned int) code, (char) direction);
-                }
-                break;
             }
+            break;
+        case 'r':                // reverse the train
+            code = atoi(cmd_buffer + 3, (int)cmd_len - 3);
+            if (code > 0 && code < 81) {
+                TrainManager_Reverse(traintid, (uint32_t)code);
+            }
+            break;
+        case 's':                // turn on/off the switch
+            arg1_len  = find(cmd_buffer + 3, (int)cmd_len - 3, ' ');
+            code      = atoi(cmd_buffer + 3, arg1_len);
+            direction = (cmd_buffer + 3)[arg1_len + 1];
+            if (direction != 'S' && direction != 'C') break;
+            if ((code > 0 && code < 19) || (code > 0x98 && code < 0x9D)) {
+                TrainSwitchStatus status;
+                switch (direction) {
+                    case 'C':
+                        status = TRAINSWITCHSTATUS_CURVED;
+                        break;
+                    case 'S':
+                        status =  TRAINSWITCHSTATUS_STRAIGHT;
+                        break;
+                }
+                TrainManager_Switch_One(traintid, (uint32_t)code, status);
+                shell_print_switch(iotid, (unsigned int) code, (char) direction);
+            }
+            break;
     }
 }
 
