@@ -40,7 +40,7 @@ TrainJob create_trainjob(TMRequest request, uint32_t delay) {
 void trainjob_notifier_task() {
     TrainJob job;
     TMRequest request = {
-        .type = TMREQUESTTYPE_INIT_JOB,
+        .type = TM_REQUEST_INIT_JOB,
     };
     int servertid = WhoIs(TRAINMANAGER_SERVER_NAME);
     int clocktid = WhoIs(CLOCK_SERVER_NAME);

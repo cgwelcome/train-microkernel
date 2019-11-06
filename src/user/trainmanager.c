@@ -4,7 +4,7 @@
 
 void TrainManager_InitTrack(int tid, TrainTrackType type) {
     TMRequest request = {
-        .type = TMREQUESTTYPE_INIT_TRACK,
+        .type = TM_REQUEST_INIT_TRACK,
         .arg1 = type,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
@@ -12,7 +12,7 @@ void TrainManager_InitTrack(int tid, TrainTrackType type) {
 
 void TrainManager_Speed(int tid, uint32_t train_id, uint32_t speed) {
     TMRequest request = {
-        .type = TMREQUESTTYPE_SPEED,
+        .type = TM_REQUEST_SPEED,
         .arg1 = train_id,
         .arg2 = speed,
     };
@@ -21,7 +21,7 @@ void TrainManager_Speed(int tid, uint32_t train_id, uint32_t speed) {
 
 void TrainManager_Reverse(int tid, uint32_t train_id) {
     TMRequest request = {
-        .type = TMREQUESTTYPE_REVERSE,
+        .type = TM_REQUEST_REVERSE,
         .arg1 = train_id,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
@@ -29,7 +29,7 @@ void TrainManager_Reverse(int tid, uint32_t train_id) {
 
 void TrainManager_Move(int tid, uint32_t train_id, uint32_t speed, uint32_t node_id, int32_t offset) {
     TMRequest request = {
-        .type = TMREQUESTTYPE_REVERSE,
+        .type = TM_REQUEST_REVERSE,
         .arg1 = train_id,
         .arg2 = speed,
         .arg3 = node_id,
@@ -40,7 +40,7 @@ void TrainManager_Move(int tid, uint32_t train_id, uint32_t speed, uint32_t node
 
 void TrainManager_Switch_All(int tid, TrainSwitchStatus status) {
     TMRequest request = {
-        .type = TMREQUESTTYPE_SWITCH_ALL,
+        .type = TM_REQUEST_SWITCH_ALL,
         .arg1 = status,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
@@ -48,7 +48,7 @@ void TrainManager_Switch_All(int tid, TrainSwitchStatus status) {
 
 void TrainManager_Switch_One(int tid, uint32_t switch_id, TrainSwitchStatus status) {
     TMRequest request = {
-        .type = TMREQUESTTYPE_SWITCH_ONE,
+        .type = TM_REQUEST_SWITCH_ONE,
         .arg1 = switch_id,
         .arg2 = status,
     };
@@ -57,14 +57,14 @@ void TrainManager_Switch_One(int tid, uint32_t switch_id, TrainSwitchStatus stat
 
 void TrainManager_Stop(int tid) {
     TMRequest request = {
-        .type = TMREQUESTTYPE_STOP,
+        .type = TM_REQUEST_STOP,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 void TrainManager_Done(int tid) {
     TMRequest request = {
-        .type = TMREQUESTTYPE_DONE,
+        .type = TM_REQUEST_DONE,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }

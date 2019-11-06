@@ -11,7 +11,7 @@ void trainnotifier_sensor_task() {
 	int traintid = WhoIs(TRAINMANAGER_SERVER_NAME);
 
     TMRequest request = {
-        .type = TMREQUESTTYPE_UPDATE_STATUS,
+        .type = TM_REQUEST_UPDATE_STATUS,
     };
 
 	for (;;) {

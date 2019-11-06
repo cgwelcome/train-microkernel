@@ -160,7 +160,7 @@ void trainmanager_switch_all(TrainSwitchStatus switch_status) {
         trainset_switch(&io, id, code);
     }
 	TMRequest request = {
-		.type = TMREQUESTTYPE_SWITCH_DONE,
+		.type = TM_REQUEST_SWITCH_DONE,
 	};
 	TrainJob job = create_trainjob(request, TRAINSWITCH_DONE_INTERVAL);
 	trainmanager_schedule(&job);
@@ -177,7 +177,7 @@ void trainmanager_switch_one(uint32_t switch_id, TrainSwitchStatus switch_status
     }
 	status.trainswitches[switch_id].status = switch_status;
     TMRequest request = {
-        .type = TMREQUESTTYPE_SWITCH_DONE,
+        .type = TM_REQUEST_SWITCH_DONE,
     };
     TrainJob job = create_trainjob(request, TRAINSWITCH_DONE_INTERVAL);
     trainmanager_schedule(&job);

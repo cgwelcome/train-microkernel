@@ -8,37 +8,37 @@
 
 void trainmanager_dispatch_action(TMRequest *request) {
     switch(request->type) {
-        case TMREQUESTTYPE_INIT_TRACK:
+        case TM_REQUEST_INIT_TRACK:
             trainmanager_init_track(request->arg1);
             break;
-        case TMREQUESTTYPE_SPEED:
+        case TM_REQUEST_SPEED:
             trainmanager_speed(request->arg1, request->arg2);
             break;
-        case TMREQUESTTYPE_REVERSE:
+        case TM_REQUEST_REVERSE:
             trainmanager_reverse(request->arg1);
             break;
-        case TMREQUESTTYPE_MOVE:
+        case TM_REQUEST_MOVE:
             trainmanager_move(request->arg1, request->arg2, request->arg3, request->arg4);
             break;
-        case TMREQUESTTYPE_SWITCH_ALL:
+        case TM_REQUEST_SWITCH_ALL:
             trainmanager_switch_all(request->arg1);
             break;
-        case TMREQUESTTYPE_SWITCH_ONE:
+        case TM_REQUEST_SWITCH_ONE:
             trainmanager_switch_one(request->arg1, request->arg2);
             break;
-        case TMREQUESTTYPE_SWITCH_DONE:
+        case TM_REQUEST_SWITCH_DONE:
             trainmanager_switch_done();
             break;
-        case TMREQUESTTYPE_UPDATE_STATUS:
+        case TM_REQUEST_UPDATE_STATUS:
             trainmanager_update_status();
             break;
-        case TMREQUESTTYPE_PARK:
+        case TM_REQUEST_PARK:
             trainmanager_park(request->arg1);
             break;
-        case TMREQUESTTYPE_STOP:
+        case TM_REQUEST_STOP:
             trainmanager_stop();
             break;
-        case TMREQUESTTYPE_DONE:
+        case TM_REQUEST_DONE:
             trainmanager_done();
             break;
         default:
@@ -56,22 +56,12 @@ static void trainmanager_root_task() {
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch(request.type) {
-            case TMREQUESTTYPE_INIT_TRACK:
-            case TMREQUESTTYPE_SPEED:
-            case TMREQUESTTYPE_REVERSE:
-            case TMREQUESTTYPE_MOVE:
-            case TMREQUESTTYPE_SWITCH_ALL:
-            case TMREQUESTTYPE_SWITCH_ONE:
-            case TMREQUESTTYPE_SWITCH_DONE:
-            case TMREQUESTTYPE_UPDATE_STATUS:
-            case TMREQUESTTYPE_PARK:
-            case TMREQUESTTYPE_STOP:
-            case TMREQUESTTYPE_DONE:
+            case TM_REQUEST_INIT_JOB:
+                trainmanager_init_job(tid);
+                break;
+            default:
                 trainmanager_dispatch_action(&request);
                 Reply(tid, NULL, 0);
-                break;
-            case TMREQUESTTYPE_INIT_JOB:
-                trainmanager_init_job(tid);
                 break;
         }
     }
