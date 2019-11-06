@@ -1,10 +1,11 @@
+#include <priority.h>
 #include <train/manager.h>
 #include <train/notifier.h>
 #include <user/tasks.h>
 #include <user/ipc.h>
 #include <user/name.h>
+#include <utils/assert.h>
 #include <utils/bwio.h>
-#include <priority.h>
 
 void trainmanager_dispatch_action(TMRequest *request) {
     switch(request->type) {
@@ -42,8 +43,7 @@ void trainmanager_dispatch_action(TMRequest *request) {
             trainmanager_done();
             break;
         default:
-            return;
-            break;
+            throw("unknown request");
     }
 }
 
