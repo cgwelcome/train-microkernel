@@ -132,24 +132,30 @@ uint32_t traingps_node_to_switch(TrainTrackNode *node) {
 	return (node->id - 80) >> 1;
 }
 
-/*TrainTrackEdge traingps_next_dest_free(Train *train, TrainTrackStatus *status) {*/
-	/*TrainTrackEdge edge = train->last_position;*/
-	/*TrainTrackEdge *next = train->last_position.src->edge;*/
-	/*do {*/
-		/*if (next->dest->type == NODE_BRANCH) {*/
-			/*uint32_t switch_id = traingps_node_to_switch(next->dest);*/
-			/*switch(status->trainswitches[switch_id].status) {*/
-				/*case TRAINSWITCHSTATUS_CURVED:*/
-					/*break;*/
-				/*case TRAINSWITCHSTATUS_STRAIGHT:*/
-					/*break;*/
-			/*}*/
-		/*}*/
-		/*else {*/
-		/*}*/
-	/*} while (next->dest->type != NODE_SENSOR && next->dest->type != NODE_NONE && next->dest->type != NODE_EXIT);*/
-	/*return edge;*/
-/*}*/
+TrainTrackEdge traingps_next_dest_free(Train *train, TrainTrackStatus *status) {
+	TrainTrackEdge *next;
+	TrainTrackEdge edge = train->last_position;
+	edge.dist = 0;
+	do {
+		if (edge.dest->type == NODE_BRANCH) {
+			uint32_t switch_id = traingps_node_to_switch(edge.dest);
+			switch (status->trainswitches[switch_id].status) {
+				case TRAINSWITCHSTATUS_CURVED:
+					next = &edge.dest->edge[DIR_CURVED];
+					break;
+				case TRAINSWITCHSTATUS_STRAIGHT:
+					next = &edge.dest->edge[DIR_STRAIGHT];
+					break;
+			}
+		}
+		else {
+			next = &edge.dest->edge[DIR_AHEAD];
+		}
+		edge.dist += next->dist;
+		edge.dest = next->dest;
+	} while (edge.dest->type != NODE_SENSOR && edge.dest->type != NODE_NONE && edge.dest->type != NODE_EXIT);
+	return edge;
+}
 
 TrainJobQueue traingps_next_jobs(Train *train, TrainTrackStatus *status) {
 	(void)train;
@@ -174,10 +180,10 @@ void traingps_update_next(Train *train, uint32_t time, TrainTrackStatus *status)
     switch (train->mode) {
         case TRAINMODE_PATH:
             displacement = traingps_next_dest(&train->path);
-			train->next_position = traingps_node_to_edge(displacement.dest);
             break;
         case TRAINMODE_FREE:
+			displacement = traingps_next_dest_free(train, status);
             break;
     }
+	train->next_position = traingps_node_to_edge(displacement.dest);
 }
-
