@@ -1,3 +1,4 @@
+#include <kernel.h>
 #include <server/idle.h>
 #include <server/io.h>
 #include <server/name.h>
@@ -6,7 +7,7 @@
 #include <user/name.h>
 
 void ctxcom_read_and_write_test() {
-    int iotid = WhoIs(IO_SERVER_NAME);
+    int iotid = WhoIs(SERVER_NAME_IO);
     unsigned int speed = 10;
     Putc(iotid, COM1, (char)speed);
     Putc(iotid, COM1, 78);
@@ -35,7 +36,7 @@ void ctxcom_read_and_write_test() {
 }
 
 void ctxcom_write_test() {
-    int iotid = WhoIs(IO_SERVER_NAME);
+    int iotid = WhoIs(SERVER_NAME_IO);
     unsigned int speed = 5;
     Putc(iotid, COM1, (char)speed);
     Putc(iotid, COM1, 78);
@@ -59,7 +60,7 @@ void ctxcom_write_test() {
 }
 
 void ctxcom_write_single_test() {
-    int servertid = WhoIs(IO_SERVER_NAME);
+    int servertid = WhoIs(SERVER_NAME_IO);
     Putc(servertid, COM1, 5);
     Putc(servertid, COM1, 78);
     Exit();

@@ -1,4 +1,4 @@
-#include <priority.h>
+#include <kernel.h>
 #include <hardware/syscon.h>
 #include <server/idle.h>
 #include <server/io.h>
@@ -8,7 +8,7 @@
 #include <utils/bwio.h>
 
 static void idle_task() {
-    int io_server_id = WhoIs(IO_SERVER_NAME);
+    int io_server_id = WhoIs(SERVER_NAME_IO);
 
     const char *save_cursor = "\033[s";
     const char *retn_cursor = "\033[u";

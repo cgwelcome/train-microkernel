@@ -1,3 +1,4 @@
+#include <kernel.h>
 #include <server/idle.h>
 #include <server/io.h>
 #include <server/name.h>
@@ -9,7 +10,7 @@
 #define BUFFER_SIZE 256
 
 void io_perf_test() {
-    int servertid = WhoIs(IO_SERVER_NAME);
+    int servertid = WhoIs(SERVER_NAME_IO);
     Printf(servertid, COM2, "IO server performance test start at: %d\r\n", MyTid());
     int buffer[BUFFER_SIZE];
     for (int i = 0; i < BUFFER_SIZE; i++) {
@@ -23,7 +24,7 @@ void io_perf_test() {
 }
 
 void io_getc_test() {
-    int servertid = WhoIs(IO_SERVER_NAME);
+    int servertid = WhoIs(SERVER_NAME_IO);
     Printf(servertid, COM2, "IO server getc test start at: %d\r\n", MyTid());
     for (;;) {
         int c = Getc(servertid, COM2);
@@ -35,7 +36,7 @@ void io_getc_test() {
 }
 
 void io_putc_test() {
-    int servertid = WhoIs(IO_SERVER_NAME);
+    int servertid = WhoIs(SERVER_NAME_IO);
     Printf(servertid, COM2, "IO server putc test start at : %d\r\n", MyTid());
     for (int i = 0; i < 10; i++) {
         Putc(servertid, COM2, (char)('0'+i));
@@ -45,7 +46,7 @@ void io_putc_test() {
 }
 
 void io_race_test() {
-    int servertid = WhoIs(IO_SERVER_NAME);
+    int servertid = WhoIs(SERVER_NAME_IO);
     for (int i = 0; i < 9; i++) {
         Printf(servertid, COM2, "This is line %d printed by task %d.\r\n", i + 1, MyTid());
     }
@@ -56,7 +57,7 @@ void io_test_root_task() {
     CreateNameServer();
     CreateIOServer();
 
-    int servertid = WhoIs(IO_SERVER_NAME);
+    int servertid = WhoIs(SERVER_NAME_IO);
     Printf(servertid, COM2, "\033[2J");
 
     Create(1000, &io_race_test);

@@ -3,8 +3,6 @@
 
 #include <stdint.h>
 
-#define TRAINMANAGER_SERVER_NAME "TM"
-
 #define SENSOR_READ_INTERVAL 5
 
 typedef enum {

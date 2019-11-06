@@ -1,5 +1,5 @@
 #include <event.h>
-#include <priority.h>
+#include <kernel.h>
 #include <hardware/uart.h>
 #include <hardware/timer.h>
 #include <server/idle.h>
@@ -202,7 +202,7 @@ void io_server_task() {
     bool is_halting = false; uint64_t halting_start = 0;
     Queue halting_queue; queue_init(&halting_queue);
 
-    RegisterAs(IO_SERVER_NAME);
+    RegisterAs(SERVER_NAME_IO);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {
@@ -269,7 +269,7 @@ void io_server_task() {
 static void io_notifier_task(uint32_t uart) {
     assert(uart == COM1 || uart == COM2);
 
-    int io_server_tid = WhoIs(IO_SERVER_NAME);
+    int io_server_tid = WhoIs(SERVER_NAME_IO);
     int event = (uart == COM1 ? INT_UART1 : INT_UART2);
     IORequest request = {
         .type = IO_REQUEST_INT_UART,
@@ -300,6 +300,6 @@ void ShutdownIOServer() {
     IORequest request = {
         .type = IO_REQUEST_SHUTDOWN
     };
-    int io_server_tid = WhoIs(IO_SERVER_NAME);
+    int io_server_tid = WhoIs(SERVER_NAME_IO);
     assert(Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }

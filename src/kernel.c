@@ -1,6 +1,5 @@
 #include <kernel.h>
 #include <application.h>
-#include <priority.h>
 #include <stdint.h>
 #include <hardware/icu.h>
 #include <hardware/timer.h>

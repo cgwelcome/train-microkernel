@@ -1,3 +1,4 @@
+#include <kernel.h>
 #include <train/job.h>
 #include <server/clock.h>
 #include <server/train.h>
@@ -42,8 +43,8 @@ void trainjob_notifier_task() {
     TMRequest request = {
         .type = TM_REQUEST_INIT_JOB,
     };
-    int servertid = WhoIs(TRAINMANAGER_SERVER_NAME);
-    int clocktid = WhoIs(CLOCK_SERVER_NAME);
+    int servertid = WhoIs(SERVER_NAME_TMS);
+    int clocktid = WhoIs(SERVER_NAME_CLOCK);
 
     Send(servertid, (char *)&request, sizeof(request), (char *)&job, sizeof(job));
     Delay(clocktid, (int)job.delay);

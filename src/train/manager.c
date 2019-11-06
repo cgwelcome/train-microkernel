@@ -1,17 +1,15 @@
 #include <stdint.h>
-#include <user/ipc.h>
-#include <user/name.h>
-#include <user/clock.h>
-#include <user/tasks.h>
-#include <server/io.h>
-#include <server/clock.h>
+#include <kernel.h>
 #include <train/gps.h>
 #include <train/job.h>
 #include <train/manager.h>
-#include <train/trainset.h>
 #include <train/track.h>
-#include <priority.h>
+#include <train/trainset.h>
+#include <user/clock.h>
 #include <user/io.h>
+#include <user/ipc.h>
+#include <user/name.h>
+#include <user/tasks.h>
 
 static TrainIO io;
 static int clocktid;
@@ -22,9 +20,9 @@ static const uint32_t active_trains[] = {
 static uint32_t active_trains_size = sizeof(active_trains)/sizeof(active_trains[0]);
 
 void trainmanager_init() {
-    io.tid = WhoIs(IO_SERVER_NAME);
+    io.tid = WhoIs(SERVER_NAME_IO);
     io.uart = COM1;
-    clocktid = WhoIs(CLOCK_SERVER_NAME);
+    clocktid = WhoIs(SERVER_NAME_CLOCK);
 	trainset_go(&io);
 	trainmanager_init_track(TRAINTRACKTYPE_B);
 	tjqueue_init(&status.jobqueue);

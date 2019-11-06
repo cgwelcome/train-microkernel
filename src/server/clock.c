@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <event.h>
-#include <priority.h>
+#include <kernel.h>
 #include <hardware/timer.h>
 #include <server/clock.h>
 #include <user/event.h>
@@ -45,7 +45,7 @@ void clock_server_task() {
     int tid;
     CSRequest request;
 
-    RegisterAs(CLOCK_SERVER_NAME);
+    RegisterAs(SERVER_NAME_CLOCK);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {
@@ -69,7 +69,7 @@ void clock_server_task() {
 }
 
 void clock_notifier_task() {
-    int clock_server_tid = WhoIs(CLOCK_SERVER_NAME);
+    int clock_server_tid = WhoIs(SERVER_NAME_CLOCK);
     timer_init(TIMER2, CLOCK_NOTIFY_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
     CSRequest request = {
         .type = CS_TICKUPDATE

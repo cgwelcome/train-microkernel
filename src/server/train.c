@@ -1,4 +1,4 @@
-#include <priority.h>
+#include <kernel.h>
 #include <server/clock.h>
 #include <server/train.h>
 #include <train/manager.h>
@@ -53,7 +53,7 @@ static void trainmanager_root_task() {
     int tid;
     TMRequest request;
 
-    RegisterAs(TRAINMANAGER_SERVER_NAME);
+    RegisterAs(SERVER_NAME_TMS);
     trainmanager_init();
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
@@ -70,8 +70,8 @@ static void trainmanager_root_task() {
 }
 
 void trainnotifier_sensor_task() {
-	int clocktid = WhoIs(CLOCK_SERVER_NAME);
-	int traintid = WhoIs(TRAINMANAGER_SERVER_NAME);
+	int clocktid = WhoIs(SERVER_NAME_CLOCK);
+	int traintid = WhoIs(SERVER_NAME_TMS);
 
     TMRequest request = {
         .type = TM_REQUEST_UPDATE_STATUS,
@@ -79,7 +79,7 @@ void trainnotifier_sensor_task() {
 
 	for (;;) {
 		Delay(clocktid, SENSOR_READ_INTERVAL);
-		Send(traintid, (char *)&request, sizeof(request), NULL, 0);
+		assert(Send(traintid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 	}
 	Exit();
 }

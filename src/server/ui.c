@@ -1,4 +1,4 @@
-#include <priority.h>
+#include <kernel.h>
 #include <server/clock.h>
 #include <server/io.h>
 #include <server/ui.h>
@@ -106,8 +106,8 @@ static void ui_keyboard_task() {
     unsigned int cmd_len = 0;
     char cmd_buffer[CMD_BUFFER_SIZE];
 
-    int iotid = WhoIs(IO_SERVER_NAME);
-    int traintid = WhoIs(TRAINMANAGER_SERVER_NAME);
+    int iotid = WhoIs(SERVER_NAME_IO);
+    int traintid = WhoIs(SERVER_NAME_TMS);
     for (;;) {
         char in = (char) Getc(iotid, COM2);
         switch (in) {
@@ -175,8 +175,8 @@ static void ui_clock_display(int iotid, UIClock *clock) {
 static void ui_clock_task() {
     UIClock clock;
     ui_clock_init(&clock);
-    int clocktid = WhoIs(CLOCK_SERVER_NAME);
-    int iotid = WhoIs(IO_SERVER_NAME);
+    int clocktid = WhoIs(SERVER_NAME_CLOCK);
+    int iotid = WhoIs(SERVER_NAME_IO);
     for (;;) {
         Delay(clocktid, CLOCK_PRECISION/10);
         ui_clock_update(&clock);
@@ -217,7 +217,7 @@ static void ui_clock_task() {
 /*}*/
 
 void ui_server_root_task() {
-    int iotid = WhoIs(IO_SERVER_NAME);
+    int iotid = WhoIs(SERVER_NAME_IO);
     // Clear the screen
     Printf(iotid, COM2, "\033[2J");
     // Hide the cursor

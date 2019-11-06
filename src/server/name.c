@@ -1,5 +1,5 @@
 #include <string.h>
-#include <priority.h>
+#include <kernel.h>
 #include <server/name.h>
 #include <user/ipc.h>
 #include <user/name.h>

@@ -11,13 +11,12 @@
  */
 
 #define CLOCK_NOTIFY_INTERVAL 10
-#define CLOCK_SERVER_NAME "CS"
 
 typedef enum {
     CS_TICKUPDATE,
+    CS_TIME,
     CS_DELAY,
     CS_DELAYUNTIL,
-    CS_TIME,
 } CSRequestType;
 
 typedef struct {

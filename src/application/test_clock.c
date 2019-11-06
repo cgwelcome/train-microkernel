@@ -1,4 +1,5 @@
 #include <stddef.h>
+#include <kernel.h>
 #include <server/clock.h>
 #include <server/idle.h>
 #include <server/name.h>
@@ -9,7 +10,7 @@
 #include <utils/bwio.h>
 
 static void child_task() {
-    int cstid = WhoIs(CLOCK_SERVER_NAME);
+    int cstid = WhoIs(SERVER_NAME_CLOCK);
     bwprintf(COM2, "before");
     Delay(cstid, 500);
     bwprintf(COM2, "after");

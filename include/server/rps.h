@@ -11,7 +11,6 @@
  */
 
 #define MAX_MATCH_NUM 128
-#define RPS_SERVER_NAME "RPS"
 
 typedef enum {
     RPS_UNUSED,

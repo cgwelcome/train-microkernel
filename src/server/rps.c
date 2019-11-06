@@ -1,4 +1,4 @@
-#include <priority.h>
+#include <kernel.h>
 #include <server/rps.h>
 #include <user/ipc.h>
 #include <user/name.h>
@@ -126,7 +126,7 @@ static void rps_task() {
         rpsmatches[i].status = RPS_UNUSED;
     }
 
-    RegisterAs(RPS_SERVER_NAME);
+    RegisterAs(SERVER_NAME_RPS);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {

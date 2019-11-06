@@ -44,7 +44,7 @@ static RPSResponse rps_quit(int tid)  {
 
 static void rps_client() {
     RPSResponse response;
-    int rpstid = WhoIs(RPS_SERVER_NAME);
+    int rpstid = WhoIs(SERVER_NAME_RPS);
     rps_setup(rpstid);
     srand((unsigned int) timer_read_raw(TIMER3));
     int rounds = rand() % (RPS_MAX_ROUNDS + 1);

@@ -1,3 +1,4 @@
+#include <kernel.h>
 #include <server/idle.h>
 #include <server/io.h>
 #include <server/name.h>
@@ -10,8 +11,8 @@
 
 void trainmanager_switchall_test() {
     TrainSwitchStatus status;
-    int servertid = WhoIs(TRAINMANAGER_SERVER_NAME);
-    int iotid = WhoIs(IO_SERVER_NAME);
+    int servertid = WhoIs(SERVER_NAME_TMS);
+    int iotid = WhoIs(SERVER_NAME_IO);
     int parity = 0;
     for (;;) {
         int c = Getc(iotid, COM2);
@@ -31,8 +32,8 @@ void trainmanager_switchall_test() {
 }
 
 void trainmanager_multiple_speed_test() {
-    int servertid = WhoIs(TRAINMANAGER_SERVER_NAME);
-    int iotid = WhoIs(IO_SERVER_NAME);
+    int servertid = WhoIs(SERVER_NAME_TMS);
+    int iotid = WhoIs(SERVER_NAME_IO);
     unsigned int speed = 10;
     TrainManager_Speed(servertid, 78, speed);
     for (;;) {
@@ -62,7 +63,7 @@ void trainmanager_multiple_speed_test() {
 }
 
 void trainmanager_single_speed_test() {
-    int servertid = WhoIs(TRAINMANAGER_SERVER_NAME);
+    int servertid = WhoIs(SERVER_NAME_TMS);
     TrainManager_Speed(servertid, 78, 14);
     Exit();
 }

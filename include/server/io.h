@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <kernel.h>
 #include <utils/queue.h>
 
 /**
@@ -12,10 +13,6 @@
  *
  * @{
  */
-
-#define IO_SERVER_NAME "IO"
-#define COM1 0
-#define COM2 1
 
 typedef enum {
     IO_CTSINIT,

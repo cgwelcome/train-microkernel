@@ -5,7 +5,7 @@
 #include <train/manager.h>
 
 /**
- * Find the path from src to destination based on traffic
+ * Find the path from source to destination based on traffic
  */
 TrainPath traingps_find(TrainTrackEdge *src, TrainTrackEdge *dest, TrainTrackStatus *status);
 
