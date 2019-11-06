@@ -6,11 +6,14 @@
 #include <train/job.h>
 #include <train/track.h>
 #include <train/trainset.h>
+#include <utils/queue.h>
 
 // Highest MAX_{}_NUM means highest id
 #define MAX_TRAIN_NUM              80
 #define MAX_SWITCH_NUM            157
 #define TRAINSWITCH_DONE_INTERVAL  15 /** Interval in ticks (10 ms) */
+
+#define DEFAULTSWITCH_STATUS TRAINSWITCHSTATUS_CURVED
 
 typedef struct {
     uint32_t id;
@@ -18,8 +21,8 @@ typedef struct {
 } TrainSwitch;
 
 typedef enum {
-    TRAINMODE_PATH, /** Train with a specific path */
     TRAINMODE_FREE, /** Train roaming without a destination */
+    TRAINMODE_PATH, /** Train with a specific path */
 } TrainMode;
 
 typedef struct {
@@ -45,6 +48,8 @@ typedef struct {
     TrainSwitch trainswitches[MAX_SWITCH_NUM];
     TrainTrack track;
     TrainJobQueue jobqueue;
+	Queue awaitsensors[MAX_SENSOR_NUM];
+	Queue initialtrains;
 } TrainTrackStatus;
 
 /**

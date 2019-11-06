@@ -4,7 +4,7 @@
 #include <utils/assert.h>
 #include <user/tasks.h>
 
-static void traingps_test_find() {
+void traingps_test_find() {
     TrainTrackStatus status;
     init_trackb(status.track.nodes);
     TrainTrackEdge src = *status.track.nodes[0].edge;
@@ -19,7 +19,7 @@ static void traingps_test_find() {
     Exit();
 }
 
-static void traingps_test_subpath() {
+void traingps_test_subpath() {
     TrainSensor src_sensor = {
         .id = 1,
         .module = 'A',
@@ -47,6 +47,15 @@ static void traingps_test_subpath() {
         bwprintf(COM2, "\n\r");
     }
     Exit();
+}
+
+void traingps_test_next_dest_free() {
+    TrainTrackStatus status;
+    /*init_trackb(status.track.nodes);*/
+    /*for (uint32_t i = 0; i < path.size; i++) {*/
+        /*bwprintf(COM2, "%s -> ", path.nodes[i]->name);*/
+    /*}*/
+	/*traingps_next_dest_free(train, status);*/
 }
 
 void traingps_test_root_task() {

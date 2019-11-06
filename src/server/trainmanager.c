@@ -1,4 +1,5 @@
 #include <train/manager.h>
+#include <train/notifier.h>
 #include <user/tasks.h>
 #include <user/ipc.h>
 #include <user/name.h>
@@ -17,7 +18,7 @@ void trainmanager_dispatch_action(TMRequest *request) {
             trainmanager_reverse(request->arg1);
             break;
         case TMREQUESTTYPE_MOVE:
-            trainmanager_move(request->arg1, request->arg2, request->arg3, (int32_t)request->arg4);
+            trainmanager_move(request->arg1, request->arg2, request->arg3, request->arg4);
             break;
         case TMREQUESTTYPE_SWITCH_ALL:
             trainmanager_switch_all(request->arg1);
@@ -77,5 +78,6 @@ static void trainmanager_root_task() {
 }
 
 void CreateTrainManagerServer() {
-    Create(PRIORITY_SERVER_TMR, &trainmanager_root_task);
+    Create(PRIORITY_SERVER_TMS, &trainmanager_root_task);
+	/*Create(PRIORITY_NOTIFIER_TMS_SENSORS, &trainnotifier_sensor_task);*/
 }

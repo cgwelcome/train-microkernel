@@ -9,6 +9,7 @@ typedef enum {
     TRAINTRACKTYPE_A,
     TRAINTRACKTYPE_B,
 } TrainTrackType;
+
 typedef enum {
     TRAINSWITCHSTATUS_STRAIGHT,
     TRAINSWITCHSTATUS_CURVED,

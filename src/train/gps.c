@@ -133,7 +133,7 @@ uint32_t traingps_node_to_switch(TrainTrackNode *node) {
 }
 
 TrainTrackEdge traingps_next_dest_free(Train *train, TrainTrackStatus *status) {
-	TrainTrackEdge *next;
+	TrainTrackEdge *next = NULL;
 	TrainTrackEdge edge = train->last_position;
 	edge.dist = 0;
 	do {
@@ -160,14 +160,13 @@ TrainTrackEdge traingps_next_dest_free(Train *train, TrainTrackStatus *status) {
 TrainJobQueue traingps_next_jobs(Train *train, TrainTrackStatus *status) {
 	(void)train;
 	(void)status;
-    TrainJobQueue tjqueue = {
-        .size = 0,
-    };
+    TrainJobQueue tjqueue;
+	tjqueue_init(&tjqueue);
 	switch (train->mode) {
+		case TRAINMODE_FREE:
+			break;
 		case TRAINMODE_PATH:
 			return tjqueue;
-			break;
-		case TRAINMODE_FREE:
 			break;
 	}
 	return tjqueue;
@@ -178,11 +177,11 @@ void traingps_update_next(Train *train, uint32_t time, TrainTrackStatus *status)
     (void)status;
     (void)time;
     switch (train->mode) {
+        case TRAINMODE_FREE:
+			/*displacement = traingps_next_dest_free(train, status);*/
+            break;
         case TRAINMODE_PATH:
             displacement = traingps_next_dest(&train->path);
-            break;
-        case TRAINMODE_FREE:
-			displacement = traingps_next_dest_free(train, status);
             break;
     }
 	train->next_position = traingps_node_to_edge(displacement.dest);
