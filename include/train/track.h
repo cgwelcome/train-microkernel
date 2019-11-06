@@ -2,7 +2,7 @@
 #define __TRAIN_TRACK_H__
 
 #include <stdint.h>
-#include <server/trainmanager.h>
+#include <server/train.h>
 
 #define MAX_PATHNODE_NAME    10
 #define MAX_EDGE_DEGREE       2

@@ -2,7 +2,7 @@
 #include <server/clock.h>
 #include <server/io.h>
 #include <server/shell.h>
-#include <server/trainmanager.h>
+#include <server/train.h>
 #include <user/io.h>
 #include <user/clock.h>
 #include <user/name.h>
@@ -83,7 +83,6 @@ static void shell_execute_command(int iotid, int traintid, char *cmd_buffer, uns
             arg1_len  = find(cmd_buffer + 3, (int)cmd_len - 3, ' ');
             code      = atoi(cmd_buffer + 3, arg1_len);
             direction = (cmd_buffer + 3)[arg1_len + 1];
-            if (direction != 'S' && direction != 'C') break;
             if ((code > 0 && code < 19) || (code > 0x98 && code < 0x9D)) {
                 TrainSwitchStatus status;
                 switch (direction) {
@@ -93,6 +92,8 @@ static void shell_execute_command(int iotid, int traintid, char *cmd_buffer, uns
                     case 'S':
                         status =  TRAINSWITCHSTATUS_STRAIGHT;
                         break;
+                    default:
+                        return;
                 }
                 TrainManager_Switch_One(traintid, (uint32_t)code, status);
                 shell_print_switch(iotid, (unsigned int) code, (char) direction);

@@ -1,6 +1,8 @@
 #include <priority.h>
+#include <server/clock.h>
+#include <server/train.h>
 #include <train/manager.h>
-#include <train/notifier.h>
+#include <user/clock.h>
 #include <user/tasks.h>
 #include <user/ipc.h>
 #include <user/name.h>
@@ -65,6 +67,21 @@ static void trainmanager_root_task() {
                 break;
         }
     }
+}
+
+void trainnotifier_sensor_task() {
+	int clocktid = WhoIs(CLOCK_SERVER_NAME);
+	int traintid = WhoIs(TRAINMANAGER_SERVER_NAME);
+
+    TMRequest request = {
+        .type = TM_REQUEST_UPDATE_STATUS,
+    };
+
+	for (;;) {
+		Delay(clocktid, SENSOR_READ_INTERVAL);
+		Send(traintid, (char *)&request, sizeof(request), NULL, 0);
+	}
+	Exit();
 }
 
 void CreateTrainManagerServer() {

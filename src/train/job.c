@@ -1,6 +1,6 @@
 #include <train/job.h>
 #include <server/clock.h>
-#include <server/trainmanager.h>
+#include <server/train.h>
 #include <user/clock.h>
 #include <user/name.h>
 #include <user/ipc.h>

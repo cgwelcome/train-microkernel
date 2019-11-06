@@ -1,9 +1,11 @@
-#ifndef __SERVER_TRAINMANAGER_H__
-#define __SERVER_TRAINMANAGER_H__
+#ifndef __SERVER_TRAIN_H__
+#define __SERVER_TRAIN_H__
 
 #include <stdint.h>
 
 #define TRAINMANAGER_SERVER_NAME "TM"
+
+#define SENSOR_READ_INTERVAL 5
 
 typedef enum {
     TRAINTRACKTYPE_A,
@@ -38,12 +40,10 @@ typedef struct {
     uint32_t arg4;
 } TMRequest;
 
-void trainmanager_dispatch_action(TMRequest *request);
-
 /**
  * Create Train Manager Sever responsible at tracking trains state,
  * which are not detectable from the Trainset
  */
 void CreateTrainManagerServer();
 
-#endif /*__SERVER_TRAINMANAGER_H__*/
+#endif /*__SERVER_TRAIN_H__*/

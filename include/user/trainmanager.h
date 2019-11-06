@@ -2,7 +2,7 @@
 #define __USER_TRAINMANAGER_H__
 
 #include <stdint.h>
-#include <server/trainmanager.h>
+#include <server/train.h>
 
 void TrainManager_Init_Track(int tid, TrainTrackType type);
 

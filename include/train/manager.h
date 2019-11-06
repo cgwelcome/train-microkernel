@@ -2,7 +2,7 @@
 #define __TRAIN_MANAGER_H__
 
 #include <stdint.h>
-#include <server/trainmanager.h>
+#include <server/train.h>
 #include <train/job.h>
 #include <train/track.h>
 #include <train/trainset.h>

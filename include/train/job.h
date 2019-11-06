@@ -4,7 +4,7 @@
 #define TJQUEUE_SIZE 2048
 
 #include <stdint.h>
-#include <server/trainmanager.h>
+#include <server/train.h>
 
 typedef struct {
     TMRequest request;

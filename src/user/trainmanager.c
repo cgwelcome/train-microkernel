@@ -1,6 +1,6 @@
-#include <stdint.h>
-#include <server/trainmanager.h>
+#include <user/trainmanager.h>
 #include <user/ipc.h>
+#include <utils/assert.h>
 
 void TrainManager_InitTrack(int tid, TrainTrackType type) {
     TMRequest request = {

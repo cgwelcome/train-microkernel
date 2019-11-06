@@ -10,7 +10,6 @@
  * @{
  */
 
-#define SENSOR_READ_INTERVAL 100
 #define CLOCK_PRECISION 100
 
 #define LINE_TIME         2
