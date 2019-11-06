@@ -45,6 +45,10 @@ void uart_set_speed(int channel, int speed) {
     }
 }
 
+void uart_clean_buffer(int channel) {
+    for (int i = 0; i < 16; i++) uart_getc(channel);
+}
+
 void uart_putc(int channel, uint8_t c) {
     volatile uint8_t *data;
     switch (channel) {

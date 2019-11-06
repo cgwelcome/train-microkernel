@@ -33,6 +33,7 @@ static void io_init_uart(int uart) {
     }
     uart_set_speed(uart, speed);
     uart_set_bitconfig(uart, bitconfig);
+    uart_clean_buffer(uart);
     uart_enable_interrupts(uart, interrupts);
 }
 

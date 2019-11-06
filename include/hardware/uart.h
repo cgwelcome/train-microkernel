@@ -70,6 +70,8 @@ void uart_set_bitconfig(int channel, uint8_t buf);
 
 void uart_set_speed(int channel, int speed);
 
+void uart_clean_buffer(int channel);
+
 void uart_putc(int channel, uint8_t c);
 
 int uart_getc(int channel);
