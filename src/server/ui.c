@@ -29,13 +29,43 @@ static int atoi(char *str, int len) {
 }
 
 static void ui_execute_command(int io_tid, int traintid, char *cmd_buffer, unsigned int cmd_len) {
-    int arg1_len, arg2_len, code, speed, direction;
+    int arg_len;
+    int code, speed, direction;
+    int offset, node_id;
+
     switch (cmd_buffer[0]) {
+        case 'i':                // init track
+            if (cmd_len <= 5) break;
+            if (cmd_buffer[5] == 'a' || cmd_buffer[5] == 'A') {
+                TrainInitTrack(traintid, TRAIN_TRACK_A);
+            }
+            if (cmd_buffer[5] == 'b' || cmd_buffer[5] == 'B') {
+                TrainInitTrack(traintid, TRAIN_TRACK_B);
+            }
+            break;
+        case 'm':                // move train
+            cmd_buffer += 3; cmd_len -= 3;
+            arg_len  = find(cmd_buffer, (int) cmd_len, ' ');
+            code     = atoi(cmd_buffer, arg_len);
+
+            cmd_buffer += arg_len + 1; cmd_len -= arg_len + 1;
+            arg_len  = find(cmd_buffer, (int) cmd_len, ' ');
+            node_id  = atoi(cmd_buffer, arg_len);
+
+            cmd_buffer += arg_len + 1; cmd_len -= arg_len + 1;
+            offset   = atoi(cmd_buffer, cmd_len);
+
+            if ((code > 0 && code < 81) && (node_id >= 0 && node_id < 144)) {
+                TrainMove(traintid, code, 10, node_id, offset);
+            }
         case 't':                // set train speed
-            arg1_len = find(cmd_buffer + 3, (int) cmd_len - 3, ' ');
-            code     = atoi(cmd_buffer + 3, arg1_len);
-            arg2_len = (int)cmd_len - 3 - arg1_len - 1;
-            speed    = atoi(cmd_buffer + 3 + arg1_len + 1, arg2_len);
+            cmd_buffer += 3; cmd_len -= 3;
+            arg_len  = find(cmd_buffer, (int) cmd_len, ' ');
+            code     = atoi(cmd_buffer, arg_len);
+
+            cmd_buffer += arg_len + 1; cmd_len -= arg_len + 1;
+            speed    = atoi(cmd_buffer, cmd_len);
+
             if ((code > 0 && code < 81) && (speed >= 0 && speed <= 14)) {
                 TrainSetSpeed(traintid, (uint32_t)code, (uint32_t)speed);
             }
@@ -47,9 +77,10 @@ static void ui_execute_command(int io_tid, int traintid, char *cmd_buffer, unsig
             }
             break;
         case 's':                // turn on/off the switch
-            arg1_len  = find(cmd_buffer + 3, (int)cmd_len - 3, ' ');
-            code      = atoi(cmd_buffer + 3, arg1_len);
-            direction = (cmd_buffer + 3)[arg1_len + 1];
+            cmd_buffer += 3; cmd_len -= 3;
+            arg_len   = find(cmd_buffer, (int)cmd_len, ' ');
+            code      = atoi(cmd_buffer, arg_len);
+            direction = (cmd_buffer + 3)[arg_len + 1];
             if ((code > 0 && code < 19) || (code > 0x98 && code < 0x9D)) {
                 TrainSwitchStatus status;
                 switch (direction) {

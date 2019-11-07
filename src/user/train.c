@@ -29,7 +29,7 @@ void TrainReverse(int tid, uint32_t train_id) {
 
 void TrainMove(int tid, uint32_t train_id, uint32_t speed, uint32_t node_id, int32_t offset) {
     TrainRequest request = {
-        .type = TRAIN_REQUEST_REVERSE,
+        .type = TRAIN_REQUEST_MOVE,
         .arg1 = train_id,
         .arg2 = speed,
         .arg3 = node_id,
