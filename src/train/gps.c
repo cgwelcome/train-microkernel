@@ -167,10 +167,8 @@ void gps_schedule_path(Train *train, TrainTrackStatus *status) {
     return;
 }
 
-void gps_update_next(Train *train, uint32_t time, TrainTrackStatus *status) {
+void gps_update_next(Train *train, uint64_t time, TrainTrackStatus *status) {
 	TrainTrackEdge displacement;
-    (void)status;
-    (void)time;
     switch (train->mode) {
         case TRAINMODE_FREE:
 			displacement = gps_next_dest_free(train, status);
@@ -179,5 +177,6 @@ void gps_update_next(Train *train, uint32_t time, TrainTrackStatus *status) {
             displacement = gps_next_dest(&train->path);
             break;
     }
+	train->next_time = ((displacement.dist*status->velocities[train->speed]) >> 8) + time;
 	train->next_position = gps_node_to_edge(displacement.dest);
 }

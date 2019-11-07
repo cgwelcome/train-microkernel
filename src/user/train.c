@@ -55,6 +55,15 @@ void TrainSwitchOne(int tid, uint32_t switch_id, TrainSwitchStatus status) {
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
+void TrainSetVelocity(int tid, uint32_t speed, uint32_t velocity) {
+    TrainRequest request = {
+        .type = TRAIN_REQUEST_SET_VELOCITY,
+        .arg1 = speed,
+        .arg2 = velocity,
+    };
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
+}
+
 void TrainStop(int tid) {
     TrainRequest request = {
         .type = TRAIN_REQUEST_STOP,

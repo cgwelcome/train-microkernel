@@ -45,6 +45,9 @@ static void train_manager_root_task() {
             case TRAIN_REQUEST_PARK:
                 trainmanager_park(request.arg1);
                 break;
+            case TRAIN_REQUEST_SET_VELOCITY:
+                trainmanager_set_velocity(request.arg1, request.arg2);
+                break;
             case TRAIN_REQUEST_STOP:
                 trainmanager_stop();
                 break;
