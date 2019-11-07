@@ -11,6 +11,7 @@
 #define MAX_TRAIN_NUM              80
 #define MAX_SWITCH_NUM            157
 #define TRAINSWITCH_DONE_INTERVAL  15 /** Interval in ticks (10 ms) */
+#define MAX_SPEED_NUM              15
 
 #define DEFAULTSWITCH_STATUS TRAIN_SWITCH_CURVED
 
@@ -37,6 +38,7 @@ typedef struct {
     TrainMode mode;
     uint32_t speed;
     TrainPath path;
+    uint32_t active; /** Activate */
     TrainTrackEdge last_position; /** Pointer to track of last position seen position */
     TrainTrackEdge next_position; /** Pointer to track of next position */
     uint64_t next_time; /** Estimated Arrival Time to Next dest */
@@ -48,6 +50,7 @@ typedef struct {
     TrainTrack track;
 	Queue awaitsensors[MAX_SENSOR_NUM];
 	Queue initialtrains;
+	uint32_t velocities[MAX_SPEED_NUM]; /** Velocity, ticks/mm */
 } TrainTrackStatus;
 
 /**
@@ -91,6 +94,10 @@ void trainmanager_update_status();
  * Notify manager the train has fully stopped
  */
 void trainmanager_park(uint32_t train_id);
+/**
+ * Manually set a speed with constant velocity
+ */
+void trainmanager_set_velocity(uint32_t speed, uint32_t velocity);
 /**
  * Emergency stop the train
  */

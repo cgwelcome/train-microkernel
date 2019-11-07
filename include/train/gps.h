@@ -49,6 +49,6 @@ void gps_schedule_path(Train *train, TrainTrackStatus *status);
  * to the next dest. The time depends on the train position, velocity,
  * acceleration, any other interferences from other trains, and track calibration
  */
-void gps_update_next(Train *train, uint32_t time, TrainTrackStatus *status);
+void gps_update_next(Train *train, uint64_t time, TrainTrackStatus *status);
 
 #endif /*__TRAIN_GPS_H__*/

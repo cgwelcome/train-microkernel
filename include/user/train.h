@@ -16,6 +16,8 @@ void TrainSwitchAll(int tid, TrainSwitchStatus status);
 
 void TrainSwitchOne(int tid, uint32_t switch_id, TrainSwitchStatus status);
 
+void TrainSetVelocity(int tid, uint32_t speed, uint32_t velocity);
+
 void TrainStop(int tid);
 
 void TrainExit(int tid);

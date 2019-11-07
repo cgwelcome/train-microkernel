@@ -15,10 +15,13 @@ static TrainIO io;
 static int clock_tid;
 static int scheduler_tid;
 static TrainTrackStatus status;
-static const uint32_t active_trains[] = {
+static const uint32_t present_trains[] = {
     1, 24, 58, 74, 78, 79,
 };
-static uint32_t active_trains_size = sizeof(active_trains)/sizeof(active_trains[0]);
+static uint32_t present_trains_size = sizeof(present_trains)/sizeof(present_trains[0]);
+static const uint32_t initial_velocities[MAX_SPEED_NUM] = {
+	0, 190, 180, 170, 160, 160, 150, 140, 140, 104, 84, 78, 64, 50, 46,
+};
 
 void trainmanager_init() {
     io.tid = WhoIs(SERVER_NAME_IO);
@@ -35,8 +38,9 @@ void trainmanager_init() {
 		Train *train = &status.trains[id];
 		train->id = id;
 		train->speed = 0;
-		train->last_position.src = NULL;
 		train->mode = TRAINMODE_FREE;
+		train->active = 0;
+		train->next_time = 0;
 	}
     for (uint32_t id = 1; id <= 18; id++) {
 		status.trainswitches[id].id = id;
@@ -44,8 +48,11 @@ void trainmanager_init() {
     for (uint32_t id = 0x99; id <= 0x9C; id++) {
 		status.trainswitches[id].id = id;
     }
-	for (uint32_t i = 0; i < active_trains_size; i++) {
-		trainset_speed(&io, active_trains[i], 0);
+	for (uint32_t i = 0; i < present_trains_size; i++) {
+		trainset_speed(&io, present_trains[i], 0);
+	}
+	for (uint32_t i = 0; i < MAX_SPEED_NUM; i++) {
+		status.velocities[i] = initial_velocities[i];
 	}
 	trainmanager_switch_all(DEFAULTSWITCH_STATUS);
 }
@@ -65,26 +72,25 @@ void trainmanager_init_track(TrainTrackName name) {
     }
 }
 
-static void trainmanager_setup_next(Train *train, uint32_t time) {
+static void trainmanager_setup_next(Train *train, uint64_t time) {
 	gps_schedule_path(train, &status);
 	gps_update_next(train, time, &status);
 	/** Check if next position is a sensor */
-	Printf(io.tid, COM2, "\033[%u;%uH : %s" , 22, 1, train->next_position.src->name);
+	/*Printf(io.tid, COM2, "\033[%u;%uH : %s" , 22, 1, train->next_position.src->name);*/
 	if (gps_is_sensor(&train->next_position)) {
 		/** src or dest is the same */
+		Printf(io.tid, COM2, "Next position: %s\n\r" , train->next_position.src->name);
 		TrainSensor sensor = gps_node_to_sensor(train->next_position.src);
-		Printf(io.tid, COM2, "\033[%u;%uH : %c" , 20, 1, sensor.module);
-		Printf(io.tid, COM2, "\033[%u;%uH : %u" , 21, 1, sensor.id);
 		queue_push(&status.awaitsensors[trainsensor_hash(&sensor)], (int)train->id);
 	}
 }
 
-void trainmanager_dispatch_sensor(TrainSensor *sensor, uint32_t time) {
+void trainmanager_dispatch_sensor(TrainSensor *sensor, uint64_t time) {
 	uint32_t sensor_id = trainsensor_hash(sensor);
-    Queue train_ids = status.awaitsensors[sensor_id];
+    Queue *train_ids = &status.awaitsensors[sensor_id];
 	uint32_t train_id;
-    if (queue_size(&train_ids) > 0) {
-		train_id = (uint32_t)queue_pop(&train_ids);
+    if (queue_size(train_ids) > 0) {
+		train_id = (uint32_t)queue_pop(train_ids);
     } else if (queue_size(&status.initialtrains) > 0) {
 		train_id = (uint32_t)queue_pop(&status.initialtrains);
 	}
@@ -94,6 +100,7 @@ void trainmanager_dispatch_sensor(TrainSensor *sensor, uint32_t time) {
 	Train *train = &status.trains[train_id];
 	TrainTrackNode *node = &status.track.nodes[sensor_id];
 	train->last_position = gps_node_to_edge(node);
+	Printf(io.tid, COM2, "Difference: %d\r\n", (uint32_t)(train->next_time-time));
 	trainmanager_setup_next(train, time);
 }
 
@@ -101,11 +108,9 @@ void trainmanager_speed(uint32_t train_id, uint32_t speed) {
     Train *train = &status.trains[train_id];
     train->speed = speed;
 	train->mode = TRAINMODE_FREE;
-	if (train->last_position.src == NULL) {
+	if (train->active == 0) {
 		queue_push(&status.initialtrains, (int)train_id);
-	} else {
-		uint32_t time = (uint32_t)Time(clock_tid);
-		trainmanager_setup_next(train, time);
+		train->active = 1;
 	}
     trainset_speed(&io, train->id, train->speed);
 }
@@ -119,12 +124,9 @@ void trainmanager_move(uint32_t train_id, uint32_t speed, uint32_t node_id, uint
 	};
     train->speed = speed;
 	train->mode = TRAINMODE_PATH;
-	if (train->last_position.src == NULL) {
+	if (train->active == 0) {
 		queue_push(&status.initialtrains, (int)train_id);
-	} else {
-		train->path = gps_find(&train->last_position, &dest, &status);
-		uint32_t time = (uint32_t)Time(clock_tid);
-		trainmanager_setup_next(train, time);
+		train->active = 1;
 	}
     trainset_speed(&io, train->id, speed);
 }
@@ -181,10 +183,12 @@ void trainmanager_update_status() {
     ActiveTrainSensorList list = trainset_sensor_readall(&io);
     uint32_t time = (uint32_t)Time(clock_tid);
     for (uint32_t i = 0; i < list.size; i++) {
-		Printf(io.tid, COM2, "\033[%u;%uH : %c" , 17, 1, list.sensors[i].module);
-		Printf(io.tid, COM2, "\033[%u;%uH : %u" , 18, 1, list.sensors[i].id);
         trainmanager_dispatch_sensor(&list.sensors[i], time);
     }
+}
+
+void trainmanager_set_velocity(uint32_t speed, uint32_t velocity) {
+	status.velocities[speed] = velocity;
 }
 
 void trainmanager_park(uint32_t train_id) {
@@ -196,8 +200,8 @@ void trainmanager_stop() {
 }
 
 void trainmanager_done() {
-    for (uint32_t i = 0; i < active_trains_size; i++) {
-        trainset_speed(&io, active_trains[i], 0);
+    for (uint32_t i = 0; i < present_trains_size; i++) {
+        trainset_speed(&io, present_trains[i], 0);
     }
 }
 
