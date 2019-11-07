@@ -81,7 +81,7 @@ static void ui_execute_command(int io_tid, int traintid, char *cmd_buffer, unsig
             cmd_buffer += 3; cmd_len -= 3;
             arg_len   = find(cmd_buffer, (int)cmd_len, ' ');
             code      = atoi(cmd_buffer, arg_len);
-            direction = (cmd_buffer + 3)[arg_len + 1];
+            direction = cmd_buffer[arg_len + 1];
             if ((code > 0 && code < 19) || (code > 0x98 && code < 0x9D)) {
                 TrainSwitchStatus status;
                 switch (direction) {
