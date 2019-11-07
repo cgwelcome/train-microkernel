@@ -52,18 +52,19 @@ static void ui_execute_command(int io_tid, int traintid, char *cmd_buffer, unsig
             arg_len  = find(cmd_buffer, (int) cmd_len, ' ');
             node_id  = atoi(cmd_buffer, arg_len);
 
-            cmd_buffer += arg_len + 1; cmd_len -= arg_len + 1;
+            cmd_buffer += arg_len + 1; cmd_len -= arg_len;
             offset   = atoi(cmd_buffer, cmd_len);
 
             if ((code > 0 && code < 81) && (node_id >= 0 && node_id < 144)) {
                 TrainMove(traintid, code, 10, node_id, offset);
             }
+            break;
         case 't':                // set train speed
             cmd_buffer += 3; cmd_len -= 3;
             arg_len  = find(cmd_buffer, (int) cmd_len, ' ');
             code     = atoi(cmd_buffer, arg_len);
 
-            cmd_buffer += arg_len + 1; cmd_len -= arg_len + 1;
+            cmd_buffer += arg_len + 1; cmd_len -= arg_len;
             speed    = atoi(cmd_buffer, cmd_len);
 
             if ((code > 0 && code < 81) && (speed >= 0 && speed <= 14)) {
