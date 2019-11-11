@@ -10,7 +10,7 @@
 #include <user/train.h>
 
 void train_switchall_test() {
-    TrainSwitchStatus status;
+    int8_t status;
     int servertid = WhoIs(SERVER_NAME_TMS);
     int iotid = WhoIs(SERVER_NAME_IO);
     int parity = 0;
@@ -18,11 +18,11 @@ void train_switchall_test() {
         int c = Getc(iotid, COM2);
         Putc(iotid, COM2, (char)c);
         if (parity == 1) {
-            status = TRAIN_SWITCH_STRAIGHT;
+            status = DIR_STRAIGHT;
             Putc(iotid, COM2, 's');
         }
         else {
-            status = TRAIN_SWITCH_CURVED;
+            status = DIR_CURVED;
             Putc(iotid, COM2, 'c');
         }
         TrainSwitchAll(servertid, status);

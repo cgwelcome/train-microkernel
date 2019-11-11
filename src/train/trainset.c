@@ -1,6 +1,9 @@
 #include <train/trainset.h>
 #include <user/io.h>
 
+static const uint32_t active_trains[] = { 1, 24, 58, 74, 78, 79 };
+static uint32_t active_trains_size = sizeof(active_trains)/sizeof(active_trains[0]);
+
 void trainset_go(TrainIO *io) {
     Putc(io->tid, io->uart, TRAINSET_GO);
 }
@@ -11,6 +14,12 @@ void trainset_stop(TrainIO *io) {
 
 void trainset_speed(TrainIO *io, uint32_t train_id, uint32_t speed) {
     Printf(io->tid, io->uart, "%c%c", speed, train_id);
+}
+
+void trainset_park_all(TrainIO *io) {
+    for (uint32_t i = 0; i < active_trains_size; i++) {
+        trainset_speed(io, active_trains[i], 0);
+    }
 }
 
 void trainset_reverse(TrainIO *io, uint32_t train_id, uint32_t speed) {

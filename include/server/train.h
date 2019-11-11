@@ -6,17 +6,8 @@
 #define SENSOR_READ_INTERVAL 5
 
 typedef enum {
-    TRAIN_TRACK_A,
-    TRAIN_TRACK_B,
-} TrainTrackName;
-
-typedef enum {
-    TRAIN_SWITCH_STRAIGHT,
-    TRAIN_SWITCH_CURVED,
-} TrainSwitchStatus;
-
-typedef enum {
     TRAIN_REQUEST_INIT_TRACK,
+    TRAIN_REQUEST_START,
     TRAIN_REQUEST_SPEED,
     TRAIN_REQUEST_REVERSE,
     TRAIN_REQUEST_MOVE,

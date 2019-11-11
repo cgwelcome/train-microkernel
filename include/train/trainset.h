@@ -2,6 +2,7 @@
 #define __TRAIN_TRAINSET_H__
 
 #include <stdint.h>
+#include <train/track.h>
 
 #define TRAINSET_GO      96
 #define TRAINSET_STOP    97
@@ -15,10 +16,6 @@
 
 #define TRAINSENSOR_ALL        0x80
 #define TRAINSENSOR_ONE        0xC0
-
-#define MODULE_TOTAL_NUM          5
-#define MAX_SENSOR_PER_MODULE    16
-#define MAX_SENSOR_NUM           80
 
 typedef struct {
     int tid;
@@ -41,6 +38,8 @@ void trainset_go(TrainIO *io);
 void trainset_stop(TrainIO *io);
 
 void trainset_speed(TrainIO *io, uint32_t train_id, uint32_t speed);
+
+void trainset_park_all(TrainIO *io);
 
 void trainset_reverse(TrainIO *io, uint32_t train_id, uint32_t speed);
 

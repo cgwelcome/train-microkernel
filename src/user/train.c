@@ -2,10 +2,18 @@
 #include <user/ipc.h>
 #include <utils/assert.h>
 
-void TrainInitTrack(int tid, TrainTrackName name) {
+void TrainInitTrack(int tid, TrackName name) {
     TrainRequest request = {
         .type = TRAIN_REQUEST_INIT_TRACK,
         .arg1 = name,
+    };
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
+}
+
+void TrainStart(int tid, uint32_t train_id) {
+    TrainRequest request = {
+        .type = TRAIN_REQUEST_START,
+        .arg1 = train_id,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
@@ -33,24 +41,24 @@ void TrainMove(int tid, uint32_t train_id, uint32_t speed, uint32_t node_id, int
         .arg1 = train_id,
         .arg2 = speed,
         .arg3 = node_id,
-        .arg4 = (uint32_t)offset,
+        .arg4 = (uint32_t) offset,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
-void TrainSwitchAll(int tid, TrainSwitchStatus status) {
+void TrainSwitchAll(int tid, int8_t status) {
     TrainRequest request = {
         .type = TRAIN_REQUEST_SWITCH_ALL,
-        .arg1 = status,
+        .arg1 = (uint32_t) status,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
-void TrainSwitchOne(int tid, uint32_t switch_id, TrainSwitchStatus status) {
+void TrainSwitchOne(int tid, uint32_t switch_id, int8_t status) {
     TrainRequest request = {
         .type = TRAIN_REQUEST_SWITCH_ONE,
         .arg1 = switch_id,
-        .arg2 = status,
+        .arg2 = (uint32_t) status,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
