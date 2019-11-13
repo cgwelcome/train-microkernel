@@ -13,6 +13,7 @@
 #define LINE_LOCATION_START  9
 #define LINE_TERMINAL       16
 #define LINE_DEBUG          17
+#define MAX_NUM_ARGS        10
 
 void PrintBasicInterface(int io_tid);
 

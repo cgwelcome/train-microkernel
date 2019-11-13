@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <kernel.h>
 #include <server/io.h>
 #include <server/ui.h>
@@ -10,162 +11,203 @@
 #include <utils/queue.h>
 #include <utils/bwio.h>
 
-static int init_command_executed;
+static int io_tid;
+static int train_tid;
 
-static int find(char *str, int len, char ch) {
-    int i = 0;
-    for (i = 0; i < len; i++) {
-        if (str[i] == ch) return i;
-    }
-    return -1;
+static int is_train(uint32_t train_id) {
+	return (train_id > 0 && train_id < 81) ? 1 : 0;
 }
 
-static int atoi(char *str, int len) {
-    int result = 0;
-    int i = 0;
-    for (i = 0; i < len; i++) {
-        if (str[i] < '0' || str[i] > '9') return result;
-        result = result * 10 + (str[i] - '0');
-    }
-    return result;
+static int is_speed(uint32_t speed) {
+	return (speed <= 14) ? 1 : 0;
 }
 
-static void ui_execute_command(int io_tid, int train_tid, char *cmd_buffer, unsigned int cmd_len) {
-    int arg_len;
-    int code, speed, direction;
+static int is_switch(uint32_t switch_id) {
+	if ((switch_id > 0 && switch_id < 19) || (switch_id > 0x98 && switch_id < 0x9D)) {
+		return 1;
+	}
+	return 0;
+}
 
-    switch (cmd_buffer[0]) {
-        case 'i':                // init track
-            if (cmd_len <= 5) break;
-            if (cmd_buffer[5] == 'a' || cmd_buffer[5] == 'A') {
-                TrainInitTrack(train_tid, TRAIN_TRACK_A);
-            }
-            if (cmd_buffer[5] == 'b' || cmd_buffer[5] == 'B') {
-                TrainInitTrack(train_tid, TRAIN_TRACK_B);
-            }
-            TrainSwitchOne(train_tid, 6, DIR_STRAIGHT);
-            TrainSwitchOne(train_tid, 9, DIR_STRAIGHT);
-            TrainSwitchOne(train_tid, 15, DIR_STRAIGHT);
-            init_command_executed = 1;
-            break;
-        case 'c':                // start train
-            code = atoi(cmd_buffer + 3, (int) cmd_len - 3);
-            if (code > 0 && code < 81) {
-                TrainStart(train_tid, (uint32_t) code);
-            }
-            break;
-        case 't':                // set train speed
-            cmd_buffer += 3; cmd_len -= 3;
-            arg_len  = find(cmd_buffer, (int) cmd_len, ' ');
-            code     = atoi(cmd_buffer, arg_len);
+static int cmd_init(int nargc, char **nargv) {
+	if (nargc != 2) {
+		return 1;
+	};
+	char *track = nargv[1];
 
-            cmd_buffer += arg_len + 1; cmd_len -= arg_len;
-            speed    = atoi(cmd_buffer, cmd_len);
+	TrainSwitchOne(train_tid, 6, DIR_STRAIGHT);
+	TrainSwitchOne(train_tid, 9, DIR_STRAIGHT);
+	TrainSwitchOne(train_tid, 15, DIR_STRAIGHT);
+	if (!strcmp(track, "a") || !strcmp(track, "A")) {
+		TrainInitTrack(train_tid, TRAIN_TRACK_A);
+		return 0;
+	}
+	if (!strcmp(track, "b") || !strcmp(track, "B")) {
+		TrainInitTrack(train_tid, TRAIN_TRACK_B);
+		return 0;
+	}
+	return 1;
+}
 
-            if ((code > 0 && code < 81) && (speed >= 0 && speed <= 14)) {
-                TrainSetSpeed(train_tid, (uint32_t)code, (uint32_t)speed);
-            }
-            break;
-        case 'r':                // reverse the train
-            code = atoi(cmd_buffer + 3, (int)cmd_len - 3);
-            if (code > 0 && code < 81) {
-                TrainReverse(train_tid, (uint32_t)code);
-            }
-            break;
-        case 's':                // turn on/off the switch
-            cmd_buffer += 3; cmd_len -= 3;
-            arg_len   = find(cmd_buffer, (int)cmd_len, ' ');
-            code      = atoi(cmd_buffer, arg_len);
-            direction = cmd_buffer[arg_len + 1];
-            if ((code > 0 && code < 19) || (code > 0x98 && code < 0x9D)) {
-                int8_t status;
-                switch (direction) {
-                    case 'C':
-                        status = DIR_CURVED;
-                        break;
-                    case 'S':
-                        status =  DIR_STRAIGHT;
-                        break;
-                    default:
-                        return;
-                }
-                TrainSwitchOne(train_tid, (uint32_t)code, (uint32_t) status);
-            }
-            break;
-    }
+static int cmd_cv(int nargc, char **nargv) {
+	if (nargc != 2) {
+		return 1;
+	};
+	uint32_t train_id = (uint32_t)atoi(nargv[1]);
+	if (is_train(train_id)) {
+		TrainStart(train_tid, train_id);
+		return 0;
+	}
+	return 1;
+}
+
+static int cmd_tr(int nargc, char **nargv) {
+	if (nargc != 3) {
+		return 1;
+	};
+	uint32_t train_id = (uint32_t)atoi(nargv[1]);
+	uint32_t speed = (uint32_t)atoi(nargv[2]);
+	if (is_train(train_id) && is_speed(speed)) {
+		TrainSetSpeed(train_tid, train_id, speed);
+		return 0;
+	}
+	return 1;
+}
+
+static int cmd_rv(int nargs, char **nargv) {
+	if (nargs != 2) {
+		return 1;
+	};
+	uint32_t train_id = (uint32_t)atoi(nargv[1]);
+	if (is_train(train_id)) {
+		TrainReverse(train_tid, train_id);
+		return 0;
+	}
+	return 1;
+}
+
+static int cmd_sw(int nargc, char **nargv) {
+	if (nargc != 3) {
+		return 1;
+	};
+	uint32_t switch_id = (uint32_t)atoi(nargv[1]);
+	char *direction = nargv[2];
+	if (!is_switch(switch_id)) {
+		return 1;
+	}
+	if (!strcmp(direction, "c") || !strcmp(direction, "C")) {
+		TrainSwitchOne(train_tid, switch_id, DIR_CURVED);
+		return 0;
+	}
+	if (!strcmp(direction, "s") || !strcmp(direction, "S")) {
+		TrainSwitchOne(train_tid, switch_id, DIR_STRAIGHT);
+		return 0;
+	}
+	return 1;
+}
+
+static int cmd_quit(int nargc, char **nargv) {
+	(void)nargc;
+	(void)nargv;
+	TrainExit(train_tid);
+	ShutdownIOServer();
+	Shutdown();
+	return 0;
+}
+
+static struct {
+	const char *name;
+	int (*func)(int nargc, char **argv);
+} cmdtable[] = {
+	{ "init",   cmd_init },
+	{ "tr",		cmd_tr   },
+	{ "cv",		cmd_cv   },
+	{ "rv",		cmd_rv   },
+	{ "sw",		cmd_sw   },
+	{ "q",		cmd_quit },
+	{ NULL,		NULL     },
+};
+
+
+static void cmd_dispatch(char *cmd) {
+	char *word;
+	char *nargv[MAX_NUM_ARGS];
+	int nargc = 0;
+
+	for (word = strtok(cmd, " \t"); word != NULL; word = strtok(NULL, " \t")) {
+		if (nargc >= MAX_NUM_ARGS) {
+			return;
+		}
+		nargv[nargc++] = word;
+	}
+	if (nargc == 0) {
+		return;
+	}
+	for (uint32_t i = 0; cmdtable[i].name; i ++) {
+		if (!strcmp(nargv[0], cmdtable[i].name)) {
+			cmdtable[i].func(nargc, nargv);
+		}
+	}
 }
 
 static void ui_clock_task() {
-    int clock_tid = WhoIs(SERVER_NAME_CLOCK);
-    int io_tid = WhoIs(SERVER_NAME_IO);
-    for (;;) {
-        Delay(clock_tid, CLOCK_PRECISION/10);
-        PrintTime(io_tid);
-    }
-    Exit();
+	int clock_tid = WhoIs(SERVER_NAME_CLOCK);
+	int io_tid = WhoIs(SERVER_NAME_IO);
+	for (;;) {
+		Delay(clock_tid, CLOCK_PRECISION/10);
+		PrintTime(io_tid);
+	}
+	Exit();
 }
 
 static void ui_keyboard_task() {
-    init_command_executed = 0;
+	uint32_t cmd_len = 0;
+	char cmd_buffer[CMD_BUFFER_SIZE];
 
-    unsigned int cmd_len = 0;
-    char cmd_buffer[CMD_BUFFER_SIZE];
+	io_tid = WhoIs(SERVER_NAME_IO);
+	train_tid = WhoIs(SERVER_NAME_TMS);
 
-    int io_tid = WhoIs(SERVER_NAME_IO);
-    int train_tid = WhoIs(SERVER_NAME_TMS);
-    for (;;) {
-        char in = (char) Getc(io_tid, COM2);
-        switch (in) {
-            case '\r':                         // execute command if get "ENTER"
-                if (cmd_len != 0) {
-                    if (cmd_buffer[0] == 'q') {
-                        Printf(io_tid, COM2, "\033[%u;%uH\033[K", LINE_DEBUG, 1);
-                        TrainExit(train_tid);
-                        ShutdownIOServer();
-                        Shutdown();
-                    }
-                    if (!init_command_executed && cmd_buffer[0] != 'i') {
-                        Printf(io_tid, COM2, "\033[%u;%uH\033[K%s", LINE_DEBUG, 1, "Please initialize track first!");
-                    } else {
-                        Printf(io_tid, COM2, "\033[%u;%uH\033[K", LINE_DEBUG, 1);
-                        ui_execute_command(io_tid, train_tid, cmd_buffer, cmd_len);
-                    }
-                    cmd_len = 0;
-                    PrintTerminal(io_tid, cmd_buffer, cmd_len);
-                }
-                break;
-            case '\b':                         // delete character if get "BACKSPACE"
-                if (cmd_len != 0) {
-                    cmd_len -= 1;
-                    PrintTerminal(io_tid, cmd_buffer, cmd_len);
-                }
-                break;
-            default:                           // otherwise just store the character
-                if (cmd_len < CMD_BUFFER_SIZE) {
-                    cmd_buffer[cmd_len] = in;
-                    cmd_len += 1;
-                    PrintTerminal(io_tid, cmd_buffer, cmd_len);
-                }
-                break;
-        }
-    }
-    Exit();
+	for (;;) {
+		char in = (char) Getc(io_tid, COM2);
+		switch (in) {
+			case '\r':                         // execute command if get "ENTER"
+				cmd_buffer[cmd_len++] = '\0';
+				cmd_dispatch(cmd_buffer);
+				cmd_len = 0;
+				Printf(io_tid, COM2, "\033[%u;%uH\033[K", LINE_DEBUG, 1);
+				PrintTerminal(io_tid, cmd_buffer, cmd_len);
+				break;
+			case '\b':                         // delete character if get "BACKSPACE"
+				if (cmd_len != 0) {
+					cmd_len -= 1;
+					PrintTerminal(io_tid, cmd_buffer, cmd_len);
+				}
+				break;
+			default:                           // otherwise just store the character
+				if (cmd_len < CMD_BUFFER_SIZE-1) {
+					cmd_buffer[cmd_len++] = in;
+					PrintTerminal(io_tid, cmd_buffer, cmd_len);
+				}
+				break;
+		}
+	}
+	Exit();
 }
 
 void ui_server_root_task() {
-    int io_tid = WhoIs(SERVER_NAME_IO);
-    // Clear the screen
-    Printf(io_tid, COM2, "\033[2J");
-    // Hide the cursor
-    Printf(io_tid, COM2, "\033[?25l");
-    // Initialize the interface
-    PrintBasicInterface(io_tid);
+	int io_tid = WhoIs(SERVER_NAME_IO);
+	// Clear the screen
+	Printf(io_tid, COM2, "\033[2J");
+	// Hide the cursor
+	Printf(io_tid, COM2, "\033[?25l");
+	// Initialize the interface
+	PrintBasicInterface(io_tid);
 
-    Create(PRIORITY_SERVER_UI, &ui_clock_task);
-    Create(PRIORITY_SERVER_UI, &ui_keyboard_task);
-    Exit();
+	Create(PRIORITY_SERVER_UI, &ui_clock_task);
+	Create(PRIORITY_SERVER_UI, &ui_keyboard_task);
+	Exit();
 }
 
 void CreateUIServer() {
-    Create(PRIORITY_SERVER_UI, &ui_server_root_task);
+	Create(PRIORITY_SERVER_UI, &ui_server_root_task);
 }
