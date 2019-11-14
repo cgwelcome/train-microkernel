@@ -1,5 +1,5 @@
-#ifndef __APPLICATION_H__
-#define __APPLICATION_H__
+#ifndef __INIT_H__
+#define __INIT_H__
 
 void k1_root_task();
 void k2_root_task();
@@ -26,4 +26,4 @@ void pqueue_test_root_task();
 void ipc_perform_root_task();
 void switch_perform_root_task();
 
-#endif /*__APPLICATION_H__*/
+#endif /*__INIT_H__*/

@@ -1,4 +1,3 @@
-#include <application.h>
 #include <user/tasks.h>
 
 #define SWITCH_NUM 10000

@@ -1,5 +1,4 @@
 #include <string.h>
-#include <application.h>
 #include <user/ipc.h>
 #include <user/tasks.h>
 #include <utils/assert.h>

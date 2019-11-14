@@ -1,4 +1,3 @@
-#include <application.h>
 #include <user/tasks.h>
 #include <utils/bwio.h>
 

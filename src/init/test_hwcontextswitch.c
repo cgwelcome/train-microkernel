@@ -1,4 +1,3 @@
-#include <application.h>
 #include <event.h>
 #include <hardware/icu.h>
 #include <user/tasks.h>

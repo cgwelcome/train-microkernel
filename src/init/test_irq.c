@@ -1,4 +1,3 @@
-#include <application.h>
 #include <server/idle.h>
 #include <user/event.h>
 #include <user/tasks.h>

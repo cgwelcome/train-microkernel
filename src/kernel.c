@@ -1,5 +1,5 @@
 #include <kernel.h>
-#include <application.h>
+#include <init.h>
 #include <hardware/icu.h>
 #include <hardware/timer.h>
 #include <hardware/uart.h>

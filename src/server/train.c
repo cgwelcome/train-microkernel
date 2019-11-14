@@ -78,5 +78,5 @@ void train_sensor_notifier_task() {
 
 void CreateTrainServer() {
     Create(PRIORITY_SERVER_TMS, &train_manager_root_task);
-	Create(PRIORITY_NOTIFIER_TMS_SENSORS, &train_sensor_notifier_task);
+	/*Create(PRIORITY_NOTIFIER_TMS_SENSORS, &train_sensor_notifier_task);*/
 }
