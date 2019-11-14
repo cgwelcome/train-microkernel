@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <kernel.h>
+#include <test.h>
 #include <server/io.h>
 #include <server/ui.h>
 #include <user/io.h>
@@ -8,8 +9,6 @@
 #include <user/tasks.h>
 #include <user/train.h>
 #include <user/ui.h>
-#include <utils/queue.h>
-#include <utils/bwio.h>
 
 static int io_tid;
 static int train_tid;
@@ -125,19 +124,35 @@ static int cmd_quit(int nargc, char **nargv) {
     return 0;
 }
 
-static int cmd_load(int nargc, char **nargv) {
-    (void)nargc;
-    (void)nargv;
+static struct {
+    const char *name;
+    int (*func)(int argc, char **argv);
+} testtable[] = {
+    { "helloworld",   helloworld },
+    { NULL,           NULL       },
+};
+
+static int cmd_test(int nargc, char **nargv) {
+    if (nargc < 2) {
+        PrintTerminal(io_tid, "usage: test name [arguments]");
+        return 1;
+    }
     Printf(io_tid, COM2, "\033[%u;%uH", LINE_LOAD, 1);
     Printf(io_tid, COM2, "\033[J", LINE_LOAD, 1);
-    Printf(io_tid, COM2, "HELLLO\n\r");
-    return 0;
-}
 
+    for (uint32_t i = 0; testtable[i].name; i ++) {
+        if (!strcmp(nargv[1], testtable[i].name)) {
+            testtable[i].func(nargc-1, nargv+1);
+            return 0;
+        }
+    }
+    PrintTerminal(io_tid, "test not found");
+    return 1;
+}
 
 static struct {
     const char *name;
-    int (*func)(int nargc, char **argv);
+    int (*func)(int nargc, char **nargv);
 } cmdtable[] = {
     { "init",   cmd_init },
     { "tr",     cmd_tr   },
@@ -146,7 +161,7 @@ static struct {
     { "sw",     cmd_sw   },
     { "q",      cmd_quit },
     { "quit",   cmd_quit },
-    { "load",   cmd_load },
+    { "test",   cmd_test },
     { NULL,     NULL     },
 };
 
