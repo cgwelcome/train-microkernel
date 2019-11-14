@@ -22,12 +22,12 @@ void PrintBasicInterface(int io_tid) {
 
 void PrintTime(int io_tid) {
     uint32_t now = (uint32_t) timer_read(TIMER3);
-    Printf(io_tid, COM2, "\033[%u;%uH\033[K%04u:%02u.%u",
-        LINE_TIME, 7,
-        now / 60000,        // minute
-        now / 1000 % 60,    // second
-        now / 100  % 10     // tenth of second
-    );
+    Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K%04u:%02u.%u\033[u",
+            LINE_TIME, 7,
+            now / 60000,        // minute
+            now / 1000 % 60,    // second
+            now / 100  % 10     // tenth of second
+          );
 }
 
 void PrintSwitch(int io_tid, unsigned int code, char direction) {
@@ -42,24 +42,20 @@ void PrintSwitch(int io_tid, unsigned int code, char direction) {
         col = code - 0x99;
     }
     char status = (direction == DIR_CURVED ? 'C' : 'S');
-    Printf(io_tid, COM2, "\033[%u;%uH%c", LINE_SWITCH_START + row, 6 + col * 5, status);
+    Printf(io_tid, COM2, "\033[s\033[%u;%uH%c\033[u", LINE_SWITCH_START + row, 6 + col * 5, status);
 }
 
 void PrintVelocity(int io_tid, uint32_t train_id, uint32_t time, uint32_t velocity) {
     int row = train_id_to_index(train_id);
-    Printf(io_tid, COM2, "\033[%u;%uH\033[K%u %u", LINE_LOCATION_START + row, 13, time, velocity);
+    Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K%u %u\033[u", LINE_LOCATION_START + row, 13, time, velocity);
 }
 
 void PrintTimeDifference(int io_tid, uint32_t train_id, uint64_t expected_time) {
     int row = train_id_to_index(train_id);
     uint64_t now = timer_read(TIMER3);
-    Printf(io_tid, COM2, "\033[%u;%uH\033[K%d" , LINE_LOCATION_START + row, 13, ((int) now - (int) expected_time) / 100);
+    Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K%d\033[u" , LINE_LOCATION_START + row, 13, ((int) now - (int) expected_time) / 100);
 }
 
-void PrintTerminal(int io_tid, char *cmd_buffer, unsigned int cmd_len) {
-    cmd_buffer[cmd_len] = '\0';
-    Printf(io_tid, COM2, "\033[%u;%uH\033[K%s█",
-        LINE_TERMINAL, 3,
-        cmd_buffer
-    );
+void PrintTerminal(int io_tid, const char *buffer) {
+    Printf(io_tid, COM2, "\033[%u;%uH\033[K%s", LINE_TERMINAL, 3, buffer);
 }

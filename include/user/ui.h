@@ -12,7 +12,7 @@
 #define LINE_LOCATION_TITLE  8
 #define LINE_LOCATION_START  9
 #define LINE_TERMINAL       16
-#define LINE_DEBUG          17
+#define LINE_LOAD           18
 #define MAX_NUM_ARGS        10
 
 void PrintBasicInterface(int io_tid);
@@ -25,6 +25,6 @@ void PrintVelocity(int io_tid, uint32_t train_id, uint32_t time, uint32_t veloci
 
 void PrintTimeDifference(int io_tid, uint32_t train_id, uint64_t expected_time);
 
-void PrintTerminal(int io_tid, char *cmd_buffer, unsigned int cmd_len);
+void PrintTerminal(int io_tid, const char *cmd_buffer);
 
 #endif /*__USER_TRAIN_H__*/
