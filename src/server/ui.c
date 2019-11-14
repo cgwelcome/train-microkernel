@@ -210,8 +210,9 @@ static void ui_keyboard_task() {
     io_tid = WhoIs(SERVER_NAME_IO);
     train_tid = WhoIs(SERVER_NAME_TMS);
 
+    char in;
     for (;;) {
-        char in = (char) Getc(io_tid, COM2);
+        Getc(io_tid, COM2, &in);
         switch (in) {
             case '\r':                         // execute command if get "ENTER"
                 returncode = cmd_dispatch(cmd_buffer);

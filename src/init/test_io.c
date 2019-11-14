@@ -12,12 +12,12 @@
 void io_perf_test() {
     int servertid = WhoIs(SERVER_NAME_IO);
     Printf(servertid, COM2, "IO server performance test start at: %d\r\n", MyTid());
-    int buffer[BUFFER_SIZE];
+    char buffer[BUFFER_SIZE];
     for (int i = 0; i < BUFFER_SIZE; i++) {
-        buffer[i] = Getc(servertid, COM2);
+        Getc(servertid, COM2, &buffer[i]);
     }
     for (int i = 0; i < BUFFER_SIZE; i++) {
-        Putc(servertid, COM2, (char)buffer[i]);
+        Putc(servertid, COM2, buffer[i]);
     }
     Printf(servertid, COM2, "IO server performance test done.\r\n");
     Exit();
@@ -26,10 +26,11 @@ void io_perf_test() {
 void io_getc_test() {
     int servertid = WhoIs(SERVER_NAME_IO);
     Printf(servertid, COM2, "IO server getc test start at: %d\r\n", MyTid());
+    char c;
     for (;;) {
-        int c = Getc(servertid, COM2);
+        Getc(servertid, COM2, &c);
         if (c == '\r') break;
-        Putc(servertid, COM2, (char)c);
+        Putc(servertid, COM2, c);
     }
     Printf(servertid, COM2, "IO server getc test done.\r\n");
     Exit();

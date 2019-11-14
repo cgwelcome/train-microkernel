@@ -4,12 +4,11 @@
 #include <user/name.h>
 #include <utils/assert.h>
 
-int Getc(int tid, int uart) {
-    char c;
+void Getc(int tid, int uart, char *c) {
     IORequest request = {
         .type = IO_REQUEST_GET,
         .uart = uart,
-        .data = (uint32_t) &c,
+        .data = (uint32_t) c,
         .size = 1,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
