@@ -14,7 +14,14 @@ static int io_tid;
 static int train_tid;
 
 static int is_train(uint32_t train_id) {
-    return (train_id > 0 && train_id < 81) ? 1 : 0;
+    uint32_t train_count = 6;
+    uint32_t train_ids[] = { 1, 24, 58, 74, 78, 79 };
+    for (uint32_t i = 0; i < train_count; i++) {
+        if (train_ids[i] == train_id) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 static int is_speed(uint32_t speed) {
