@@ -48,6 +48,7 @@ typedef struct PathNode {
     TrackNodeType type;
     uint32_t num;
 
+    uint8_t   broken;
     int8_t    direction;
     TrackNode *reverse; /* same location, but opposite direction */
     TrackEdge edge[MAX_EDGE_DEGREE];
