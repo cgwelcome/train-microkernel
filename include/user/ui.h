@@ -6,6 +6,7 @@
 #include <train/track.h>
 #include <user/io.h>
 
+#define LINE_IDLE            1
 #define LINE_TIME            2
 #define LINE_SWITCH_TITLE    3
 #define LINE_SWITCH_START    4
@@ -16,6 +17,8 @@
 #define MAX_NUM_ARGS        10
 
 void PrintBasicInterface(int io_tid);
+
+void PrintIdle(int io_tid, int usage);
 
 void PrintTime(int iotid);
 

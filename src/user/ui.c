@@ -4,8 +4,9 @@
 #include <utils/assert.h>
 
 void PrintBasicInterface(int io_tid) {
-    Printf(io_tid, COM2, "\033[%u;%uHTIME: "                          , LINE_TIME              , 1);
-    Printf(io_tid, COM2, "\033[%u;%uHSWITCHES: "                      , LINE_SWITCH_TITLE      , 1);
+    Printf(io_tid, COM2, "\033[%u;%uHCPU Idle Rate:"                  , LINE_IDLE              , 1);
+    Printf(io_tid, COM2, "\033[%u;%uHTime: "                          , LINE_TIME              , 1);
+    Printf(io_tid, COM2, "\033[%u;%uHSwitches: "                      , LINE_SWITCH_TITLE      , 1);
     Printf(io_tid, COM2, "\033[%u;%uH  01:C 02:C 03:C 04:C 05:C 06:C ", LINE_SWITCH_START + 0  , 1);
     Printf(io_tid, COM2, "\033[%u;%uH  07:C 08:C 09:C 10:C 11:C 12:C ", LINE_SWITCH_START + 1  , 1);
     Printf(io_tid, COM2, "\033[%u;%uH  13:C 14:C 15:C 16:C 17:C 18:C ", LINE_SWITCH_START + 2  , 1);
@@ -18,6 +19,10 @@ void PrintBasicInterface(int io_tid) {
     Printf(io_tid, COM2, "\033[%u;%uH  Train 78: "                    , LINE_LOCATION_START + 4, 1);
     Printf(io_tid, COM2, "\033[%u;%uH  Train 79: "                    , LINE_LOCATION_START + 5, 1);
     Printf(io_tid, COM2, "\033[%u;%uH> █"                             , LINE_TERMINAL          , 1);
+}
+
+void PrintIdle(int io_tid, int usage) {
+    Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K%u.%u%%\033[u", LINE_IDLE, 16, usage / 100, usage % 100);
 }
 
 void PrintTime(int io_tid) {
