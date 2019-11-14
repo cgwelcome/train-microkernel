@@ -129,6 +129,7 @@ static struct {
     int (*func)(int argc, char **argv);
 } testtable[] = {
     { "helloworld",   helloworld },
+    { "argv",         argv       },
     { NULL,           NULL       },
 };
 
