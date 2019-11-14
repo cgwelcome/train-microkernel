@@ -1,6 +1,8 @@
 #ifndef __USER_CLOCK_H__
 #define __USER_CLOCK_H__
 
+#include <stddef.h>
+
 /**
  * @defgroup clock
  * @ingroup user
@@ -26,6 +28,11 @@ int Delay(int tid, int ticks);
  * @return the current time returned (as in Time()).
  */
 int DelayUntil(int tid, int ticks);
+
+/**
+ * Send a IPC request to target tid after ticks espaced.
+ */
+void Schedule(int tid, int ticks, int target, char *data, size_t data_size);
 
 /** @} */
 
