@@ -4,21 +4,21 @@
 #include <utils/assert.h>
 
 void PrintBasicInterface(int io_tid) {
-    Printf(io_tid, COM2, "\033[%u;%uHCPU Idle Rate:"                  , LINE_IDLE              , 1);
-    Printf(io_tid, COM2, "\033[%u;%uHTime: "                          , LINE_TIME              , 1);
-    Printf(io_tid, COM2, "\033[%u;%uHSwitches: "                      , LINE_SWITCH_TITLE      , 1);
-    Printf(io_tid, COM2, "\033[%u;%uH  01:C 02:C 03:C 04:C 05:C 06:C ", LINE_SWITCH_START + 0  , 1);
-    Printf(io_tid, COM2, "\033[%u;%uH  07:C 08:C 09:C 10:C 11:C 12:C ", LINE_SWITCH_START + 1  , 1);
-    Printf(io_tid, COM2, "\033[%u;%uH  13:C 14:C 15:C 16:C 17:C 18:C ", LINE_SWITCH_START + 2  , 1);
-    Printf(io_tid, COM2, "\033[%u;%uH  99:C 9A:C 9B:C 9C:C "          , LINE_SWITCH_START + 3  , 1);
-    Printf(io_tid, COM2, "\033[%u;%uHLocations: "                     , LINE_LOCATION_TITLE    , 1);
-    Printf(io_tid, COM2, "\033[%u;%uH  Train 01: "                    , LINE_LOCATION_START + 0, 1);
-    Printf(io_tid, COM2, "\033[%u;%uH  Train 24: "                    , LINE_LOCATION_START + 1, 1);
-    Printf(io_tid, COM2, "\033[%u;%uH  Train 58: "                    , LINE_LOCATION_START + 2, 1);
-    Printf(io_tid, COM2, "\033[%u;%uH  Train 74: "                    , LINE_LOCATION_START + 3, 1);
-    Printf(io_tid, COM2, "\033[%u;%uH  Train 78: "                    , LINE_LOCATION_START + 4, 1);
-    Printf(io_tid, COM2, "\033[%u;%uH  Train 79: "                    , LINE_LOCATION_START + 5, 1);
-    Printf(io_tid, COM2, "\033[%u;%uH> █"                             , LINE_TERMINAL          , 1);
+    Printf(io_tid, COM2, "\033[%u;%uHCPU Idle Rate:"                               , LINE_IDLE              , 1);
+    Printf(io_tid, COM2, "\033[%u;%uHTime: "                                       , LINE_TIME              , 1);
+    Printf(io_tid, COM2, "\033[%u;%uHSwitches: "                                   , LINE_SWITCH_TITLE      , 1);
+    Printf(io_tid, COM2, "\033[%u;%uH    1:C    2:C    3:C    4:C    5:C    6:C"   , LINE_SWITCH_START + 0  , 1);
+    Printf(io_tid, COM2, "\033[%u;%uH    7:C    8:C    9:C   10:C   11:C   12:C"   , LINE_SWITCH_START + 1  , 1);
+    Printf(io_tid, COM2, "\033[%u;%uH   13:C   14:C   15:C   16:C   17:C   18:C"   , LINE_SWITCH_START + 2  , 1);
+    Printf(io_tid, COM2, "\033[%u;%uH  153:C  154:C  155:C  156:C              "   , LINE_SWITCH_START + 3  , 1);
+    Printf(io_tid, COM2, "\033[%u;%uHLocations: "                                  , LINE_LOCATION_TITLE    , 1);
+    Printf(io_tid, COM2, "\033[%u;%uH  Train 01: "                                 , LINE_LOCATION_START + 0, 1);
+    Printf(io_tid, COM2, "\033[%u;%uH  Train 24: "                                 , LINE_LOCATION_START + 1, 1);
+    Printf(io_tid, COM2, "\033[%u;%uH  Train 58: "                                 , LINE_LOCATION_START + 2, 1);
+    Printf(io_tid, COM2, "\033[%u;%uH  Train 74: "                                 , LINE_LOCATION_START + 3, 1);
+    Printf(io_tid, COM2, "\033[%u;%uH  Train 78: "                                 , LINE_LOCATION_START + 4, 1);
+    Printf(io_tid, COM2, "\033[%u;%uH  Train 79: "                                 , LINE_LOCATION_START + 5, 1);
+    Printf(io_tid, COM2, "\033[%u;%uH> █"                                          , LINE_TERMINAL          , 1);
 }
 
 void PrintIdle(int io_tid, int usage) {
@@ -47,7 +47,7 @@ void PrintSwitch(int io_tid, unsigned int code, char direction) {
         col = code - 0x99;
     }
     char status = (direction == DIR_CURVED ? 'C' : 'S');
-    Printf(io_tid, COM2, "\033[s\033[%u;%uH%c\033[u", LINE_SWITCH_START + row, 6 + col * 5, status);
+    Printf(io_tid, COM2, "\033[s\033[%u;%uH%c\033[u", LINE_SWITCH_START + row, 7 + col * 7, status);
 }
 
 void PrintVelocity(int io_tid, uint32_t train_id, uint32_t time, uint32_t velocity) {
