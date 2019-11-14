@@ -8,7 +8,7 @@
 #include <utils/assert.h>
 #include <utils/pqueue.h>
 
-static PQueue pqdelay;
+static PQueue delay_queue;
 
 static int clock_ticks() {
     return (int) (timer_read(TIMER3) / CLOCK_TICK_INTERVAL);
@@ -20,8 +20,8 @@ static void clock_time(int tid) {
 }
 
 static void clock_notify() {
-    while (pqueue_size(&pqdelay) > 0 && pqueue_peek(&pqdelay) <= clock_ticks()) {
-        int tid = pqueue_pop(&pqdelay);
+    while (pqueue_size(&delay_queue) > 0 && pqueue_peek(&delay_queue) <= clock_ticks()) {
+        int tid = pqueue_pop(&delay_queue);
         clock_time(tid);
     }
 }
@@ -30,7 +30,7 @@ static void clock_delay(int tid, int ticks) {
     if (ticks == 0) {
         clock_time(tid);
     } else {
-        pqueue_insert(&pqdelay, tid, clock_ticks() + ticks);
+        pqueue_insert(&delay_queue, tid, clock_ticks() + ticks);
     }
 }
 
@@ -38,7 +38,7 @@ static void clock_delayuntil(int tid, int ticks) {
     if (ticks <= clock_ticks()) {
         clock_time(tid);
     } else {
-        pqueue_insert(&pqdelay, tid, ticks);
+        pqueue_insert(&delay_queue, tid, ticks);
     }
 }
 
@@ -81,7 +81,7 @@ void clock_notifier_task() {
 }
 
 void InitClockServer() {
-    pqueue_init(&pqdelay);
+    pqueue_init(&delay_queue);
 }
 
 void CreateClockServer() {
