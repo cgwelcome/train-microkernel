@@ -8,7 +8,9 @@
 #include <utils/assert.h>
 #include <utils/pqueue.h>
 
-static PQueue pqdelay;
+static PQueue delay_queue;
+static PQueue schedule_queue;
+static CSScheduleJob jobs[CLOCK_SCHEDULE_JOB_LIMIT];
 
 static int clock_ticks() {
     return (int) (timer_read(TIMER3) / CLOCK_TICK_INTERVAL);
@@ -19,10 +21,26 @@ static void clock_time(int tid) {
     Reply(tid, (char *)&now, sizeof(now));
 }
 
+static int clock_schedule_next_job(CSScheduleJob *request) {
+    for (int i = 0; i < CLOCK_SCHEDULE_JOB_LIMIT; i++) {
+        if (jobs[i].in_use == 0) {
+            jobs[i] = *request;
+            jobs[i].in_use = 1;
+            return i;
+        }
+    }
+    throw("out of space for new schedule job");
+}
+
 static void clock_notify() {
-    while (pqueue_size(&pqdelay) > 0 && pqueue_peek(&pqdelay) <= clock_ticks()) {
-        int tid = pqueue_pop(&pqdelay);
+    while (pqueue_size(&delay_queue) > 0 && pqueue_peek(&delay_queue) <= clock_ticks()) {
+        int tid = pqueue_pop(&delay_queue);
         clock_time(tid);
+    }
+    while (pqueue_size(&schedule_queue) > 0 && pqueue_peek(&schedule_queue) <= clock_ticks()) {
+        int jid = pqueue_pop(&schedule_queue);
+        jobs[jid].in_use = 0;
+        assert(Send(jobs[jid].target, jobs[jid].data, jobs[jid].data_size, NULL, 0) >= 0);
     }
 }
 
@@ -30,7 +48,7 @@ static void clock_delay(int tid, int ticks) {
     if (ticks == 0) {
         clock_time(tid);
     } else {
-        pqueue_insert(&pqdelay, tid, clock_ticks() + ticks);
+        pqueue_insert(&delay_queue, tid, clock_ticks() + ticks);
     }
 }
 
@@ -38,8 +56,18 @@ static void clock_delayuntil(int tid, int ticks) {
     if (ticks <= clock_ticks()) {
         clock_time(tid);
     } else {
-        pqueue_insert(&pqdelay, tid, ticks);
+        pqueue_insert(&delay_queue, tid, ticks);
     }
+}
+
+static void clock_schedule(int tid, CSScheduleJob * job) {
+    if (job->ticks == 0) {
+        assert(Send(job->target, job->data, job->data_size, NULL, 0) >= 0);
+    } else {
+        int job_id = clock_schedule_next_job(job);
+        pqueue_insert(&schedule_queue, job_id, clock_ticks() + job->ticks);
+    }
+    Reply(tid, NULL, 0);
 }
 
 void clock_server_task() {
@@ -63,6 +91,9 @@ void clock_server_task() {
             case CS_DELAYUNTIL:
                 clock_delayuntil(tid, request.data);
                 break;
+            case CS_SCHEDULE:
+                clock_schedule(tid, (CSScheduleJob *) request.data);
+                break;
             default:
                 throw("unknown request");
         }
@@ -81,7 +112,9 @@ void clock_notifier_task() {
 }
 
 void InitClockServer() {
-    pqueue_init(&pqdelay);
+    pqueue_init(&delay_queue);
+    pqueue_init(&schedule_queue);
+    for (size_t i = 0; i < CLOCK_SCHEDULE_JOB_LIMIT; i++) jobs[i].in_use = 0;
 }
 
 void CreateClockServer() {

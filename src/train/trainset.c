@@ -55,8 +55,9 @@ ActiveTrainSensorList trainset_sensor_readall(TrainIO *io) {
     sensorlist.size = 0;
     Putc(io->tid, io->uart, (char)(TRAINSENSOR_ALL + MODULE_TOTAL_NUM));
     for (char module = 'A'; module < 'A' + MODULE_TOTAL_NUM; module++) {
-        uint8_t first = (uint8_t) Getc(io->tid, io->uart);
-        uint8_t second = (uint8_t) Getc(io->tid, io->uart);
+        uint8_t first, second;
+        Getc(io->tid, io->uart, (char *) &first);
+        Getc(io->tid, io->uart, (char *) &second);
         uint16_t raw = (uint16_t)((first << sizeof(second)*8) | second);
         trainset_sensor_parsemodule(&sensorlist, module, raw);
     }

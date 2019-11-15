@@ -26,7 +26,7 @@ typedef char *va_list;
  * Returns next unreturned character from the given UART.
  * @return New character from the given UART.
  */
-int Getc(int tid, int uart);
+void Getc(int tid, int uart, char *c);
 
 /**
  * Queues the given character for transmission by the given UART.

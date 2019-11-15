@@ -10,13 +10,15 @@
 #include <user/train.h>
 
 void train_switchall_test() {
-    int8_t status;
     int servertid = WhoIs(SERVER_NAME_TMS);
     int iotid = WhoIs(SERVER_NAME_IO);
+
+    char c;
+    int8_t status;
     int parity = 0;
     for (;;) {
-        int c = Getc(iotid, COM2);
-        Putc(iotid, COM2, (char)c);
+        Getc(iotid, COM2, &c);
+        Putc(iotid, COM2,  c);
         if (parity == 1) {
             status = DIR_STRAIGHT;
             Putc(iotid, COM2, 's');
@@ -36,8 +38,9 @@ void train_multiple_speed_test() {
     int iotid = WhoIs(SERVER_NAME_IO);
     unsigned int speed = 10;
     TrainSetSpeed(servertid, 78, speed);
+    char command;
     for (;;) {
-        int command = Getc(iotid, COM2);
+        Getc(iotid, COM2, &command);
         if (command == 'w' && speed < 14) {
             speed++;
             Printf(iotid, COM2, "%d", speed);

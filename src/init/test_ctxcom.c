@@ -12,7 +12,8 @@ void ctxcom_read_and_write_test() {
     Putc(iotid, COM1, (char)speed);
     Putc(iotid, COM1, 78);
     for (;;) {
-        int command = Getc(iotid, COM2);
+        char command;
+        Getc(iotid, COM2, &command);
         if (command == 'w' && speed < 14) {
             speed++;
             Putc(iotid, COM2, (char)('a'-1+speed));
@@ -28,7 +29,9 @@ void ctxcom_read_and_write_test() {
         Putc(iotid, COM1, 0x80 + 5);
         Printf(iotid, COM2, "\r\n");
         for (int i = 0; i < 10; i++) {
-            Printf(iotid, COM2, "%02x", Getc(iotid, COM1));
+            char sensor;
+            Getc(iotid, COM1, &sensor);
+            Printf(iotid, COM2, "%02x", (int)sensor);
         }
 
     }
@@ -40,8 +43,9 @@ void ctxcom_write_test() {
     unsigned int speed = 5;
     Putc(iotid, COM1, (char)speed);
     Putc(iotid, COM1, 78);
+    char command;
     for (;;) {
-        int command = Getc(iotid, COM2);
+        Getc(iotid, COM2, &command);
         if (command == 'w' && speed < 14) {
             speed++;
             Putc(iotid, COM2, (char)('a'-1+speed));

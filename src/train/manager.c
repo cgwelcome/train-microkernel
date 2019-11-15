@@ -4,10 +4,10 @@
 #include <train/track.h>
 #include <train/trains.h>
 #include <train/trainset.h>
+#include <user/clock.h>
 #include <user/io.h>
 #include <user/ipc.h>
 #include <user/name.h>
-#include <user/scheduler.h>
 #include <user/tasks.h>
 #include <user/ui.h>
 #include <utils/assert.h>
@@ -15,7 +15,7 @@
 #include <hardware/timer.h>
 
 static TrainIO io;
-static int scheduler_tid;
+static int clock_tid;
 
 Queue initial_trains;
 Queue await_sensors[MAX_SENSOR_NUM];
@@ -24,7 +24,7 @@ ActiveTrainSensorList sensor_log;
 void trainmanager_init() {
     io.tid = WhoIs(SERVER_NAME_IO);
     io.uart = COM1;
-    scheduler_tid = WhoIs(SERVER_NAME_SCHEDULER);
+    clock_tid = WhoIs(SERVER_NAME_CLOCK);
     trains_init();
     queue_init(&initial_trains);
     for (size_t i = 0; i < MAX_SENSOR_NUM; i++) {
@@ -98,7 +98,7 @@ void trainmanager_switch_all(int8_t switch_status) {
 	TrainRequest request = {
 		.type = TRAIN_REQUEST_SWITCH_DONE,
 	};
-    Schedule(scheduler_tid, TRAINSWITCH_DONE_INTERVAL, MyTid(), (char *)&request, sizeof(request));
+    Schedule(clock_tid, TRAINSWITCH_DONE_INTERVAL, MyTid(), (char *)&request, sizeof(request));
 }
 
 void trainmanager_switch_one(uint32_t switch_id, int8_t switch_status) {
@@ -117,7 +117,7 @@ void trainmanager_switch_one(uint32_t switch_id, int8_t switch_status) {
     TrainRequest request = {
         .type = TRAIN_REQUEST_SWITCH_DONE,
     };
-    Schedule(scheduler_tid, TRAINSWITCH_DONE_INTERVAL, MyTid(), (char *)&request, sizeof(request));
+    Schedule(clock_tid, TRAINSWITCH_DONE_INTERVAL, MyTid(), (char *)&request, sizeof(request));
 }
 
 void trainmanager_switch_done() {
