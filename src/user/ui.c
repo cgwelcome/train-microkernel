@@ -1,6 +1,8 @@
 #include <hardware/timer.h>
 #include <train/trains.h>
+#include <train/trainset.h>
 #include <user/ui.h>
+#include <user/io.h>
 #include <utils/assert.h>
 
 void PrintBasicInterface(int io_tid) {
@@ -12,12 +14,13 @@ void PrintBasicInterface(int io_tid) {
     Printf(io_tid, COM2, "\033[%u;%uH   13:C   14:C   15:C   16:C   17:C   18:C"   , LINE_SWITCH_START + 2  , 1);
     Printf(io_tid, COM2, "\033[%u;%uH  153:C  154:C  155:C  156:C              "   , LINE_SWITCH_START + 3  , 1);
     Printf(io_tid, COM2, "\033[%u;%uHLocations: "                                  , LINE_LOCATION_TITLE    , 1);
-    Printf(io_tid, COM2, "\033[%u;%uH  Train 01: "                                 , LINE_LOCATION_START + 0, 1);
+    Printf(io_tid, COM2, "\033[%u;%uH  Train  1: "                                 , LINE_LOCATION_START + 0, 1);
     Printf(io_tid, COM2, "\033[%u;%uH  Train 24: "                                 , LINE_LOCATION_START + 1, 1);
     Printf(io_tid, COM2, "\033[%u;%uH  Train 58: "                                 , LINE_LOCATION_START + 2, 1);
     Printf(io_tid, COM2, "\033[%u;%uH  Train 74: "                                 , LINE_LOCATION_START + 3, 1);
     Printf(io_tid, COM2, "\033[%u;%uH  Train 78: "                                 , LINE_LOCATION_START + 4, 1);
     Printf(io_tid, COM2, "\033[%u;%uH  Train 79: "                                 , LINE_LOCATION_START + 5, 1);
+    Printf(io_tid, COM2, "\033[%u;%uHSensors: "                                    , LINE_SENSOR_TITLE      , 1);
     Printf(io_tid, COM2, "\033[%u;%uH> █"                                          , LINE_TERMINAL          , 1);
 }
 
@@ -63,4 +66,15 @@ void PrintTimeDifference(int io_tid, uint32_t train_id, uint64_t expected_time) 
 
 void PrintTerminal(int io_tid, const char *buffer) {
     Printf(io_tid, COM2, "\033[%u;%uH\033[K%s", LINE_TERMINAL, 3, buffer);
+}
+
+void PrintSensors(int io_tid, ActiveTrainSensorList *list) {
+    for (uint32_t i = 0; i < list->size; i++) {
+        Printf(io_tid, COM2, "\033[s\033[%d;%dH\033[K%c%u\033[u",
+            LINE_SENSOR_START + i, 3,
+            list->sensors[i].module,
+            list->sensors[i].id
+        );
+    };
+
 }

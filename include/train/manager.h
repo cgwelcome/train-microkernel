@@ -5,12 +5,14 @@
 #include <server/train.h>
 #include <train/track.h>
 #include <train/trainset.h>
+#include <train/trains.h>
 #include <utils/queue.h>
 
 // Highest MAX_{}_NUM means highest id
 #define MAX_TRAIN_NUM              80
 #define MAX_SWITCH_NUM            157
 #define TRAINSWITCH_DONE_INTERVAL  15 /** Interval in ticks (10 ms) */
+#define MAX_SENSOR_LOG              5
 
 /**
  * Initialize Train Manager
