@@ -5,7 +5,7 @@
 #include <server/train.h>
 #include <train/track.h>
 #include <train/trainset.h>
-#include <train/trains.h>
+#include <train/train.h>
 #include <utils/queue.h>
 
 // Highest MAX_{}_NUM means highest id

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <train/track.h>
-#include <train/trains.h>
+#include <train/train.h>
 
 #define TRAINSET_GO      96
 #define TRAINSET_STOP    97

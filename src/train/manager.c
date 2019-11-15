@@ -2,7 +2,7 @@
 #include <train/gps.h>
 #include <train/manager.h>
 #include <train/track.h>
-#include <train/trains.h>
+#include <train/train.h>
 #include <train/trainset.h>
 #include <user/clock.h>
 #include <user/io.h>
@@ -11,7 +11,6 @@
 #include <user/tasks.h>
 #include <user/ui.h>
 #include <utils/assert.h>
-
 #include <hardware/timer.h>
 
 static TrainIO io;
@@ -27,12 +26,14 @@ void trainmanager_init() {
     io.tid = WhoIs(SERVER_NAME_IO);
     io.uart = COM1;
     clock_tid = WhoIs(SERVER_NAME_CLOCK);
-    trains_init(trains);
     queue_init(&initial_trains);
     for (size_t i = 0; i < MAX_SENSOR_NUM; i++) {
         queue_init(&await_sensors[i]);
     }
     sensor_log.size = 0;
+    for (size_t i = 0; i < TRAIN_COUNT; i++) {
+        train_init(&trains[i], train_index_to_id(i));
+    }
 	trainset_go(&io);
 	trainset_park_all(&io);
 	trainmanager_switch_all(DIR_CURVED);
@@ -48,7 +49,7 @@ void trainmanager_start(uint32_t train_id) {
 }
 
 void trainmanager_speed(uint32_t train_id, uint32_t speed) {
-    trains_set_speed(trains, train_id, speed);
+    trains_find(trains, train_id)->speed = speed;
     trainset_speed(&io, train_id, speed);
 }
 
@@ -144,7 +145,7 @@ static void trainmanager_touch_train_sensor(uint32_t train_id, TrackNode *sensor
         uint32_t dist = track_find_next_sensor_dist(&track, next);
         Printf(io.tid, COM2, "\033[30;1H\033[K%s %u %u", sensor->name, time, dist * 1000 / time);
     }
-    trains_touch_sensor(trains, train_id, &track, sensor);
+    train_touch_sensor(train, &track, sensor);
     trainmanager_await_next_sensor(train_id, sensor);
 }
 
@@ -181,7 +182,7 @@ static void trainmanager_update_check_sensors() {
 void trainmanager_update_status() {
     trainmanager_update_check_sensors();
     /*for (int i = 0; i < TRAIN_COUNT; i++) {*/
-        /*trains_estimite_position(i);*/
+        /*train_estimate_position(&trains[i], &track);*/
     /*}*/
 }
 

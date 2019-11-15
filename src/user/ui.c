@@ -1,5 +1,5 @@
 #include <hardware/timer.h>
-#include <train/trains.h>
+#include <train/train.h>
 #include <train/trainset.h>
 #include <user/ui.h>
 #include <user/io.h>
