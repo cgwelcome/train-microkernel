@@ -146,34 +146,33 @@ static void trainmanager_touch_train_sensor(uint32_t train_id, TrackNode *sensor
     trainmanager_await_next_sensor(train_id, sensor);
 }
 
-static void trainmanager_update_log(ActiveTrainSensorList *list) {
-    for (uint32_t i = 0; i < list->size; i++) {
-        if (sensor_log.size < MAX_SENSOR_LOG) {
-            sensor_log.size += 1;
-        }
-        for (int t = MAX_SENSOR_LOG - 1; t > 0; t--) {
-            sensor_log.sensors[t] = sensor_log.sensors[t - 1];
-        }
-        sensor_log.sensors[0] = list->sensors[i];
+static void trainmanager_update_log(TrainSensor *sensor, Train *train) {
+    if (sensor_log.size < MAX_SENSOR_LOG) {
+        sensor_log.size += 1;
     }
+    for (int t = MAX_SENSOR_LOG - 1; t > 0; t--) {
+        sensor_log.sensors[t] = sensor_log.sensors[t - 1];
+        sensor_log.sensors[t].train = train;
+    }
+    sensor_log.sensors[0] = *sensor;
+    sensor_log.sensors[0].train = train;
 }
 
 static void trainmanager_update_check_sensors() {
     ActiveTrainSensorList list = trainset_sensor_readall(&io);
     for (uint32_t i = 0; i < list.size; i++) {
         TrackNode *sensor = track_find_sensor(list.sensors[i].module, list.sensors[i].id);
-        if (sensor == NULL) continue;
-		if (queue_size(&initial_trains) > 0) {
-            uint32_t train_id = (uint32_t) queue_pop(&initial_trains);
-            trainmanager_touch_train_sensor(train_id, sensor);
-        } else {
-            if (queue_size(&await_sensors[sensor->num]) > 0) {
-                uint32_t train_id = (uint32_t) queue_pop(&await_sensors[sensor->num]);
-                trainmanager_touch_train_sensor(train_id, sensor);
-            }
-        }
+        Train *train = NULL;
+        /*if (sensor == NULL) {*/
+        /*} else if (queue_size(&initial_trains) > 0) {*/
+            /*uint32_t train_id = (uint32_t) queue_pop(&initial_trains);*/
+            /*trainmanager_touch_train_sensor(train_id, sensor);*/
+        /*} else if (queue_size(&await_sensors[sensor->num]) > 0) {*/
+            /*uint32_t train_id = (uint32_t) queue_pop(&await_sensors[sensor->num]);*/
+            /*trainmanager_touch_train_sensor(train_id, sensor);*/
+        /*}*/
+        trainmanager_update_log(&list.sensors[i], train);
     }
-    trainmanager_update_log(&list);
     PrintSensors(io.tid, &sensor_log);
 }
 
