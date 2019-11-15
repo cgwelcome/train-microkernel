@@ -22,16 +22,16 @@ int train_id_to_index(uint32_t train_id);
 
 void trains_init();
 
-Train *trains_iterate(int index);
+Train *trains_iterate(Train *trains, int index);
 
-Train *trains_find(uint32_t train_id);
+Train *trains_find(Train *trains, uint32_t train_id);
 
-void trains_set_speed(uint32_t train_id, int speed);
+void trains_set_speed(Train *trains, uint32_t train_id, int speed);
 
-void trains_set_position(uint32_t train_id, TrackNode *node, uint32_t offset);
+void trains_set_position(Train *trains, uint32_t train_id, TrackNode *node, uint32_t offset);
 
-void trains_estimite_position(int index);
+void trains_estimate_position(Train *trains, int index, Track *track);
 
-void trains_touch_sensor(uint32_t train_id, TrackNode *sensor);
+void trains_touch_sensor(Train *trains, uint32_t train_id, Track *track, TrackNode *sensor);
 
 #endif /*__TRAIN_TRAINS_H__*/

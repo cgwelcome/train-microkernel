@@ -3,7 +3,6 @@
 #include <utils/assert.h>
 
 static const uint32_t train_ids[TRAIN_COUNT] = { 1, 24, 58, 74, 78, 79 };
-Train trains[TRAIN_COUNT];
 
 static uint32_t velocities[15] = {
     0, 40, 80, 120, 160, 200, 260, 320, 370, 430, 465, 530, 560, 0, 0,
@@ -28,11 +27,11 @@ uint32_t train_expected_time(int speed, uint32_t mm) {
     return (mm * 1000) / train_speed_to_velocity(speed);
 }
 
-uint32_t train_expected_distance(int speed, uint32_t ms) {
-    return (train_speed_to_velocity(speed) * ms) / 1000;
+uint32_t train_expected_distance(int speed, uint64_t ms) {
+    return (uint32_t)(train_speed_to_velocity(speed) * ms) / 1000;
 }
 
-void trains_init() {
+void trains_init(Train *trains) {
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
         trains[i].id = train_ids[i];
         trains[i].speed = 0;
@@ -45,49 +44,49 @@ void trains_init() {
     }
 }
 
-Train *trains_iterate(int index) {
+Train *trains_iterate(Train *trains, int index) {
     return &(trains[index]);
 }
 
-Train *trains_find(uint32_t train_id) {
-    return trains_iterate(train_id_to_index(train_id));
+Train *trains_find(Train *trains, uint32_t train_id) {
+    return trains_iterate(trains, train_id_to_index(train_id));
 }
 
-static void _trains_set_speed(int index, int speed) {
+static void _trains_set_speed(Train *trains, int index, int speed) {
     trains[index].speed = speed;
 }
 
-void trains_set_speed(uint32_t train_id, int speed) {
+void trains_set_speed(Train *trains, uint32_t train_id, int speed) {
     int index = train_id_to_index(train_id);
-    _trains_set_speed(index, speed);
+    _trains_set_speed(trains, index, speed);
 }
 
-static void _trains_set_position(int index, TrackNode *node, uint32_t offset) {
+static void _trains_set_position(Train *trains, int index, TrackNode *node, uint32_t offset) {
     trains[index].position.node = node;
     trains[index].position.dist = offset;
     trains[index].last_position_update_time = timer_read(TIMER3);
 }
 
-void trains_set_position(uint32_t train_id, TrackNode *node, uint32_t offset) {
+void trains_set_position(Train *trains, uint32_t train_id, TrackNode *node, uint32_t offset) {
     int index = train_id_to_index(train_id);
-    _trains_set_position(index, node, offset);
+    _trains_set_position(trains, index, node, offset);
 }
 
-void trains_estimite_position(int index) {
+void trains_estimate_position(Train *trains, int index, Track *track) {
     if (trains[index].position.node != NULL) {
         uint64_t now = timer_read(TIMER3);
         uint64_t escaped = now - trains[index].last_position_update_time;
         uint32_t dist = train_expected_distance(trains[index].speed, escaped);
-        track_position_move(&trains[index].position, dist);
+        track_position_move(track, &trains[index].position, (int32_t)dist);
         trains[index].last_position_update_time = now;
     }
 }
 
-void trains_touch_sensor(uint32_t train_id, TrackNode *sensor) {
+void trains_touch_sensor(Train *trains, uint32_t train_id, Track *track, TrackNode *sensor) {
     assert(sensor != NULL);
     int index = train_id_to_index(train_id);
-    _trains_set_position(index, sensor, 0);
-    uint32_t dist = track_find_next_sensor_dist(sensor);
+    _trains_set_position(trains, index, sensor, 0);
+    uint32_t dist = track_find_next_sensor_dist(track, sensor);
     if (dist != (uint32_t) -1) {
         uint64_t expected_time = train_expected_time(trains[index].speed, dist);
         trains[index].next_sensor_expected_time = timer_read(TIMER3) + expected_time;

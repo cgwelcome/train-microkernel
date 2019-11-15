@@ -69,43 +69,43 @@ typedef struct {
 /**
  * Load Train Track from a generated C function.
  */
-void track_init(TrackName name);
+void track_init(Track *track, TrackName name);
 
 /**
  * Find TrackNode by its id.
  */
-TrackNode *track_find_node(uint32_t id);
+TrackNode *track_find_node(Track *track, uint32_t id);
 
 /**
  * Find TrackNode by its name.
  */
-TrackNode *track_find_node_by_name(char *node_name);
+TrackNode *track_find_node_by_name(Track *track, char *node_name);
 
 /**
  * Find sensor by its module and id.
  */
-TrackNode *track_find_sensor(char module, uint32_t id);
+TrackNode *track_find_sensor(Track *track, char module, uint32_t id);
 
 /**
  * Find branch by its switch id.
  */
-TrackNode *track_find_branch(uint32_t switch_id);
+TrackNode *track_find_branch(Track *track, uint32_t switch_id);
 
 /**
  * Set branch to the specific direction
  */
-void track_set_branch_direction(uint32_t switch_id, int8_t direction);
+void track_set_branch_direction(Track *track, uint32_t switch_id, int8_t direction);
 
-TrackNode *track_find_next_node(TrackNode *node);
+TrackNode *track_find_next_node(Track *track, TrackNode *node);
 
-uint32_t track_find_next_node_dist(TrackNode *node);
+uint32_t track_find_next_node_dist(Track *track, TrackNode *node);
 
-TrackNode *track_find_next_sensor(TrackNode *node);
+TrackNode *track_find_next_sensor(Track *track, TrackNode *node);
 
-uint32_t track_find_next_sensor_dist(TrackNode *node);
+uint32_t track_find_next_sensor_dist(Track *track, TrackNode *node);
 
-void track_position_reverse(TrackPosition *current);
+void track_position_reverse(Track *track, TrackPosition *current);
 
-void track_position_move(TrackPosition *current, int32_t offset);
+void track_position_move(Track *track, TrackPosition *current, int32_t offset);
 
 #endif /*__TRAIN_TRACK_H__*/
