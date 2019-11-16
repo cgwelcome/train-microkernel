@@ -3127,7 +3127,7 @@ static void track_init_b(TrackNode *track) {
 }
 
 void track_init(Track *track, TrackName name) {
-    track->inited = 1;
+    track->inited = true;
     track->name = name;
     switch(name) {
     case TRAIN_TRACK_A:

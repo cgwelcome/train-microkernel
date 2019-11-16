@@ -14,6 +14,7 @@ static void train_manager_root_task() {
     TrainRequest request;
 
     RegisterAs(SERVER_NAME_TMS);
+    track_instance()->inited = false;
     trainmanager_init();
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));

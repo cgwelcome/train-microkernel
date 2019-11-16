@@ -1,6 +1,7 @@
 #ifndef __TRAIN_TRACK_H__
 #define __TRAIN_TRACK_H__
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <server/train.h>
@@ -67,6 +68,7 @@ typedef struct {
 } TrackPath;
 
 typedef struct {
+    bool inited;
     TrackName name;
     size_t node_count;
     TrackNode nodes[MAX_NODE_PER_TRACK];
