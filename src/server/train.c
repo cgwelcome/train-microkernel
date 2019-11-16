@@ -1,7 +1,8 @@
 #include <kernel.h>
 #include <server/clock.h>
 #include <server/train.h>
-#include <train/manager.h>
+#include <train/controller.h>
+#include <train/train.h>
 #include <user/clock.h>
 #include <user/tasks.h>
 #include <user/ipc.h>
@@ -9,75 +10,99 @@
 #include <utils/assert.h>
 #include <utils/bwio.h>
 
-static void train_manager_root_task() {
+// static Queue initial_trains;
+// static Queue await_sensors[MAX_SENSOR_NUM];
+// static ActiveTrainSensorList sensor_log;
+
+extern Track singleton_track;
+extern Train singleton_trains[TRAIN_COUNT];
+
+static void train_server_init() {
+    singleton_track.inited = false;
+    // queue_init(&initial_trains);
+    // for (size_t i = 0; i < MAX_SENSOR_NUM; i++) {
+    //     queue_init(&await_sensors[i]);
+    // }
+    // sensor_log.size = 0;
+    for (size_t i = 0; i < TRAIN_COUNT; i++) {
+        train_init(&singleton_trains[i], train_index_to_id(i));
+    }
+}
+
+static void train_root_task() {
     int tid;
     TrainRequest request;
 
-    RegisterAs(SERVER_NAME_TMS);
-    track_instance()->inited = false;
-    trainmanager_init();
+    RegisterAs(SERVER_NAME_TRAIN);
+    train_server_init();
+    controller_init();
+    controller_go(0);
+    controller_speed_all(0, 0);
+    controller_switch_all(DIR_CURVED, 0);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
-        switch(request.type) {
-            case TRAIN_REQUEST_UPDATE_STATUS:
-                trainmanager_update_status();
-                break;
-            case TRAIN_REQUEST_INIT_TRACK:
-                trainmanager_init_track(request.arg1);
-                break;
-            case TRAIN_REQUEST_START:
-                trainmanager_start(request.arg1);
-                break;
-            case TRAIN_REQUEST_SPEED:
-                trainmanager_speed(request.arg1, request.arg2);
-                break;
-            case TRAIN_REQUEST_REVERSE:
-                trainmanager_reverse(request.arg1);
-                break;
-            case TRAIN_REQUEST_MOVE:
-                // trainmanager_move(request.arg1, request.arg2, request.arg3, request.arg4);
-                break;
-            case TRAIN_REQUEST_SWITCH_ALL:
-                trainmanager_switch_all((uint8_t)request.arg1);
-                break;
-            case TRAIN_REQUEST_SWITCH_ONE:
-                trainmanager_switch_one(request.arg1, (uint8_t)request.arg2);
-                break;
-            case TRAIN_REQUEST_SWITCH_DONE:
-                trainmanager_switch_done();
-                break;
-            case TRAIN_REQUEST_PARK:
-                trainmanager_park(request.arg1);
-                break;
-            case TRAIN_REQUEST_STOP:
-                trainmanager_stop();
-                break;
-            case TRAIN_REQUEST_EXIT:
-                trainmanager_done();
-                break;
-            default:
-                throw("unknown request");
+        if (request.type == TRAIN_REQUEST_INIT_TRACK) {
+            TrackName name = (TrackName) request.args[0];
+            track_init(&singleton_track, name);
+        }
+        if (request.type == TRAIN_REQUEST_INIT_TRAIN) {
+            uint32_t train_id = request.args[0];
+            // queue_push(&initial_trains, (int) train_id);
+            controller_speed_one(train_id, 10, 0);
+        }
+        if (request.type == TRAIN_REQUEST_WAKE_CONTROLLER) {
+            controller_wake();
+        }
+        if (request.type == TRAIN_REQUEST_LOCATE_TRAINS) {
+            // train_manager_locate_trains();
+        }
+        if (request.type == TRAIN_REQUEST_SPEED) {
+            uint32_t train_id = request.args[0];
+            uint32_t speed    = request.args[1];
+            controller_speed_one(train_id, speed, 0);
+        }
+        if (request.type == TRAIN_REQUEST_REVERSE) {
+            uint32_t train_id = request.args[0];
+            uint32_t speed = train_find(singleton_trains, train_id)->speed;
+            controller_speed_one(train_id, 0, 0);
+            controller_speed_one(train_id, TRAIN_STATUS_REVERSE, CONTROLLER_REVERSE_DELAY);
+            controller_speed_one(train_id, speed, CONTROLLER_REVERSE_DELAY + 1);
+        }
+        if (request.type == TRAIN_REQUEST_MOVE) {
+            // driver_navigate(request.args[0], request.args[1], request.args[2], request.args[3]);
+        }
+        if (request.type == TRAIN_REQUEST_SWITCH) {
+            uint32_t switch_id = request.args[0];
+            uint32_t direction = request.args[1];
+            controller_switch_one(switch_id, direction, 0);
+        }
+        if (request.type == TRAIN_REQUEST_EXIT) {
+            controller_speed_all(0, 0);
         }
         Reply(tid, NULL, 0);
     }
 }
 
-void train_sensor_notifier_task() {
+void train_notifier_task() {
 	int clocktid = WhoIs(SERVER_NAME_CLOCK);
-	int traintid = WhoIs(SERVER_NAME_TMS);
+	int traintid = WhoIs(SERVER_NAME_TRAIN);
 
-    TrainRequest request = {
-        .type = TRAIN_REQUEST_UPDATE_STATUS,
-    };
+    TrainRequest wake_request = { .type = TRAIN_REQUEST_WAKE_CONTROLLER };
+    TrainRequest locate_request = { .type = TRAIN_REQUEST_LOCATE_TRAINS };
 
-	for (;;) {
-		Delay(clocktid, SENSOR_READ_INTERVAL);
-		assert(Send(traintid, (char *)&request, sizeof(request), NULL, 0) >= 0);
+	for (uint32_t i = 0; ; i++) {
+		Delay(clocktid, 1);
+        if (i % 2 == 0) {
+		    assert(Send(traintid, (char *)&wake_request, sizeof(wake_request), NULL, 0) >= 0);
+        }
+        if (i % 4 == 0) {
+		    assert(Send(traintid, (char *)&locate_request, sizeof(locate_request), NULL, 0) >= 0);
+        }
 	}
 	Exit();
 }
 
 void CreateTrainServer() {
-    Create(PRIORITY_SERVER_TMS, &train_manager_root_task);
-    Create(PRIORITY_NOTIFIER_TMS_SENSORS, &train_sensor_notifier_task);
+    Create(PRIORITY_SERVER_TRAIN, &train_root_task);
+	Create(PRIORITY_NOTIFIER_TRAIN, &train_notifier_task);
 }

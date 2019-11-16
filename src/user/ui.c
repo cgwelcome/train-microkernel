@@ -1,6 +1,6 @@
 #include <hardware/timer.h>
+#include <train/controller.h>
 #include <train/train.h>
-#include <train/trainset.h>
 #include <user/ui.h>
 #include <user/io.h>
 #include <utils/assert.h>
@@ -38,7 +38,7 @@ void PrintTime(int io_tid) {
           );
 }
 
-void PrintSwitch(int io_tid, unsigned int code, char direction) {
+void PrintSwitch(int io_tid, unsigned int code, uint8_t direction) {
     unsigned int row = 0, col = 0;
     assert((code > 0 && code < 19) || (code > 0x98 && code < 0x9D));
     if (code > 0 && code < 19) {
@@ -68,25 +68,12 @@ void PrintTerminal(int io_tid, const char *buffer) {
     Printf(io_tid, COM2, "\033[%u;%uH\033[K%s", LINE_TERMINAL, 3, buffer);
 }
 
-void PrintSensors(int io_tid, ActiveTrainSensorList *list) {
+void PrintSensors(int io_tid, TrainSensorList *list) {
     for (uint32_t i = 0; i < list->size; i++) {
         Printf(io_tid, COM2, "\033[s\033[%d;%dH\033[K%c%u\033[u",
             LINE_SENSOR_START + i, 3,
             list->sensors[i].module,
             list->sensors[i].id
         );
-        Train *train = list->sensors[i].train;
-        if (train == NULL) {
-            Printf(io_tid, COM2, "\033[s\033[%d;%dH%s\033[u",
-                LINE_SENSOR_START + i, 8,
-                "?"
-            );
-        } else {
-            Printf(io_tid, COM2, "\033[s\033[%d;%dH%d\033[u",
-                LINE_SENSOR_START + i, 8,
-                train->id
-            );
-        }
     };
-
 }

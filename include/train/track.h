@@ -6,9 +6,9 @@
 #include <stdint.h>
 #include <server/train.h>
 
-#define MAX_PATHNODE_NAME    10
-#define MAX_EDGE_DEGREE       2
-#define MAX_NODE_PER_TRACK  144
+#define MAX_PATHNODE_NAME        10
+#define MAX_EDGE_DEGREE           2
+#define MAX_NODE_PER_TRACK      144
 
 #define MODULE_TOTAL_NUM          5
 #define MAX_SENSOR_PER_MODULE    16
@@ -78,11 +78,6 @@ typedef struct {
  * Load Train Track from a generated C function.
  */
 void track_init(Track *track, TrackName name);
-
-/**
- * Access the default track instance.
- */
-Track *track_instance();
 
 /**
  * Find TrackNode by its id.

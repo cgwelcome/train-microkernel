@@ -2,9 +2,7 @@
 #include <train/track.h>
 #include <utils/assert.h>
 
-static Track track;
-
-Track *track_instance() { return &track; }
+Track singleton_track;
 
 TrackNode *track_find_node(Track *track, uint32_t id) {
     assert(track->inited);

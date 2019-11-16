@@ -42,9 +42,9 @@ static int cmd_init(int nargc, char **nargv) {
     };
     char *track = nargv[1];
 
-    TrainSwitchOne(train_tid, 6, DIR_STRAIGHT);
-    TrainSwitchOne(train_tid, 9, DIR_STRAIGHT);
-    TrainSwitchOne(train_tid, 15, DIR_STRAIGHT);
+    TrainSwitch(train_tid, 6, DIR_STRAIGHT);
+    TrainSwitch(train_tid, 9, DIR_STRAIGHT);
+    TrainSwitch(train_tid, 15, DIR_STRAIGHT);
     if (!strcmp(track, "a") || !strcmp(track, "A")) {
         TrainInitTrack(train_tid, TRAIN_TRACK_A);
         return 0;
@@ -64,7 +64,7 @@ static int cmd_cv(int nargc, char **nargv) {
     };
     uint32_t train_id = (uint32_t)atoi(nargv[1]);
     if (is_train(train_id)) {
-        TrainStart(train_tid, train_id);
+        TrainInitTrain(train_tid, train_id);
         return 0;
     }
     PrintTerminal(io_tid, "invalid train id");
@@ -79,7 +79,7 @@ static int cmd_tr(int nargc, char **nargv) {
     uint32_t train_id = (uint32_t)atoi(nargv[1]);
     uint32_t speed = (uint32_t)atoi(nargv[2]);
     if (is_train(train_id) && is_speed(speed)) {
-        TrainSetSpeed(train_tid, train_id, speed);
+        TrainSpeed(train_tid, train_id, speed);
         return 0;
     }
     PrintTerminal(io_tid, "invalid train id/speed");
@@ -111,11 +111,11 @@ static int cmd_sw(int nargc, char **nargv) {
         return 1;
     }
     if (!strcmp(direction, "c") || !strcmp(direction, "C")) {
-        TrainSwitchOne(train_tid, switch_id, DIR_CURVED);
+        TrainSwitch(train_tid, switch_id, DIR_CURVED);
         return 0;
     }
     if (!strcmp(direction, "s") || !strcmp(direction, "S")) {
-        TrainSwitchOne(train_tid, switch_id, DIR_STRAIGHT);
+        TrainSwitch(train_tid, switch_id, DIR_STRAIGHT);
         return 0;
     }
     PrintTerminal(io_tid, "invalid direction");
@@ -217,7 +217,7 @@ static void ui_keyboard_task() {
     char cmd_buffer[CMD_BUFFER_SIZE];
 
     io_tid = WhoIs(SERVER_NAME_IO);
-    train_tid = WhoIs(SERVER_NAME_TMS);
+    train_tid = WhoIs(SERVER_NAME_TRAIN);
 
     char in;
     for (;;) {

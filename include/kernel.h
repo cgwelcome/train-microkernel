@@ -63,7 +63,7 @@
 #define SERVER_NAME_IO          "IO"
 
 #define SERVER_NAME_RPS         "RPS"
-#define SERVER_NAME_TMS         "TMS"
+#define SERVER_NAME_TRAIN       "TS"
 
 /**
  * Default priorities for important servers
@@ -77,12 +77,11 @@
 
 #define PRIORITY_SERVER_RPS         2000
 #define PRIORITY_SERVER_UI          2000
-#define PRIORITY_SERVER_TMS         3000
+#define PRIORITY_SERVER_TRAIN       3000
 
 #define PRIORITY_NOTIFIER_CLOCK         2500
 #define PRIORITY_NOTIFIER_IO_COM1       2500
 #define PRIORITY_NOTIFIER_IO_COM2       2500
-#define PRIORITY_NOTIFIER_TMS_SENSORS   2500
-#define PRIORITY_NOTIFIER_TMS_DELAY     2500
+#define PRIORITY_NOTIFIER_TRAIN         2500
 
 #endif /*__KERNEL_H__*/

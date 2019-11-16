@@ -36,7 +36,7 @@ uint32_t train_index_to_id(uint32_t index);
 /**
  * Using train_id_to_index, find the train in trains
  */
-Train *trains_find(Train *trains, uint32_t train_id);
+Train *train_find(Train *trains, uint32_t train_id);
 
 /**
  * Convert speed to a velocity

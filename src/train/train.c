@@ -2,7 +2,9 @@
 #include <hardware/timer.h>
 #include <utils/assert.h>
 
-static const uint32_t train_ids[TRAIN_COUNT] = { 1, 24, 58, 74, 78, 79 };
+Train singleton_trains[TRAIN_COUNT];
+
+const uint32_t train_ids[TRAIN_COUNT] = { 1, 24, 58, 74, 78, 79 };
 
 static const uint32_t velocities[15] = {
     0, 40, 80, 120, 160, 200, 260, 320, 370, 430, 465, 530, 560, 0, 0,
@@ -32,7 +34,7 @@ uint32_t train_index_to_id(uint32_t index) {
     return train_ids[index];
 }
 
-Train *trains_find(Train *trains, uint32_t train_id) {
+Train *train_find(Train *trains, uint32_t train_id) {
     return &trains[train_id_to_index(train_id)];
 }
 

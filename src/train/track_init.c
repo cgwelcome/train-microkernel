@@ -1,4 +1,5 @@
 #include <train/track.h>
+#include <utils/assert.h>
 
 static void track_init_a(TrackNode *track) {
   track[0].id = 0;
