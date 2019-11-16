@@ -2,10 +2,8 @@
 #define __TRAIN_MANAGER_H__
 
 #include <stdint.h>
-#include <server/train.h>
 #include <train/train.h>
-#include <train/track.h>
-#include <utils/queue.h>
+#include <train/controller.h>
 
 // Highest MAX_{}_NUM means highest id
 #define MAX_TRAIN_NUM              80

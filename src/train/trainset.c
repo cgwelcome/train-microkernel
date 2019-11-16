@@ -35,7 +35,7 @@ void trainset_switch_done(TrainIO *io) {
     Putc(io->tid, io->uart, (char)TRAINSWITCH_DONE);
 }
 
-static void trainset_sensor_parsemodule(ActiveTrainSensorList *sensorlist, char module, uint16_t raw) {
+static void trainset_sensor_parsemodule(TrainSensorList *sensorlist, char module, uint16_t raw) {
     for (uint32_t i = 0; i < MAX_SENSOR_PER_MODULE; i++) {
         if (raw % 2 == 1) {
             TrainSensor sensor = {
@@ -49,8 +49,8 @@ static void trainset_sensor_parsemodule(ActiveTrainSensorList *sensorlist, char 
     }
 }
 
-ActiveTrainSensorList trainset_sensor_readall(TrainIO *io) {
-    ActiveTrainSensorList sensorlist;
+TrainSensorList trainset_sensor_readall(TrainIO *io) {
+    TrainSensorList sensorlist;
     sensorlist.size = 0;
     Putc(io->tid, io->uart, (char)(TRAINSENSOR_ALL + MODULE_TOTAL_NUM));
     for (char module = 'A'; module < 'A' + MODULE_TOTAL_NUM; module++) {

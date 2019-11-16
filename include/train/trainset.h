@@ -36,6 +36,6 @@ void trainset_switch(TrainIO *io, uint32_t switch_id, uint32_t status);
 
 void trainset_switch_done(TrainIO *io);
 
-ActiveTrainSensorList trainset_sensor_readall(TrainIO *io);
+TrainSensorList trainset_sensor_readall(TrainIO *io);
 
 #endif /*__TRAIN_TRAINSET_H__*/

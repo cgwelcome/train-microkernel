@@ -19,6 +19,16 @@
 #define DIR_STRAIGHT 0
 #define DIR_CURVED 1
 
+typedef struct {
+    char module;
+    uint32_t id;
+} TrainSensor;
+
+typedef struct {
+    TrainSensor sensors[MAX_SENSOR_NUM];
+    uint32_t size;
+} TrainSensorList;
+
 typedef enum {
     TRAIN_TRACK_A,
     TRAIN_TRACK_B,
@@ -32,16 +42,6 @@ typedef enum {
     NODE_ENTER,
     NODE_EXIT,
 } TrackNodeType;
-
-typedef struct {
-    uint32_t id;
-    char module;
-} TrainSensor;
-
-typedef struct {
-    TrainSensor sensors[MAX_SENSOR_NUM];
-    uint32_t size;
-} ActiveTrainSensorList;
 
 typedef struct PathEdge TrackEdge;
 

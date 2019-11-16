@@ -36,16 +36,6 @@ typedef struct {
     uint32_t data;
 } TrainDirective;
 
-typedef struct {
-    char module;
-    uint32_t id;
-} TrainSensor;
-
-typedef struct {
-    TrainSensor sensors[MAX_SENSOR_NUM];
-    uint32_t size;
-} TrainSensorList;
-
 void controller_init();
 
 void controller_wake();

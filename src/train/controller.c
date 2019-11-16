@@ -39,40 +39,40 @@ static int controller_schedule_next_directive(TrainDirective *directive) {
 
 static void controller_handle_directive(TrainDirective *directive) {
     switch (directive->type) {
-    case TRAIN_DIRECTIVE_GO:
-        Putc(iotid, COM1, TRAIN_CODE_GO);
-        break;
-    case TRAIN_DIRECTIVE_STOP:
-        Putc(iotid, COM1, TRAIN_CODE_STOP);
-        break;
-    case TRAIN_DIRECTIVE_SPEED:
-        Printf(iotid, COM1, "%c%c", (char) directive->data, (char) directive->id);
-        train_find(singleton_trains, directive->id)->speed = directive->data;
-        break;
-    case TRAIN_DIRECTIVE_SWITCH:
-        switch (directive->data) {
-        case DIR_STRAIGHT:
-            Printf(iotid, COM1, "%c%c", (char)TRAIN_CODE_SWITCH_STRAIGHT, (char)directive->id);
+        case TRAIN_DIRECTIVE_GO:
+            Putc(iotid, COM1, TRAIN_CODE_GO);
             break;
-        case DIR_CURVED:
-            Printf(iotid, COM1, "%c%c", (char)TRAIN_CODE_SWITCH_CURVED  , (char)directive->id);
+        case TRAIN_DIRECTIVE_STOP:
+            Putc(iotid, COM1, TRAIN_CODE_STOP);
+            break;
+        case TRAIN_DIRECTIVE_SPEED:
+            Printf(iotid, COM1, "%c%c", (char) directive->data, (char) directive->id);
+            train_find(singleton_trains, directive->id)->speed = directive->data;
+            break;
+        case TRAIN_DIRECTIVE_SWITCH:
+            switch (directive->data) {
+                case DIR_STRAIGHT:
+                    Printf(iotid, COM1, "%c%c", (char)TRAIN_CODE_SWITCH_STRAIGHT, (char)directive->id);
+                    break;
+                case DIR_CURVED:
+                    Printf(iotid, COM1, "%c%c", (char)TRAIN_CODE_SWITCH_CURVED  , (char)directive->id);
+                    break;
+                default:
+                    throw("unknow switch status");
+            }
+            if (singleton_track.inited) {
+                TrackNode *branch = track_find_branch(&singleton_track, directive->id);
+                if (!branch->broken) {
+                    branch->direction = (uint8_t) directive->data;
+                }
+                PrintSwitch(iotid, branch->num, branch->direction);
+            }
+            break;
+        case TRAIN_DIRECTIVE_SWITCH_DONE:
+            Putc(iotid, COM1, TRAIN_CODE_SWITCH_DONE);
             break;
         default:
-            throw("unknow switch status");
-        }
-        if (singleton_track.inited) {
-            TrackNode *branch = track_find_branch(&singleton_track, directive->id);
-            if (!branch->broken) {
-                branch->direction = (uint8_t) directive->data;
-            }
-            PrintSwitch(iotid, branch->num, branch->direction);
-        }
-        break;
-    case TRAIN_DIRECTIVE_SWITCH_DONE:
-        Putc(iotid, COM1, TRAIN_CODE_SWITCH_DONE);
-        break;
-    default:
-        throw("unacceptable directive type");
+            throw("unacceptable directive type");
     }
 }
 
