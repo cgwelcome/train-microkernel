@@ -1,6 +1,7 @@
 #ifndef __TRAIN_TRACK_H__
 #define __TRAIN_TRACK_H__
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <server/train.h>
@@ -61,7 +62,7 @@ typedef struct PathNode {
 
     uint8_t   broken;
     uint8_t    direction;
-    TrackNode *reverse; /** same location, but opposite direction */
+    TrackNode *reverse; /* same location, but opposite direction */
     TrackEdge edge[MAX_EDGE_DEGREE];
 } TrackNode;
 
@@ -77,6 +78,7 @@ typedef struct {
 } TrackPath;
 
 typedef struct {
+    bool inited;
     TrackName name;
     size_t node_count;
     TrackNode nodes[MAX_NODE_PER_TRACK];
@@ -86,6 +88,11 @@ typedef struct {
  * Load Train Track from a generated C function.
  */
 void track_init(Track *track, TrackName name);
+
+/**
+ * Access the default track instance.
+ */
+Track *track_instance();
 
 /**
  * Find TrackNode by its id.
