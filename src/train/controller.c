@@ -59,7 +59,9 @@ static void controller_handle_directive(TrainDirective *directive) {
         default:
             throw("unknow switch status");
         }
-        track_set_branch_direction(&singleton_track, directive->id, (uint8_t) directive->data);
+        if (singleton_track.inited) {
+            track_set_branch_direction(&singleton_track, directive->id, (uint8_t) directive->data);
+        }
         PrintSwitch(iotid, directive->id, (uint8_t) directive->data);
         break;
     case TRAIN_DIRECTIVE_SWITCH_DONE:

@@ -45,7 +45,7 @@ void track_set_branch_direction(Track *track, uint32_t switch_id, uint8_t direct
     assert(direction == DIR_STRAIGHT || direction == DIR_CURVED);
 
     TrackNode *branch = track_find_branch(track, switch_id);
-    if (branch != NULL) {
+    if (branch != NULL && branch->broken == 0) {
         branch->direction = direction;
     }
 }
