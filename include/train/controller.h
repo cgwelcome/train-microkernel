@@ -4,9 +4,9 @@
 #include <stdint.h>
 #include <train/track.h>
 
-#define CONTROLLER_SWITCH_INTERAL    100 // ms
-#define CONTROLLER_REVERSE_DELAY    1500
-#define CONTROLLER_DIRECTIVE_LIMIT  1024
+#define CONTROLLER_SWITCH_DONE_TIMEOUT  100 // ms
+#define CONTROLLER_REVERSE_DELAY       1500
+#define CONTROLLER_DIRECTIVE_LIMIT     1024
 
 #define TRAIN_CODE_GO                 96
 #define TRAIN_CODE_STOP               97
@@ -21,13 +21,8 @@
 
 typedef enum {
     TRAIN_DIRECTIVE_NONE,
-    TRAIN_DIRECTIVE_GO,
-    TRAIN_DIRECTIVE_STOP,
     TRAIN_DIRECTIVE_SPEED,
     TRAIN_DIRECTIVE_SWITCH,
-    TRAIN_DIRECTIVE_SWITCH_DONE,
-    TRAIN_DIRECTIVE_SENSOR_ONE,
-    TRAIN_DIRECTIVE_SENSOR_ALL,
 } TrainDirectiveType;
 
 typedef struct {
@@ -50,19 +45,17 @@ void controller_init();
 
 void controller_wake();
 
-void controller_go(uint32_t delay /*in ms*/);
+void controller_go();
 
-void controller_stop(uint32_t delay /*in ms*/);
+void controller_stop();
 
 void controller_speed_one(uint32_t train_id, uint32_t speed, uint32_t delay /*in ms*/);
 
 void controller_speed_all(uint32_t speed, uint32_t delay /*in ms*/);
 
-uint32_t controller_switch_one(uint32_t switch_id, uint32_t direction, uint32_t delay /*in ms*/);
+void controller_switch_one(uint32_t switch_id, uint32_t direction, uint32_t delay /*in ms*/);
 
-uint32_t controller_switch_some(uint32_t *switch_ids, uint32_t *directions, size_t count, uint32_t delay /*in ms*/);
-
-uint32_t controller_switch_all(uint32_t direction, uint32_t delay /*in ms*/);
+void controller_switch_all(uint32_t direction, uint32_t delay /*in ms*/);
 
 void controller_read_sensors(TrainSensorList *sensorlist);
 
