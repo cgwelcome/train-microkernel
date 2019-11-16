@@ -12,7 +12,7 @@ void train_init(Train *train, uint32_t id) {
     train->id = id;
     train->speed = 0;
     train->position.node = NULL;
-    train->position.dist = 0;
+    train->position.offset= 0;
     train->last_position_update_time = 0;
     train->next_sensor_expected_time = 0;
     train->omit_flag = 0;
@@ -51,7 +51,7 @@ uint32_t train_expected_distance(uint32_t speed, uint64_t ms) {
 
 void train_set_position(Train *train, TrackNode *node, uint32_t dist) {
     train->position.node = node;
-    train->position.dist = dist;
+    train->position.offset = dist;
     train->last_position_update_time = timer_read(TIMER3);
 }
 
@@ -69,7 +69,7 @@ void train_estimate_position(Train *train, Track *track) {
 void train_touch_sensor(Train *train, Track *track, TrackNode *sensor) {
     assert(sensor != NULL);
     train_set_position(train, sensor, 0);
-    uint32_t dist = track_find_next_sensor_dist(track, sensor);
+    uint32_t dist = track_find_next_current_edge(track, sensor)->dist;
     if (dist != (uint32_t) -1) {
         uint64_t expected_time = train_expected_time(train->speed, dist);
         train->next_sensor_expected_time = timer_read(TIMER3) + expected_time;

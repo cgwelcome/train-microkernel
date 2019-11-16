@@ -2,7 +2,7 @@
 #include <user/name.h>
 #include <user/io.h>
 
-int helloworld(int argc, char **argv) {
+int test_helloworld(int argc, char **argv) {
     (void)argc;
     (void)argv;
     int iotid = WhoIs(SERVER_NAME_IO);

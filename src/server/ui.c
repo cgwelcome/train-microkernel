@@ -135,9 +135,10 @@ static struct {
     const char *name;
     int (*func)(int argc, char **argv);
 } testtable[] = {
-    { "helloworld",   helloworld },
-    { "argv",         argv       },
-    { NULL,           NULL       },
+    { "helloworld",   test_helloworld  },
+    { "argv",         test_argv        },
+    { "nextsensor",   test_next_sensor },
+    { NULL,           NULL             },
 };
 
 static int cmd_test(int nargc, char **nargv) {
