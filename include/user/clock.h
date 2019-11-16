@@ -29,11 +29,6 @@ int Delay(int tid, int ticks);
  */
 int DelayUntil(int tid, int ticks);
 
-/**
- * Send a IPC request to target tid after ticks espaced.
- */
-void Schedule(int tid, int ticks, int target, char *data, size_t data_size);
-
 /** @} */
 
 #endif /*__USER_CLOCK_H__*/
