@@ -12,6 +12,7 @@
 #define MODULE_TOTAL_NUM          5
 #define MAX_SENSOR_PER_MODULE    16
 #define MAX_SENSOR_NUM           80
+#define MAX_EDGE_PATH           100
 
 #define DIR_AHEAD 0
 #define DIR_STRAIGHT 0
@@ -39,7 +40,7 @@ typedef struct PathEdge {
     TrackEdge *reverse;
     TrackNode *src;
     TrackNode *dest;
-    uint32_t dist; /* in millimetres */
+    uint32_t dist; /** in millimetres */
 } TrackEdge;
 
 typedef struct PathNode {
@@ -49,18 +50,23 @@ typedef struct PathNode {
     uint32_t num;
 
     uint8_t   broken;
-    int8_t    direction;
-    TrackNode *reverse; /* same location, but opposite direction */
+    uint8_t    direction;
+    TrackNode *reverse; /** same location, but opposite direction */
     TrackEdge edge[MAX_EDGE_DEGREE];
 } TrackNode;
 
 typedef struct {
     TrackNode *node;
-    uint32_t dist;
+    uint32_t offset;
 } TrackPosition;
 
 typedef struct {
-    int inited;
+    TrackEdge *edges[MAX_EDGE_PATH];
+    uint32_t size;
+    uint32_t dist;  /** in millimetres */
+} TrackPath;
+
+typedef struct {
     TrackName name;
     size_t node_count;
     TrackNode nodes[MAX_NODE_PER_TRACK];
@@ -94,15 +100,19 @@ TrackNode *track_find_branch(Track *track, uint32_t switch_id);
 /**
  * Set branch to the specific direction
  */
-void track_set_branch_direction(Track *track, uint32_t switch_id, int8_t direction);
+void track_set_branch_direction(Track *track, uint32_t switch_id, uint8_t direction);
 
-TrackNode *track_find_next_node(Track *track, TrackNode *node);
+void track_path_clear(TrackPath *path);
 
-uint32_t track_find_next_node_dist(Track *track, TrackNode *node);
+void track_path_add_edge(TrackPath *path, TrackEdge *edge);
 
-TrackNode *track_find_next_sensor(Track *track, TrackNode *node);
+TrackNode *track_path_head(TrackPath *path);
 
-uint32_t track_find_next_sensor_dist(Track *track, TrackNode *node);
+TrackEdge *track_find_next_edge(Track *track, TrackNode *src, uint8_t direction);
+
+TrackEdge *track_find_next_current_edge(Track *track, TrackNode *src);
+
+TrackPath track_find_next_current_sensor(Track *track, TrackNode *src);
 
 void track_position_reverse(Track *track, TrackPosition *current);
 

@@ -127,27 +127,27 @@ void trainmanager_switch_done() {
     trainset_switch_done(&io);
 }
 
-static void trainmanager_await_next_sensor(uint32_t train_id, TrackNode *sensor) {
-    assert(sensor != NULL);
-    TrackNode *next_sensor = track_find_next_sensor(&track, sensor);
-    if (next_sensor != NULL) {
-        queue_push(&await_sensors[next_sensor->num], (int) train_id);
-    }
-}
+/*static void trainmanager_await_next_sensor(uint32_t train_id, TrackNode *sensor) {*/
+    /*assert(sensor != NULL);*/
+    /*TrackNode *next_sensor = track_find_next_sensor(&track, sensor);*/
+    /*if (next_sensor != NULL) {*/
+        /*queue_push(&await_sensors[next_sensor->num], (int) train_id);*/
+    /*}*/
+/*}*/
 
-static void trainmanager_touch_train_sensor(uint32_t train_id, TrackNode *sensor) {
-    Train *train = trains_find(trains, train_id);
-    if (train != NULL && train->position.node != NULL) {
-        PrintTimeDifference(io.tid, train_id, train->next_sensor_expected_time);
-        uint32_t now = timer_read(TIMER3);
-        uint32_t time = now - (uint32_t) train->prev_touch_time;
-        TrackNode *next = track_find_next_sensor(&track, train->prev_touch_node);
-        uint32_t dist = track_find_next_sensor_dist(&track, next);
-        Printf(io.tid, COM2, "\033[30;1H\033[K%s %u %u", sensor->name, time, dist * 1000 / time);
-    }
-    train_touch_sensor(train, &track, sensor);
-    trainmanager_await_next_sensor(train_id, sensor);
-}
+/*static void trainmanager_touch_train_sensor(uint32_t train_id, TrackNode *sensor) {*/
+    /*Train *train = trains_find(trains, train_id);*/
+    /*if (train != NULL && train->position.node != NULL) {*/
+        /*PrintTimeDifference(io.tid, train_id, train->next_sensor_expected_time);*/
+        /*uint32_t now = timer_read(TIMER3);*/
+        /*uint32_t time = now - (uint32_t) train->prev_touch_time;*/
+        /*TrackNode *next = track_find_next_sensor(&track, train->prev_touch_node);*/
+        /*uint32_t dist = track_find_next_sensor_dist(&track, next);*/
+        /*Printf(io.tid, COM2, "\033[30;1H\033[K%s %u %u", sensor->name, time, dist * 1000 / time);*/
+    /*}*/
+    /*train_touch_sensor(train, &track, sensor);*/
+    /*trainmanager_await_next_sensor(train_id, sensor);*/
+/*}*/
 
 static void trainmanager_update_log(TrainSensor *sensor, Train *train) {
     if (sensor_log.size < MAX_SENSOR_LOG) {
@@ -164,7 +164,7 @@ static void trainmanager_update_log(TrainSensor *sensor, Train *train) {
 static void trainmanager_update_check_sensors() {
     ActiveTrainSensorList list = trainset_sensor_readall(&io);
     for (uint32_t i = 0; i < list.size; i++) {
-        TrackNode *sensor = track_find_sensor(&track, list.sensors[i].module, list.sensors[i].id);
+        /*TrackNode *sensor = track_find_sensor(&track, list.sensors[i].module, list.sensors[i].id);*/
         Train *train = NULL;
         /*if (sensor == NULL) {*/
         /*} else if (queue_size(&initial_trains) > 0) {*/

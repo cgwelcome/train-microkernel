@@ -2,15 +2,15 @@
 #include <train/track.h>
 #include <utils/assert.h>
 
-/*static Track track;*/
-
 TrackNode *track_find_node(Track *track, uint32_t id) {
-    if (!track->inited) return NULL;
+    assert(track->nodes);
+
     return &track->nodes[id];
 }
 
 TrackNode *track_find_node_by_name(Track *track, char *node_name) {
-    if (!track->inited) return NULL;
+    assert(track->nodes);
+
     for (size_t i = 0; i < track->node_count; i++) {
         if (strcmp(node_name, track->nodes[i].name) == 0) {
             return &track->nodes[i];
@@ -22,12 +22,13 @@ TrackNode *track_find_node_by_name(Track *track, char *node_name) {
 TrackNode *track_find_sensor(Track *track, char module, uint32_t id) {
     assert(module >= 'A' && module <= 'E');
     assert(id >= 1 && id <= 16);
-    if (!track->inited) return NULL;
+    assert(track->nodes);
+
     return &(track->nodes[(module - 'A') * MAX_SENSOR_PER_MODULE + (int) (id - 1)]);
 }
 
 TrackNode *track_find_branch(Track *track, uint32_t switch_id) {
-    if (!track->inited) return NULL;
+    assert(track->nodes != NULL);
 
     if (switch_id > 0 && switch_id < 19) {
         return &(track->nodes[80 + 2 * (switch_id - 1)]);
@@ -38,58 +39,70 @@ TrackNode *track_find_branch(Track *track, uint32_t switch_id) {
     throw("unknown switch id");
 }
 
-void track_set_branch_direction(Track *track, uint32_t switch_id, int8_t direction) {
+void track_set_branch_direction(Track *track, uint32_t switch_id, uint8_t direction) {
+    assert(track->nodes != NULL);
     assert(direction == DIR_STRAIGHT || direction == DIR_CURVED);
+
     TrackNode *branch = track_find_branch(track, switch_id);
     if (branch != NULL) {
         branch->direction = direction;
     }
 }
 
-TrackNode *track_find_next_node(Track *track, TrackNode *node) {
-    if (!track->inited) return NULL;
+void track_path_clear(TrackPath *path) {
+    path->size = 0;
+    path->dist = 0;
+}
 
-    if (node->type == NODE_NONE || node->type == NODE_EXIT) {
+void track_path_add_edge(TrackPath *path, TrackEdge *edge) {
+    assert(edge != NULL);
+    path->edges[path->size] = edge;
+    path->dist += edge->dist;
+    path->size++;
+}
+
+TrackNode *track_path_head(TrackPath *path) {
+    if (path->size == 0) return NULL;
+    return path->edges[path->size-1]->dest;
+}
+
+TrackEdge *track_find_next_edge(Track *track, TrackNode *src, uint8_t direction) {
+    assert(track->nodes != NULL);
+    TrackEdge *edge = &src->edge[direction];
+    if (edge->dest->type == NODE_NONE || edge->dest->type == NODE_EXIT) {
         return NULL;
     }
-    return node->edge[node->direction].dest;
+    return edge;
 }
 
-uint32_t track_find_next_node_dist(Track *track, TrackNode *node) {
-    if (!track->inited) return (uint32_t) -1;
-    if (node->type == NODE_NONE || node->type == NODE_EXIT) {
-        return (uint32_t) -1;
-    }
-    return node->edge[node->direction].dist;
+TrackEdge *track_find_next_current_edge(Track *track, TrackNode *src) {
+    return track_find_next_edge(track, src, src->direction);
 }
 
-TrackNode *track_find_next_sensor(Track *track, TrackNode *node) {
-    if (!track->inited) return NULL;
+TrackPath track_find_next_current_sensor(Track *track, TrackNode *src) {
+    assert(track->nodes != NULL);
 
-    TrackNode *current = track_find_next_node(track, node);
-    while (current != NULL && current->type != NODE_SENSOR) {
-        current = track_find_next_node(track, current);
+    TrackPath path;
+    track_path_clear(&path);
+    TrackEdge *edge = track_find_next_current_edge(track, src);
+    while (edge != NULL && edge->dest->type != NODE_SENSOR) {
+        track_path_add_edge(&path, edge);
+        edge = track_find_next_current_edge(track, track_path_head(&path));
     }
-    return current;
-}
-
-uint32_t track_find_next_sensor_dist(Track *track, TrackNode *node) {
-    if (!track->inited) return (uint32_t) -1;
-
-    uint32_t dist = track_find_next_node_dist(track, node);
-    TrackNode *current = track_find_next_node(track, node);
-    while (current != NULL && current->type != NODE_SENSOR) {
-        dist += track_find_next_node_dist(track, current);
-        current = track_find_next_node(track, current);
+    if (edge == NULL) {
+        track_path_clear(&path);
     }
-    return dist;
+    else {
+        track_path_add_edge(&path, edge);
+    }
+    return path;
 }
 
 void track_position_reverse(Track *track, TrackPosition *current) {
-    uint32_t dist = track_find_next_node_dist(track, current->node);
-    assert(current->dist <= dist);
-    current->node = track_find_next_node(track, current->node)->reverse;
-    current->dist = dist - current->dist;
+    TrackEdge *edge = track_find_next_current_edge(track, current->node);
+    assert(current->offset <= edge->dist);
+    current->node = edge->dest->reverse;
+    current->offset = edge->dist - current->offset;
 }
 
 void track_position_move(Track *track, TrackPosition *current, int32_t offset) {
@@ -100,10 +113,12 @@ void track_position_move(Track *track, TrackPosition *current, int32_t offset) {
         track_position_reverse(track, current);
         return;
     }
-    current->dist += (uint32_t) offset;
-    while (current->dist >= track_find_next_node_dist(track, current->node)) {
-        current->dist -= track_find_next_node_dist(track, current->node);
-        current->node = track_find_next_node(track, current->node);
+    current->offset += (uint32_t)offset;
+    TrackEdge *edge = track_find_next_current_edge(track, current->node);
+    while (current->offset >= edge->dist) {
+        current->offset -= edge->dist;
+        edge = track_find_next_current_edge(track, current->node);
+        current->node = edge->dest;
     }
 }
 
@@ -3234,7 +3249,6 @@ static void track_init_b(TrackNode *track) {
 }
 
 void track_init(Track *track, TrackName name) {
-    track->inited = 1;
     track->name = name;
     switch(name) {
     case TRAIN_TRACK_A:
