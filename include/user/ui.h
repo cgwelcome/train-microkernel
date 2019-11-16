@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <train/manager.h>
+#include <train/controller.h>
 
 #define LINE_IDLE            1
 #define LINE_TIME            2
@@ -22,7 +23,7 @@ void PrintIdle(int io_tid, int usage);
 
 void PrintTime(int iotid);
 
-void PrintSwitch(int io_tid, unsigned int code, char direction);
+void PrintSwitch(int io_tid, unsigned int code, uint8_t direction);
 
 void PrintVelocity(int io_tid, uint32_t train_id, uint32_t time, uint32_t velocity);
 

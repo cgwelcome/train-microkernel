@@ -3,9 +3,7 @@
 #include <train/trainset.h>
 #include <utils/assert.h>
 
-static Track track;
-
-Track *track_instance() { return &track; }
+Track singleton_track;
 
 TrackNode *track_find_node(Track *track, uint32_t id) {
     assert(track->inited);
@@ -47,7 +45,7 @@ void track_set_branch_direction(Track *track, uint32_t switch_id, uint8_t direct
     assert(direction == DIR_STRAIGHT || direction == DIR_CURVED);
 
     TrackNode *branch = track_find_branch(track, switch_id);
-    if (branch != NULL) {
+    if (branch != NULL && branch->broken == 0) {
         branch->direction = direction;
     }
 }

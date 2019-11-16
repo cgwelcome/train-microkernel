@@ -4,12 +4,16 @@
 #include <train/track.h>
 #include <train/train.h>
 #include <user/io.h>
+#include <user/name.h>
 #include <user/ui.h>
 #include <user/name.h>
 #include <utils/assert.h>
 #include <utils/pqueue.h>
 
 extern const uint32_t train_ids[TRAIN_COUNT];
+
+extern Track singleton_track;
+extern Train singleton_trains[TRAIN_COUNT];
 
 static int iotid;
 static PQueue directive_queue;
@@ -42,8 +46,8 @@ static void controller_handle_directive(TrainDirective *directive) {
         Putc(iotid, COM1, TRAIN_CODE_STOP);
         break;
     case TRAIN_DIRECTIVE_SPEED:
-        Printf(iotid, COM1, "%c%c", (char)directive->data, (char)directive->id);
-        monitor_set_speed(monitor_instance(), directive->id, directive->data);
+        Printf(iotid, COM1, "%c%c", (char) directive->data, (char) directive->id);
+        train_find(singleton_trains, directive->id)->speed = directive->data;
         break;
     case TRAIN_DIRECTIVE_SWITCH:
         switch (directive->data) {
@@ -56,8 +60,10 @@ static void controller_handle_directive(TrainDirective *directive) {
         default:
             throw("unknow switch status");
         }
-        track_set_branch_direction(track_instance(), directive->id, (uint8_t)directive->data);
-        PrintSwitch(iotid, directive->id, directive->data);
+        if (singleton_track.inited) {
+            track_set_branch_direction(&singleton_track, directive->id, (uint8_t) directive->data);
+        }
+        PrintSwitch(iotid, directive->id, (uint8_t) directive->data);
         break;
     case TRAIN_DIRECTIVE_SWITCH_DONE:
         Putc(iotid, COM1, TRAIN_CODE_SWITCH_DONE);
@@ -68,8 +74,8 @@ static void controller_handle_directive(TrainDirective *directive) {
 }
 
 void controller_wake() {
-    uint64_t now = timer_read(TIMER3);
-    while (pqueue_size(&directive_queue) > 0 && pqueue_peek(&directive_queue) <= now) {
+    uint32_t now = (uint32_t) timer_read(TIMER3);
+    while (pqueue_size(&directive_queue) > 0 && (uint32_t) pqueue_peek(&directive_queue) <= now) {
         int index = pqueue_pop(&directive_queue);
         controller_handle_directive(&directives[index]);
         directives[index].type = TRAIN_DIRECTIVE_NONE;
@@ -77,7 +83,7 @@ void controller_wake() {
 }
 
 static void controller_schedule(TrainDirectiveType type, uint32_t id, uint32_t data, uint32_t delay /*in ms*/) {
-    uint64_t now = timer_read(TIMER3);
+    uint32_t now = (uint32_t) timer_read(TIMER3);
     TrainDirective directive = { .type = type, .id = id, .data = data };
     if (delay == 0) {
         controller_handle_directive(&directive);
@@ -85,6 +91,14 @@ static void controller_schedule(TrainDirectiveType type, uint32_t id, uint32_t d
         int index = controller_schedule_next_directive(&directive);
         pqueue_insert(&directive_queue, index, (int32_t)(now + delay));
     }
+}
+
+void controller_go(uint32_t delay) {
+    controller_schedule(TRAIN_DIRECTIVE_GO, 0, 0, delay);
+}
+
+void controller_stop(uint32_t delay) {
+    controller_schedule(TRAIN_DIRECTIVE_STOP, 0, 0, delay);
 }
 
 void controller_speed_one(uint32_t train_id, uint32_t speed, uint32_t delay) {
@@ -137,9 +151,9 @@ void controller_read_sensors(TrainSensorList *sensorlist) {
     sensorlist->size = 0;
     Putc(iotid, COM1, (char)(TRAIN_CODE_SENSOR_ALL + MODULE_TOTAL_NUM));
     for (char module = 'A'; module < 'A' + MODULE_TOTAL_NUM; module++) {
-        uint16_t raw = 0; char *addr = &raw;
+        uint16_t raw = 0; char *addr = (char *) &raw;
         Getc(iotid, COM1, addr + 1);
         Getc(iotid, COM1, addr + 0);
-        controller_parse_sensor(&sensorlist, module, raw);
+        controller_parse_sensor(sensorlist, module, raw);
     }
 }

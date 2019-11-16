@@ -5,6 +5,7 @@
 #include <train/track.h>
 
 #define CONTROLLER_SWITCH_INTERAL    150 // ms
+#define CONTROLLER_REVERSE_DELAY    1500
 #define CONTROLLER_DIRECTIVE_LIMIT  1024
 
 #define TRAIN_CODE_GO                 96
@@ -48,6 +49,10 @@ typedef struct {
 void controller_init();
 
 void controller_wake();
+
+void controller_go(uint32_t delay /*in ms*/);
+
+void controller_stop(uint32_t delay /*in ms*/);
 
 void controller_speed_one(uint32_t train_id, uint32_t speed, uint32_t delay /*in ms*/);
 

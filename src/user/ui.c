@@ -1,5 +1,7 @@
 #include <hardware/timer.h>
 #include <train/manager.h>
+#include <train/controller.h>
+#include <train/train.h>
 #include <user/ui.h>
 #include <user/io.h>
 #include <utils/assert.h>
@@ -37,7 +39,7 @@ void PrintTime(int io_tid) {
           );
 }
 
-void PrintSwitch(int io_tid, unsigned int code, char direction) {
+void PrintSwitch(int io_tid, unsigned int code, uint8_t direction) {
     unsigned int row = 0, col = 0;
     assert((code > 0 && code < 19) || (code > 0x98 && code < 0x9D));
     if (code > 0 && code < 19) {

@@ -3,29 +3,21 @@
 
 #include <stdint.h>
 
-#define SENSOR_READ_INTERVAL 5
-
 typedef enum {
     TRAIN_REQUEST_INIT_TRACK,
-    TRAIN_REQUEST_START,
+    TRAIN_REQUEST_INIT_TRAIN,
+    TRAIN_REQUEST_WAKE_CONTROLLER,
+    TRAIN_REQUEST_LOCATE_TRAINS,
     TRAIN_REQUEST_SPEED,
     TRAIN_REQUEST_REVERSE,
     TRAIN_REQUEST_MOVE,
-    TRAIN_REQUEST_SWITCH_ALL,
-    TRAIN_REQUEST_SWITCH_ONE,
-    TRAIN_REQUEST_SWITCH_DONE,
-    TRAIN_REQUEST_UPDATE_STATUS,
-    TRAIN_REQUEST_PARK,
-    TRAIN_REQUEST_STOP,
+    TRAIN_REQUEST_SWITCH,
     TRAIN_REQUEST_EXIT,
 } TrainRequestType;
 
 typedef struct {
     TrainRequestType type;
-    uint32_t arg1;
-    uint32_t arg2;
-    uint32_t arg3;
-    uint32_t arg4;
+    uint32_t         args[4];
 } TrainRequest;
 
 /**
