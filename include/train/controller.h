@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <train/track.h>
 
-#define CONTROLLER_SWITCH_INTERAL    150 // ms
+#define CONTROLLER_SWITCH_INTERAL    100 // ms
 #define CONTROLLER_REVERSE_DELAY    1500
 #define CONTROLLER_DIRECTIVE_LIMIT  1024
 
@@ -58,11 +58,11 @@ void controller_speed_one(uint32_t train_id, uint32_t speed, uint32_t delay /*in
 
 void controller_speed_all(uint32_t speed, uint32_t delay /*in ms*/);
 
-void controller_switch_one(uint32_t switch_id, uint32_t direction, uint32_t delay /*in ms*/);
+uint32_t controller_switch_one(uint32_t switch_id, uint32_t direction, uint32_t delay /*in ms*/);
 
-void controller_switch_some(uint32_t *switch_ids, uint32_t *directions, size_t count, uint32_t delay /*in ms*/);
+uint32_t controller_switch_some(uint32_t *switch_ids, uint32_t *directions, size_t count, uint32_t delay /*in ms*/);
 
-void controller_switch_all(uint32_t direction, uint32_t delay /*in ms*/);
+uint32_t controller_switch_all(uint32_t direction, uint32_t delay /*in ms*/);
 
 void controller_read_sensors(TrainSensorList *sensorlist);
 

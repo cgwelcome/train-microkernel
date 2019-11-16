@@ -46,11 +46,11 @@ void TrainMove(int tid, uint32_t train_id, uint32_t speed, uint32_t node_id, int
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
-void TrainSwitch(int tid, uint32_t switch_id, int8_t status) {
+void TrainSwitch(int tid, uint32_t switch_id, int8_t direction) {
     TrainRequest request = {
-        .type    = TRAIN_REQUEST_MOVE,
+        .type    = TRAIN_REQUEST_SWITCH,
         .args[0] = switch_id,
-        .args[1] = (uint32_t) status,
+        .args[1] = (uint32_t) direction,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
