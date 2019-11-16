@@ -65,7 +65,7 @@ void PrintTimeDifference(int io_tid, uint32_t train_id, uint64_t expected_time) 
 }
 
 void PrintTerminal(int io_tid, const char *buffer) {
-    Printf(io_tid, COM2, "\033[%u;%uH\033[K%s", LINE_TERMINAL, 3, buffer);
+    Printf(io_tid, COM2, "\033[%u;%uH\033[K%s█", LINE_TERMINAL, 3, buffer);
 }
 
 void PrintSensors(int io_tid, TrainSensorList *list) {
