@@ -54,12 +54,12 @@ void PrintSwitch(int io_tid, unsigned int code, char direction) {
 }
 
 void PrintVelocity(int io_tid, uint32_t train_id, uint32_t time, uint32_t velocity) {
-    int row = train_id_to_index(train_id);
+    uint32_t row = train_id_to_index(train_id);
     Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K%u %u\033[u", LINE_LOCATION_START + row, 13, time, velocity);
 }
 
 void PrintTimeDifference(int io_tid, uint32_t train_id, uint64_t expected_time) {
-    int row = train_id_to_index(train_id);
+    uint32_t row = train_id_to_index(train_id);
     uint64_t now = timer_read(TIMER3);
     Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K%d\033[u" , LINE_LOCATION_START + row, 13, ((int) now - (int) expected_time) / 100);
 }

@@ -76,7 +76,7 @@ void trainmanager_reverse(uint32_t train_id) {
     (void)train_id;
 }
 
-void trainmanager_switch_all(int8_t switch_status) {
+void trainmanager_switch_all(uint8_t switch_status) {
     uint32_t code = 0;
     switch (switch_status) {
         case DIR_STRAIGHT:
@@ -104,7 +104,7 @@ void trainmanager_switch_all(int8_t switch_status) {
     Schedule(clock_tid, TRAINSWITCH_DONE_INTERVAL, MyTid(), (char *)&request, sizeof(request));
 }
 
-void trainmanager_switch_one(uint32_t switch_id, int8_t switch_status) {
+void trainmanager_switch_one(uint32_t switch_id, uint8_t switch_status) {
     switch (switch_status) {
         case DIR_STRAIGHT:
             trainset_switch(&io, switch_id, TRAINSWITCH_STRAIGHT);

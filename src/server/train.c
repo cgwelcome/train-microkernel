@@ -37,10 +37,10 @@ static void train_manager_root_task() {
                 // trainmanager_move(request.arg1, request.arg2, request.arg3, request.arg4);
                 break;
             case TRAIN_REQUEST_SWITCH_ALL:
-                trainmanager_switch_all((int8_t) request.arg1);
+                trainmanager_switch_all((uint8_t)request.arg1);
                 break;
             case TRAIN_REQUEST_SWITCH_ONE:
-                trainmanager_switch_one(request.arg1, (int8_t) request.arg2);
+                trainmanager_switch_one(request.arg1, (uint8_t)request.arg2);
                 break;
             case TRAIN_REQUEST_SWITCH_DONE:
                 trainmanager_switch_done();

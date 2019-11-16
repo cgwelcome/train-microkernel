@@ -12,7 +12,6 @@ void Getc(int tid, int uart, char *c) {
         .size = 1,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
-    return (int)c;
 }
 
 void Putc(int tid, int uart, char c) {

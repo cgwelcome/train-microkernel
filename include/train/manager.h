@@ -42,11 +42,11 @@ void trainmanager_reverse(uint32_t train_id);
 /**
  * Switch all switches
  */
-void trainmanager_switch_all(int8_t status);
+void trainmanager_switch_all(uint8_t status);
 /**
  * Switch one switch, TODO: Combine Switchone and Switchall
  */
-void trainmanager_switch_one(uint32_t switch_id, int8_t status);
+void trainmanager_switch_one(uint32_t switch_id, uint8_t status);
 /**
  * Turn off switch after an interval
  */
