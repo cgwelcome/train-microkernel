@@ -38,12 +38,16 @@ static void train_root_task() {
     controller_init();
     controller_go(0);
     controller_speed_all(0, 0);
-    controller_switch_all(DIR_CURVED, 0);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         if (request.type == TRAIN_REQUEST_INIT_TRACK) {
+            uint32_t delay = 0;
             TrackName name = (TrackName) request.args[0];
             track_init(&singleton_track, name);
+            delay = controller_switch_all(DIR_CURVED, delay);
+            delay = controller_switch_one(6,  DIR_STRAIGHT, delay + 10);
+            delay = controller_switch_one(9,  DIR_STRAIGHT, delay + 10);
+            delay = controller_switch_one(15, DIR_STRAIGHT, delay + 10);
         }
         if (request.type == TRAIN_REQUEST_INIT_TRAIN) {
             uint32_t train_id = request.args[0];

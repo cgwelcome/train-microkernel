@@ -60,9 +60,12 @@ static void controller_handle_directive(TrainDirective *directive) {
             throw("unknow switch status");
         }
         if (singleton_track.inited) {
-            track_set_branch_direction(&singleton_track, directive->id, (uint8_t) directive->data);
+            TrackNode *branch = track_find_branch(&singleton_track, directive->id);
+            if (!branch->broken) {
+                branch->direction = (uint8_t) directive->data;
+            }
+            PrintSwitch(iotid, branch->num, branch->direction);
         }
-        PrintSwitch(iotid, directive->id, (uint8_t) directive->data);
         break;
     case TRAIN_DIRECTIVE_SWITCH_DONE:
         Putc(iotid, COM1, TRAIN_CODE_SWITCH_DONE);
@@ -110,20 +113,22 @@ void controller_speed_all(uint32_t speed, uint32_t delay) {
     }
 }
 
-void controller_switch_one(uint32_t switch_id, uint32_t direction, uint32_t delay) {
+uint32_t controller_switch_one(uint32_t switch_id, uint32_t direction, uint32_t delay) {
     controller_schedule(TRAIN_DIRECTIVE_SWITCH, switch_id, direction, delay);
     controller_schedule(TRAIN_DIRECTIVE_SWITCH_DONE, 0, 0, delay + CONTROLLER_SWITCH_INTERAL);
+    return delay + CONTROLLER_REVERSE_DELAY;
 }
 
-void controller_switch_some(uint32_t *switch_ids, uint32_t *directions, size_t count, uint32_t delay) {
+uint32_t controller_switch_some(uint32_t *switch_ids, uint32_t *directions, size_t count, uint32_t delay) {
     for (size_t i = 0; i < count; i++) {
         controller_schedule(TRAIN_DIRECTIVE_SWITCH, switch_ids[i], directions[i], delay);
         delay += CONTROLLER_SWITCH_INTERAL;
     }
     controller_schedule(TRAIN_DIRECTIVE_SWITCH_DONE, 0, 0, delay);
+    return delay;
 }
 
-void controller_switch_all(uint32_t direction, uint32_t delay) {
+uint32_t controller_switch_all(uint32_t direction, uint32_t delay) {
     for (uint32_t id = 1; id <= 18; id++) {
         controller_schedule(TRAIN_DIRECTIVE_SWITCH, id, direction, delay);
         delay += CONTROLLER_SWITCH_INTERAL;
@@ -133,6 +138,7 @@ void controller_switch_all(uint32_t direction, uint32_t delay) {
         delay += CONTROLLER_SWITCH_INTERAL;
     }
     controller_schedule(TRAIN_DIRECTIVE_SWITCH_DONE, 0, 0, delay);
+    return delay;
 }
 
 static void controller_parse_sensor(TrainSensorList *sensorlist, char module, uint16_t raw) {

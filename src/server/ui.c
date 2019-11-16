@@ -41,10 +41,6 @@ static int cmd_init(int nargc, char **nargv) {
         return 1;
     };
     char *track = nargv[1];
-
-    TrainSwitch(train_tid, 6, DIR_STRAIGHT);
-    TrainSwitch(train_tid, 9, DIR_STRAIGHT);
-    TrainSwitch(train_tid, 15, DIR_STRAIGHT);
     if (!strcmp(track, "a") || !strcmp(track, "A")) {
         TrainInitTrack(train_tid, TRAIN_TRACK_A);
         return 0;
