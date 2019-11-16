@@ -14,8 +14,7 @@ void train_init(Train *train, uint32_t id) {
     train->position.node = NULL;
     train->position.offset= 0;
     train->last_position_update_time = 0;
-    train->next_sensor_expected_time = 0;
-    train->omit_flag = 0;
+    train->next_sensor_expected_time = 0; train->omit_flag = 0;
 }
 
 uint32_t train_id_to_index(uint32_t train_id) {

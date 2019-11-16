@@ -12,7 +12,11 @@ int test_next_sensor(int argc, char **argv) {
     }
     Track track;
     track_init(&track, TRAIN_TRACK_A);
-    TrackNode *node = track_find_sensor(&track, argv[1][0], (uint32_t)atoi(&argv[1][1]));
+    TrainSensor sensor = {
+        .module = argv[1][0],
+        .id = (uint32_t)atoi(&argv[1][1]),
+    };
+    TrackNode *node = track_find_sensor(&track, &sensor);
     TrackPath path = track_find_next_current_sensor(&track, node);
     if (path.dist == 0) {
         Printf(iotid, COM2, "Path not found\n\r");

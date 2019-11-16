@@ -41,7 +41,6 @@ static void trainset_sensor_parsemodule(ActiveTrainSensorList *sensorlist, char 
             TrainSensor sensor = {
                 .id = MAX_SENSOR_PER_MODULE - i,
                 .module = module,
-                .train = NULL,
             };
             sensorlist->sensors[sensorlist->size] = sensor;
             sensorlist->size++;

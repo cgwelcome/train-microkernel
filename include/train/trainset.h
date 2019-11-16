@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <train/track.h>
-#include <train/train.h>
 
 #define TRAINSET_GO      96
 #define TRAINSET_STOP    97
@@ -22,17 +21,6 @@ typedef struct {
     int tid;
     int uart;
 } TrainIO;
-
-typedef struct {
-    uint32_t id;
-    char module;
-    Train *train;
-} TrainSensor;
-
-typedef struct {
-    TrainSensor sensors[MAX_SENSOR_NUM];
-    uint32_t size;
-} ActiveTrainSensorList;
 
 void trainset_go(TrainIO *io);
 

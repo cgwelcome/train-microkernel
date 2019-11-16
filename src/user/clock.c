@@ -35,7 +35,6 @@ int DelayUntil(int tid, int ticks) {
     return time;
 }
 
-
 void Schedule(int tid, int ticks, int target, char *data, size_t data_size) {
     assert(ticks >= 0);
     assert(data_size <= CLOCK_SCHEDULE_DATA_LIMIT);

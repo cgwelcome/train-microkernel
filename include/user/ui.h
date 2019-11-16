@@ -2,7 +2,7 @@
 #define __USER_UI_H__
 
 #include <stdint.h>
-#include <train/trainset.h>
+#include <train/manager.h>
 
 #define LINE_IDLE            1
 #define LINE_TIME            2
@@ -30,6 +30,6 @@ void PrintTimeDifference(int io_tid, uint32_t train_id, uint64_t expected_time);
 
 void PrintTerminal(int io_tid, const char *cmd_buffer);
 
-void PrintSensors(int io_tid, ActiveTrainSensorList *list);
+void PrintSensors(int io_tid, SensorAttributionList *list);
 
 #endif /*__USER_TRAIN_H__*/

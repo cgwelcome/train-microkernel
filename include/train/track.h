@@ -32,6 +32,16 @@ typedef enum {
     NODE_EXIT,
 } TrackNodeType;
 
+typedef struct {
+    uint32_t id;
+    char module;
+} TrainSensor;
+
+typedef struct {
+    TrainSensor sensors[MAX_SENSOR_NUM];
+    uint32_t size;
+} ActiveTrainSensorList;
+
 typedef struct PathEdge TrackEdge;
 
 typedef struct PathNode TrackNode;
@@ -90,7 +100,7 @@ TrackNode *track_find_node_by_name(Track *track, char *node_name);
 /**
  * Find sensor by its module and id.
  */
-TrackNode *track_find_sensor(Track *track, char module, uint32_t id);
+TrackNode *track_find_sensor(Track *track, TrainSensor *sensor);
 
 /**
  * Find branch by its switch id.

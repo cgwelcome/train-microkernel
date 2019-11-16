@@ -1,5 +1,6 @@
 #include <string.h>
 #include <train/track.h>
+#include <train/trainset.h>
 #include <utils/assert.h>
 
 TrackNode *track_find_node(Track *track, uint32_t id) {
@@ -19,12 +20,12 @@ TrackNode *track_find_node_by_name(Track *track, char *node_name) {
     throw("unknown node name");
 }
 
-TrackNode *track_find_sensor(Track *track, char module, uint32_t id) {
-    assert(module >= 'A' && module <= 'E');
-    assert(id >= 1 && id <= 16);
+TrackNode *track_find_sensor(Track *track, TrainSensor *sensor) {
+    assert(sensor->module >= 'A' && sensor->module <= 'E');
+    assert(sensor->id >= 1 && sensor->id <= 16);
     assert(track->nodes);
 
-    return &(track->nodes[(module - 'A') * MAX_SENSOR_PER_MODULE + (int) (id - 1)]);
+    return &(track->nodes[(uint32_t)(sensor->module-'A')*MAX_SENSOR_PER_MODULE + (sensor->id-1)]);
 }
 
 TrackNode *track_find_branch(Track *track, uint32_t switch_id) {
