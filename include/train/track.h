@@ -19,6 +19,16 @@
 #define DIR_STRAIGHT 0
 #define DIR_CURVED 1
 
+typedef struct {
+    char module;
+    uint32_t id;
+} TrainSensor;
+
+typedef struct {
+    TrainSensor sensors[MAX_SENSOR_NUM];
+    uint32_t size;
+} TrainSensorList;
+
 typedef enum {
     TRAIN_TRACK_A,
     TRAIN_TRACK_B,
@@ -92,7 +102,7 @@ TrackNode *track_find_node_by_name(Track *track, char *node_name);
 /**
  * Find sensor by its module and id.
  */
-TrackNode *track_find_sensor(Track *track, char module, uint32_t id);
+TrackNode *track_find_sensor(Track *track, TrainSensor *sensor);
 
 /**
  * Find branch by its switch id.

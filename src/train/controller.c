@@ -6,6 +6,7 @@
 #include <user/io.h>
 #include <user/name.h>
 #include <user/ui.h>
+#include <user/name.h>
 #include <utils/assert.h>
 #include <utils/pqueue.h>
 
@@ -40,32 +41,32 @@ static int controller_schedule_next_directive(TrainDirective *directive) {
 
 static void controller_handle_directive(TrainDirective *directive) {
     switch (directive->type) {
-    case TRAIN_DIRECTIVE_SPEED:
-        Printf(iotid, COM1, "%c%c", (char) directive->data, (char) directive->id);
-        train_find(singleton_trains, directive->id)->speed = directive->data;
-        break;
-    case TRAIN_DIRECTIVE_SWITCH:
-        switch (directive->data) {
-        case DIR_STRAIGHT:
-            Printf(iotid, COM1, "%c%c", (char) TRAIN_CODE_SWITCH_STRAIGHT, (char) directive->id);
+        case TRAIN_DIRECTIVE_SPEED:
+            Printf(iotid, COM1, "%c%c", (char) directive->data, (char) directive->id);
+            train_find(singleton_trains, directive->id)->speed = directive->data;
             break;
-        case DIR_CURVED:
-            Printf(iotid, COM1, "%c%c", (char) TRAIN_CODE_SWITCH_CURVED  , (char) directive->id);
+        case TRAIN_DIRECTIVE_SWITCH:
+            switch (directive->data) {
+                case DIR_STRAIGHT:
+                    Printf(iotid, COM1, "%c%c", (char)TRAIN_CODE_SWITCH_STRAIGHT, (char)directive->id);
+                    break;
+                case DIR_CURVED:
+                    Printf(iotid, COM1, "%c%c", (char)TRAIN_CODE_SWITCH_CURVED  , (char)directive->id);
+                    break;
+                default:
+                    throw("unknow switch status");
+            }
+            last_switch_time = (uint32_t) timer_read(TIMER3);
+            if (singleton_track.inited) {
+                TrackNode *branch = track_find_branch(&singleton_track, directive->id);
+                if (!branch->broken) {
+                    branch->direction = (uint8_t) directive->data;
+                }
+                PrintSwitch(iotid, branch->num, branch->direction);
+            }
             break;
         default:
-            throw("unknow switch status");
-        }
-        last_switch_time = (uint32_t) timer_read(TIMER3);
-        if (singleton_track.inited) {
-            TrackNode *branch = track_find_branch(&singleton_track, directive->id);
-            if (!branch->broken) {
-                branch->direction = (uint8_t) directive->data;
-            }
-            PrintSwitch(iotid, branch->num, branch->direction);
-        }
-        break;
-    default:
-        throw("unacceptable directive type");
+            throw("unacceptable directive type");
     }
 }
 
@@ -91,7 +92,7 @@ static void controller_schedule(TrainDirectiveType type, uint32_t id, uint32_t d
         controller_handle_directive(&directive);
     } else {
         int index = controller_schedule_next_directive(&directive);
-        pqueue_insert(&directive_queue, index, (int) (now + delay));
+        pqueue_insert(&directive_queue, index, (int32_t)(now + delay));
     }
 }
 
