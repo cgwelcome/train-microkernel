@@ -72,6 +72,11 @@ typedef struct {
 void track_init(Track *track, TrackName name);
 
 /**
+ * Access the default track instance.
+ */
+Track *track_instance();
+
+/**
  * Find TrackNode by its id.
  */
 TrackNode *track_find_node(Track *track, uint32_t id);
