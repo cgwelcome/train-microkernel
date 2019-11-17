@@ -1,6 +1,5 @@
 #include <string.h>
 #include <train/track.h>
-#include <train/trainset.h>
 #include <utils/assert.h>
 
 Track singleton_track;

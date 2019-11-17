@@ -16,11 +16,13 @@ extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
 
 static int iotid;
+static uint32_t last_switch_time;
 static PQueue directive_queue;
 static TrainDirective directives[CONTROLLER_DIRECTIVE_LIMIT];
 
 void controller_init() {
     iotid = WhoIs(SERVER_NAME_IO);
+    last_switch_time = (uint32_t) -1;
     pqueue_init(&directive_queue);
     for (int i = 0; i < CONTROLLER_DIRECTIVE_LIMIT; i++) {
         directives[i].type = TRAIN_DIRECTIVE_NONE;
@@ -39,12 +41,6 @@ static int controller_schedule_next_directive(TrainDirective *directive) {
 
 static void controller_handle_directive(TrainDirective *directive) {
     switch (directive->type) {
-        case TRAIN_DIRECTIVE_GO:
-            Putc(iotid, COM1, TRAIN_CODE_GO);
-            break;
-        case TRAIN_DIRECTIVE_STOP:
-            Putc(iotid, COM1, TRAIN_CODE_STOP);
-            break;
         case TRAIN_DIRECTIVE_SPEED:
             Printf(iotid, COM1, "%c%c", (char) directive->data, (char) directive->id);
             train_find(singleton_trains, directive->id)->speed = directive->data;
@@ -60,6 +56,7 @@ static void controller_handle_directive(TrainDirective *directive) {
                 default:
                     throw("unknow switch status");
             }
+            last_switch_time = (uint32_t) timer_read(TIMER3);
             if (singleton_track.inited) {
                 TrackNode *branch = track_find_branch(&singleton_track, directive->id);
                 if (!branch->broken) {
@@ -67,9 +64,6 @@ static void controller_handle_directive(TrainDirective *directive) {
                 }
                 PrintSwitch(iotid, branch->num, branch->direction);
             }
-            break;
-        case TRAIN_DIRECTIVE_SWITCH_DONE:
-            Putc(iotid, COM1, TRAIN_CODE_SWITCH_DONE);
             break;
         default:
             throw("unacceptable directive type");
@@ -87,6 +81,12 @@ void controller_wake() {
 
 static void controller_schedule(TrainDirectiveType type, uint32_t id, uint32_t data, uint32_t delay /*in ms*/) {
     uint32_t now = (uint32_t) timer_read(TIMER3);
+    if (last_switch_time != (uint32_t) -1) {
+        if (now - last_switch_time >= CONTROLLER_SWITCH_DONE_TIMEOUT) {
+            Putc(iotid, COM1, TRAIN_CODE_SWITCH_DONE);
+            last_switch_time = (uint32_t) -1;
+        }
+    }
     TrainDirective directive = { .type = type, .id = id, .data = data };
     if (delay == 0) {
         controller_handle_directive(&directive);
@@ -96,12 +96,12 @@ static void controller_schedule(TrainDirectiveType type, uint32_t id, uint32_t d
     }
 }
 
-void controller_go(uint32_t delay) {
-    controller_schedule(TRAIN_DIRECTIVE_GO, 0, 0, delay);
+void controller_go() {
+    Putc(iotid, COM1, TRAIN_CODE_GO);
 }
 
-void controller_stop(uint32_t delay) {
-    controller_schedule(TRAIN_DIRECTIVE_STOP, 0, 0, delay);
+void controller_stop() {
+    Putc(iotid, COM1, TRAIN_CODE_STOP);
 }
 
 void controller_speed_one(uint32_t train_id, uint32_t speed, uint32_t delay) {
@@ -114,32 +114,17 @@ void controller_speed_all(uint32_t speed, uint32_t delay) {
     }
 }
 
-uint32_t controller_switch_one(uint32_t switch_id, uint32_t direction, uint32_t delay) {
+void controller_switch_one(uint32_t switch_id, uint32_t direction, uint32_t delay) {
     controller_schedule(TRAIN_DIRECTIVE_SWITCH, switch_id, direction, delay);
-    controller_schedule(TRAIN_DIRECTIVE_SWITCH_DONE, 0, 0, delay + CONTROLLER_SWITCH_INTERAL);
-    return delay + CONTROLLER_REVERSE_DELAY;
 }
 
-uint32_t controller_switch_some(uint32_t *switch_ids, uint32_t *directions, size_t count, uint32_t delay) {
-    for (size_t i = 0; i < count; i++) {
-        controller_schedule(TRAIN_DIRECTIVE_SWITCH, switch_ids[i], directions[i], delay);
-        delay += CONTROLLER_SWITCH_INTERAL;
-    }
-    controller_schedule(TRAIN_DIRECTIVE_SWITCH_DONE, 0, 0, delay);
-    return delay;
-}
-
-uint32_t controller_switch_all(uint32_t direction, uint32_t delay) {
+void controller_switch_all(uint32_t direction, uint32_t delay) {
     for (uint32_t id = 1; id <= 18; id++) {
         controller_schedule(TRAIN_DIRECTIVE_SWITCH, id, direction, delay);
-        delay += CONTROLLER_SWITCH_INTERAL;
     }
     for (uint32_t id = 0x99; id <= 0x9C; id++) {
         controller_schedule(TRAIN_DIRECTIVE_SWITCH, id, direction, delay);
-        delay += CONTROLLER_SWITCH_INTERAL;
     }
-    controller_schedule(TRAIN_DIRECTIVE_SWITCH_DONE, 0, 0, delay);
-    return delay;
 }
 
 static void controller_parse_sensor(TrainSensorList *sensorlist, char module, uint16_t raw) {
