@@ -68,8 +68,8 @@ uint32_t train_expected_distance(uint32_t speed, uint64_t ms);
 
 void train_set_position(Train *train, TrackNode *node, uint32_t dist);
 
-void train_estimate_position(Train *train, Track *track);
+void train_estimate_position(Train *train);
 
-void train_touch_sensor(Train *train, Track *track, TrackNode *sensor);
+void train_touch_sensor(Train *train, TrackNode *sensor);
 
 #endif /*__TRAIN_TRAIN_H__*/

@@ -17,6 +17,16 @@
 #define LINE_LOAD           24
 #define MAX_NUM_ARGS        10
 
+uint8_t is_train(uint32_t train_id);
+
+uint8_t is_speed(uint32_t speed);
+
+uint8_t is_switch(uint32_t switch_id);
+
+char parse_sensor_module(const char *raw);
+
+uint32_t parse_sensor_id(const char *raw);
+
 void PrintBasicInterface(int io_tid);
 
 void PrintIdle(int io_tid, int usage);

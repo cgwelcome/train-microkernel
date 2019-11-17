@@ -56,21 +56,21 @@ void train_set_position(Train *train, TrackNode *node, uint32_t dist) {
     train->last_position_update_time = timer_read(TIMER3);
 }
 
-void train_estimate_position(Train *train, Track *track) {
+void train_estimate_position(Train *train) {
     assert(train->position.node != NULL);
     if (train->position.node != NULL) {
         uint64_t now = timer_read(TIMER3);
         uint64_t escaped = now - train->last_position_update_time;
         uint32_t dist = train_expected_distance(train->speed, escaped);
-        track_position_move(track, &train->position, (int32_t)dist);
+        position_move(&train->position, (int32_t)dist);
         train->last_position_update_time = now;
     }
 }
 
-void train_touch_sensor(Train *train, Track *track, TrackNode *sensor) {
+void train_touch_sensor(Train *train, TrackNode *sensor) {
     assert(sensor != NULL);
     train_set_position(train, sensor, 0);
-    uint32_t dist = track_find_next_current_edge(track, sensor)->dist;
+    uint32_t dist = node_select_next_current_edge(sensor)->dist;
     if (dist != (uint32_t) -1) {
         uint64_t expected_time = train_expected_time(train->speed, dist);
         train->next_sensor_expected_time = timer_read(TIMER3) + expected_time;

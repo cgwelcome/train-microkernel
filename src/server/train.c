@@ -2,6 +2,7 @@
 #include <server/clock.h>
 #include <server/train.h>
 #include <train/controller.h>
+#include <train/manager.h>
 #include <train/train.h>
 #include <user/clock.h>
 #include <user/tasks.h>
@@ -12,7 +13,6 @@
 
 // static Queue initial_trains;
 // static Queue await_sensors[MAX_SENSOR_NUM];
-// static ActiveTrainSensorList sensor_log;
 
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
@@ -34,8 +34,10 @@ static void train_root_task() {
     TrainRequest request;
 
     RegisterAs(SERVER_NAME_TRAIN);
+    int iotid = WhoIs(SERVER_NAME_IO);
     train_server_init();
-    controller_init();
+    controller_init(iotid);
+    train_manager_init(iotid);
     controller_go(0);
     controller_speed_all(0, 0);
     for (;;) {
@@ -57,7 +59,9 @@ static void train_root_task() {
             controller_wake();
         }
         if (request.type == TRAIN_REQUEST_LOCATE_TRAINS) {
-            // train_manager_locate_trains();
+            TrainSensorList list;
+            controller_read_sensors(&list);
+            train_manager_locate_trains(&list);
         }
         if (request.type == TRAIN_REQUEST_SPEED) {
             uint32_t train_id = request.args[0];
@@ -98,7 +102,7 @@ void train_notifier_task() {
         if (i % 2 == 0) {
 		    assert(Send(traintid, (char *)&wake_request, sizeof(wake_request), NULL, 0) >= 0);
         }
-        if (i % 4 == 0) {
+        if (i % 10 == 0) {
 		    assert(Send(traintid, (char *)&locate_request, sizeof(locate_request), NULL, 0) >= 0);
         }
 	}
