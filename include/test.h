@@ -4,5 +4,7 @@
 int test_helloworld(int argc, char **argv);
 int test_argv(int argc, char **argv);
 int test_next_sensor(int argc, char **argv);
+int test_search_path(int argc, char **argv);
+int test_search_allpath(int argc, char **argv);
 
 #endif /*__TEST_H__*/

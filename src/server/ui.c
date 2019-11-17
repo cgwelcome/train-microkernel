@@ -110,10 +110,12 @@ static struct {
     const char *name;
     int (*func)(int argc, char **argv);
 } testtable[] = {
-    { "helloworld",   test_helloworld  },
-    { "argv",         test_argv        },
-    { "nextsensor",   test_next_sensor },
-    { NULL,           NULL             },
+    { "helloworld",      test_helloworld     },
+    { "argv",            test_argv           },
+    { "nextsensor",      test_next_sensor    },
+    { "searchpath",      test_search_path    },
+    { "searchallpath",   test_search_allpath },
+    { NULL,              NULL                },
 };
 
 static int cmd_test(int nargc, char **nargv) {

@@ -78,8 +78,7 @@ typedef struct {
 } TrackPosition;
 
 typedef struct {
-    TrackEdge *edges[MAX_EDGE_PATH];
-    uint32_t size;
+    TrackEdgeList list;
     uint32_t dist;  /** in millimetres */
 } TrackPath;
 

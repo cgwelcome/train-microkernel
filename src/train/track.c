@@ -1,6 +1,7 @@
 #include <string.h>
 #include <train/track.h>
 #include <utils/assert.h>
+#include <utils/ppqueue.h>
 
 Track singleton_track;
 
@@ -50,24 +51,36 @@ void track_set_branch_direction(Track *track, uint32_t switch_id, uint8_t direct
 }
 
 void path_clear(TrackPath *path) {
-    path->size = 0;
+    path->list.size = 0;
     path->dist = 0;
+}
+
+void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge) {
+    if (edge != NULL) {
+        edgelist->edges[edgelist->size] = edge;
+        edgelist->size++;
+    }
+}
+
+void edgelist_swap(TrackEdgeList *list, uint32_t i, uint32_t j) {
+    TrackEdge *edge = list->edges[i];
+    list->edges[i] = list->edges[j];
+    list->edges[j] = edge;
 }
 
 void path_add_edge(TrackPath *path, TrackEdge *edge) {
     assert(edge != NULL);
-    path->edges[path->size] = edge;
+    edgelist_add(&path->list, edge);
     path->dist += edge->dist;
-    path->size++;
 }
 
 TrackNode *path_head(TrackPath *path) {
-    if (path->size == 0) return NULL;
-    return path->edges[path->size-1]->dest;
+    if (path->dist == 0) return NULL;
+    return path->list.edges[path->list.size-1]->dest;
 }
 
 uint8_t node_valid(TrackNode *node) {
-    return (node->type == NODE_NONE || node->type == NODE_EXIT) ? 0 : 1;
+    return (node->type != NODE_NONE && node->type != NODE_EXIT) ? 1 : 0;
 }
 
 TrackEdge *node_select_edge(TrackNode *src, uint8_t direction) {
@@ -77,12 +90,6 @@ TrackEdge *node_select_edge(TrackNode *src, uint8_t direction) {
 
 TrackEdge *node_select_next_current_edge(TrackNode *src) {
     return node_select_edge(src, src->direction);
-}
-static void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge) {
-    if (edge != NULL) {
-        edgelist->edges[edgelist->size] = edge;
-        edgelist->size++;
-    }
 }
 
 TrackEdgeList node_select_adjacent(TrackNode *src) {
@@ -120,20 +127,55 @@ TrackPath node_search_next_current_sensor(TrackNode *src) {
     return path;
 }
 
-/*TrackPath track_search_path(Track *track, TrackNode *src, TrackNode *dest) {*/
-    /*TrackPath path;*/
-    /*path_clear(&path);*/
-    /*PPQueue ppqueue;*/
-    /*ppqueue_init(&ppqueue);*/
+static TrackPath recover_path(TrackNode *src, TrackNode *dest, TrackEdge **prev) {
+    TrackPath path;
+    path_clear(&path);
+    for (uint32_t id = dest->id; id != src->id; id = prev[id]->src->id) {
+        path_add_edge(&path, prev[id]);
+    }
+    if (path.list.size == 0) return path;
+    uint32_t i = 0;
+    uint32_t j = path.list.size-1;
+    while (i < j) {
+        edgelist_swap(&path.list, i, j);
+        i++;
+        j--;
+    }
+    return path;
+}
 
-    /*ppqueue_insert(&ppqueue, src->id, 0);*/
-    /*for (uint32_t i = 0; i < track->node_count ; i++) {*/
-        /*if (i != src->id) {*/
-            /*ppqueue_insert(&ppqueue, i, 0);*/
-        /*}*/
-    /*}*/
-    /*return path;*/
-/*}*/
+TrackPath track_search_path(Track *track, TrackNode *src, TrackNode *dest) {
+    PPQueue ppqueue;
+    ppqueue_init(&ppqueue);
+    TrackEdge *prev[track->node_count];
+    ppqueue_insert(&ppqueue, src->id, 0);
+    for (uint32_t i = 0; i < track->node_count ; i++) {
+        TrackNode *node = track_find_node(track, i);
+        if (i != src->id && node_valid(node)) {
+            ppqueue_insert(&ppqueue, i, UINT32_MAX);
+        }
+    }
+    while (ppqueue_size(&ppqueue) > 0) {
+        TrackNode *node = track_find_node(track, ppqueue_pop(&ppqueue));
+        TrackEdgeList list = node_select_adjacent(node);
+        uint32_t node_dist = ppqueue_find_priority(&ppqueue, node->id);
+        if (node_dist == UINT32_MAX) break;
+        for (uint32_t i = 0; i < list.size; i++) {
+            TrackEdge *edge = list.edges[i];
+            uint32_t dest_dist = ppqueue_find_priority(&ppqueue, edge->dest->id);
+            if (node_dist + edge->dist < dest_dist) {
+                prev[edge->dest->id] = edge;
+                ppqueue_change_priority(&ppqueue, edge->dest->id, node_dist + edge->dist);
+            }
+        }
+        if (node->id == dest->id) {
+            return recover_path(src, dest, prev);
+        }
+    }
+    TrackPath path;
+    path_clear(&path);
+    return path;
+}
 
 void position_reverse(TrackPosition *current) {
     TrackEdge *edge = node_select_next_current_edge(current->node);
