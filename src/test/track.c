@@ -3,6 +3,7 @@
 #include <train/track.h>
 #include <user/name.h>
 #include <user/io.h>
+#include <user/ui.h>
 
 int test_next_sensor(int argc, char **argv) {
     int iotid = WhoIs(SERVER_NAME_IO);
@@ -12,9 +13,15 @@ int test_next_sensor(int argc, char **argv) {
     }
     Track track;
     track_init(&track, TRAIN_TRACK_A);
+    char module = parse_sensor_module(argv[1]);
+    uint32_t id = parse_sensor_id(argv[1]);
+    if (module == 0 || id == 0) {
+        Printf(iotid, COM2, "Invalid sensor\n\r");
+        return 1;
+    }
     TrainSensor sensor = {
-        .module = argv[1][0],
-        .id = (uint32_t)atoi(&argv[1][1]),
+        .module = module,
+        .id = id,
     };
     TrackNode *node = track_find_sensor(&track, &sensor);
     TrackPath path = node_search_next_current_sensor(node);

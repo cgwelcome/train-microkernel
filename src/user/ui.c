@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 #include <hardware/timer.h>
 #include <train/manager.h>
 #include <train/controller.h>
@@ -5,6 +8,48 @@
 #include <user/ui.h>
 #include <user/io.h>
 #include <utils/assert.h>
+
+char parse_sensor_module(const char *raw) {
+    if (2 == strlen(raw) || strlen(raw) == 3) {
+        char module = (char)toupper(raw[0]);
+        if ('A' <= module && module <= 'E') {
+            return module;
+        }
+    }
+    return 0;
+}
+
+uint32_t parse_sensor_id(const char *raw) {
+    if (2 == strlen(raw) || strlen(raw) == 3) {
+        uint32_t id = (uint32_t)atoi(&raw[1]);
+        if (1 <= id && id <= 16) {
+            return id;
+        }
+    }
+    return 0;
+}
+
+uint8_t is_train(uint32_t train_id) {
+    uint32_t train_count = 6;
+    uint32_t train_ids[] = { 1, 24, 58, 74, 78, 79 };
+    for (uint32_t i = 0; i < train_count; i++) {
+        if (train_ids[i] == train_id) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+uint8_t is_speed(uint32_t speed) {
+    return (speed <= 14) ? 1 : 0;
+}
+
+uint8_t is_switch(uint32_t switch_id) {
+    if ((switch_id > 0 && switch_id < 19) || (switch_id > 0x98 && switch_id < 0x9D)) {
+        return 1;
+    }
+    return 0;
+}
 
 void PrintBasicInterface(int io_tid) {
     Printf(io_tid, COM2, "\033[%u;%uHCPU Idle Rate:"                               , LINE_IDLE              , 1);

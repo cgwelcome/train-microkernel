@@ -14,28 +14,6 @@
 static int io_tid;
 static int train_tid;
 
-static int is_train(uint32_t train_id) {
-    uint32_t train_count = 6;
-    uint32_t train_ids[] = { 1, 24, 58, 74, 78, 79 };
-    for (uint32_t i = 0; i < train_count; i++) {
-        if (train_ids[i] == train_id) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-static int is_speed(uint32_t speed) {
-    return (speed <= 14) ? 1 : 0;
-}
-
-static int is_switch(uint32_t switch_id) {
-    if ((switch_id > 0 && switch_id < 19) || (switch_id > 0x98 && switch_id < 0x9D)) {
-        return 1;
-    }
-    return 0;
-}
-
 static int cmd_init(int nargc, char **nargv) {
     if (nargc != 3) {
         PrintTerminal(io_tid, "usage: init [track | train] id");
@@ -64,6 +42,8 @@ static int cmd_init(int nargc, char **nargv) {
         PrintTerminal(io_tid, "invalid train id");
         return 1;
     }
+    PrintTerminal(io_tid, "usage: init [track | train] id");
+    return 1;
 }
 
 static int cmd_tr(int nargc, char **nargv) {
