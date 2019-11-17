@@ -26,7 +26,7 @@ void PrintBasicInterface(int io_tid) {
 }
 
 void PrintIdle(int io_tid, int usage) {
-    Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K%u.%u%%\033[u", LINE_IDLE, 16, usage / 100, usage % 100);
+    Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K%u.%02u%%\033[u", LINE_IDLE, 16, usage / 100, usage % 100);
 }
 
 void PrintTime(int io_tid) {
