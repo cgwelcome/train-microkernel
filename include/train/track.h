@@ -13,6 +13,7 @@
 #define MODULE_TOTAL_NUM          5
 #define MAX_SENSOR_PER_MODULE    16
 #define MAX_SENSOR_NUM           80
+#define MAX_EDGE_LIST           280
 #define MAX_EDGE_PATH           100
 
 #define DIR_AHEAD 0
@@ -53,6 +54,11 @@ typedef struct PathEdge {
     TrackNode *dest;
     uint32_t dist; /** in millimetres */
 } TrackEdge;
+
+typedef struct TrackEdgeList {
+    TrackEdge *edges[MAX_EDGE_LIST];
+    uint32_t size;
+} TrackEdgeList;
 
 typedef struct PathNode {
     uint32_t id;
@@ -114,20 +120,24 @@ TrackNode *track_find_branch(Track *track, uint32_t switch_id);
  */
 void track_set_branch_direction(Track *track, uint32_t switch_id, uint8_t direction);
 
-void track_path_clear(TrackPath *path);
+void path_clear(TrackPath *path);
 
-void track_path_add_edge(TrackPath *path, TrackEdge *edge);
+void path_add_edge(TrackPath *path, TrackEdge *edge);
 
-TrackNode *track_path_head(TrackPath *path);
+TrackNode *path_head(TrackPath *path);
 
-TrackEdge *track_find_next_edge(Track *track, TrackNode *src, uint8_t direction);
+TrackEdge *node_select_edge(TrackNode *src, uint8_t direction);
 
-TrackEdge *track_find_next_current_edge(Track *track, TrackNode *src);
+TrackEdge *node_select_next_current_edge(TrackNode *src);
 
-TrackPath track_find_next_current_sensor(Track *track, TrackNode *src);
+TrackEdgeList node_select_adjacent(TrackNode *src);
 
-void track_position_reverse(Track *track, TrackPosition *current);
+TrackPath node_search_next_current_sensor(TrackNode *src);
 
-void track_position_move(Track *track, TrackPosition *current, int32_t offset);
+TrackPath track_search_path(Track *track, TrackNode *src, TrackNode *dest);
+
+void position_reverse(TrackPosition *current);
+
+void position_move(TrackPosition *current, int32_t offset);
 
 #endif /*__TRAIN_TRACK_H__*/

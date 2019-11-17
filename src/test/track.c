@@ -17,7 +17,7 @@ int test_next_sensor(int argc, char **argv) {
         .id = (uint32_t)atoi(&argv[1][1]),
     };
     TrackNode *node = track_find_sensor(&track, &sensor);
-    TrackPath path = track_find_next_current_sensor(&track, node);
+    TrackPath path = node_search_next_current_sensor(node);
     if (path.dist == 0) {
         Printf(iotid, COM2, "Path not found\n\r");
         return 0;
