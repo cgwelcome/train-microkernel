@@ -95,8 +95,7 @@ int test_search_allpath(int argc, char **argv) {
                     };
                     TrackNode *src = track_find_sensor(&track, &sensor1);
                     TrackNode *dest = track_find_sensor(&track, &sensor2);
-                    TrackPath path = track_search_path(&track, src, dest);
-                    /*print_path(iotid, &path);*/
+                    track_search_path(&track, src, dest);
                 }
             }
         }
