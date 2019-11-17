@@ -20,8 +20,8 @@ static uint32_t last_switch_time;
 static PQueue directive_queue;
 static TrainDirective directives[CONTROLLER_DIRECTIVE_LIMIT];
 
-void controller_init() {
-    iotid = WhoIs(SERVER_NAME_IO);
+void controller_init(int tid) {
+    iotid = tid;
     last_switch_time = (uint32_t) -1;
     pqueue_init(&directive_queue);
     for (int i = 0; i < CONTROLLER_DIRECTIVE_LIMIT; i++) {
