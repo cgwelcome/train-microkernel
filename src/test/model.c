@@ -36,36 +36,26 @@ int test_build_model(int argc, char **argv) {
     TrainSpeed(traintid, 74, 10);
 
     TrainSensorList sensorlist;
-    uint64_t total_veloc = 0;
-    uint64_t veloc_count = 0;
-    TrackNode *touching_sensor   = NULL;
     TrackNode *last_reach_sensor = NULL;
     uint64_t   last_reach_time   = 0;
     for (;;) {
         Delay(clocktid, 4);
         controller_read_sensors(&sensorlist);
-        if (sensorlist.size > 0) {
+        if (sensorlist.size == 1) {
             TrackNode *reach_sensor = track_find_sensor(&singleton_track, &sensorlist.sensors[0]);
             uint64_t   reach_time = timer_read(TIMER3);
-
-            if (touching_sensor == reach_sensor) {
-                continue;
-            } else {
-                touching_sensor = reach_sensor;
-            }
 
             if (last_reach_sensor == NULL) {
                 last_reach_sensor = reach_sensor;
                 last_reach_time   = reach_time;
             }
+            if (last_reach_sensor == reach_sensor) continue;
 
             uint64_t dist = find_dist(last_reach_sensor, reach_sensor);
             uint64_t time = reach_time - last_reach_time;
             if (dist != (uint64_t) -1 && dist != 0 && time >= 3000) {
                 uint32_t sv = (uint32_t) (dist * 100000 / time);
-                total_veloc += (dist * 100000 * 10000 / time); veloc_count += 1;
-                uint32_t av = (uint32_t) (total_veloc / 10000 / veloc_count);
-                Printf(iotid, COM2, "%s\t%u\t%u\t%u.%02u\t%u.%02u\r\n", reach_sensor->name, (uint32_t) dist, (uint32_t) time, sv / 100, sv % 100, av / 100, av % 100);
+                Printf(iotid, COM2, "%s\t%s\t%u\t%u\t%u.%02u\r\n", last_reach_sensor->name, reach_sensor->name, (uint32_t) dist, (uint32_t) time, sv / 100, sv % 100);
 
                 last_reach_sensor = reach_sensor;
                 last_reach_time   = reach_time;
