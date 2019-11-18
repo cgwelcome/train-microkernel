@@ -110,11 +110,11 @@ TrackEdgeList node_select_adjacent(TrackNode *src) {
     return adjacent;
 }
 
-TrackPath node_search_next_current_sensor(TrackNode *src) {
+TrackPath node_search_next_current_type(TrackNode *src, TrackNodeType type) {
     TrackPath path;
     path_clear(&path);
     TrackEdge *edge = node_select_next_current_edge(src);
-    while (edge != NULL && edge->dest->type != NODE_SENSOR) {
+    while (edge != NULL && edge->dest->type != type) {
         path_add_edge(&path, edge);
         edge = node_select_next_current_edge(path_head(&path));
     }

@@ -131,7 +131,7 @@ TrackEdge *node_select_next_current_edge(TrackNode *src);
 
 TrackEdgeList node_select_adjacent(TrackNode *src);
 
-TrackPath node_search_next_current_sensor(TrackNode *src);
+TrackPath node_search_next_current_type(TrackNode *src, TrackNodeType type);
 
 TrackPath track_search_path(Track *track, TrackNode *src, TrackNode *dest);
 

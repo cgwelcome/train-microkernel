@@ -46,7 +46,7 @@ int test_next_sensor(int argc, char **argv) {
         return 1;
     }
     TrackNode *node = track_find_sensor(&track, &sensor);
-    TrackPath path = node_search_next_current_sensor(node);
+    TrackPath path = node_search_next_current_type(node, NODE_SENSOR);
     print_path(iotid, &path);
     return 0;
 }
