@@ -91,25 +91,25 @@ static void train_root_task() {
 }
 
 void train_notifier_task() {
-	int clocktid = WhoIs(SERVER_NAME_CLOCK);
-	int traintid = WhoIs(SERVER_NAME_TRAIN);
+    int clocktid = WhoIs(SERVER_NAME_CLOCK);
+    int traintid = WhoIs(SERVER_NAME_TRAIN);
 
     TrainRequest wake_request = { .type = TRAIN_REQUEST_WAKE_CONTROLLER };
     TrainRequest locate_request = { .type = TRAIN_REQUEST_LOCATE_TRAINS };
 
-	for (uint32_t i = 0; ; i++) {
-		Delay(clocktid, 1);
+    for (uint32_t i = 0; ; i++) {
+        Delay(clocktid, 1);
         if (i % 2 == 0) {
-		    assert(Send(traintid, (char *)&wake_request, sizeof(wake_request), NULL, 0) >= 0);
+            assert(Send(traintid, (char *)&wake_request, sizeof(wake_request), NULL, 0) >= 0);
         }
         if (i % 10 == 0) {
-		    assert(Send(traintid, (char *)&locate_request, sizeof(locate_request), NULL, 0) >= 0);
+            assert(Send(traintid, (char *)&locate_request, sizeof(locate_request), NULL, 0) >= 0);
         }
-	}
-	Exit();
+    }
+    Exit();
 }
 
 void CreateTrainServer() {
     Create(PRIORITY_SERVER_TRAIN, &train_root_task);
-	Create(PRIORITY_NOTIFIER_TRAIN, &train_notifier_task);
+    Create(PRIORITY_NOTIFIER_TRAIN, &train_notifier_task);
 }
