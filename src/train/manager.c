@@ -4,6 +4,9 @@
 #include <utils/queue.h>
 #include <hardware/timer.h>
 
+extern Track singleton_track;
+extern Train singleton_trains[TRAIN_COUNT];
+
 static int iotid;
 static SensorAttributionList sensor_log;
 static Queue initial_trains;
@@ -40,13 +43,13 @@ static void train_manager_update_next_checkpoint(Train *train) {
     // Compute arrival time with path.dist, train, track
 }
 
-static void train_manager_locate_exists(Train *trains, SensorAttribution *attribution) {
+static void train_manager_locate_exists(SensorAttribution *attribution) {
     for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
-        if (!trains[i].inited) continue;
-        if (trains[i].last_checkpoint.node == attribution->node) {
-            attribution->train = &trains[i];
-        } else if (trains[i].next_checkpoint.node == attribution->node) {
-            attribution->train = &trains[i];
+        if (!singleton_trains[i].inited) continue;
+        if (singleton_trains[i].last_checkpoint.node == attribution->node) {
+            attribution->train = &singleton_trains[i];
+        } else if (singleton_trains[i].next_checkpoint.node == attribution->node) {
+            attribution->train = &singleton_trains[i];
             train_manager_log_checkpoint(attribution->train);
             train_manager_update_next_checkpoint(attribution->train);
         }
@@ -60,20 +63,37 @@ static void train_manager_locate_init(Train *train, SensorAttribution *attributi
     train_manager_update_next_checkpoint(train);
 }
 
-void train_manager_locate_trains(Train *trains, Track *track, TrainSensorList *list) {
-    if (!track->inited) return;
+void train_manager_locate_trains(TrainSensorList *list) {
+    if (!singleton_track.inited) return;
     for (uint32_t i = 0; i < list->size; i++) {
         SensorAttribution attribution = {
-            .node = track_find_sensor(track, &list->sensors[i]),
+            .node = track_find_sensor(&singleton_track, &list->sensors[i]),
             .train = NULL,
             .error = 0,
         };
-        train_manager_locate_exists(trains, &attribution);
+        train_manager_locate_exists(&attribution);
         if (attribution.train == NULL && queue_size(&initial_trains) > 0) {
-            Train *train = train_find(trains, (uint32_t)queue_pop(&initial_trains));
+            Train *train = train_find(singleton_trains, (uint32_t)queue_pop(&initial_trains));
             train_manager_locate_init(train, &attribution);
         }
         train_manager_update_log(&attribution);
     }
     PrintSensors(iotid, &sensor_log);
+}
+
+void train_manager_navigate_train(uint32_t train_id, uint32_t speed, TrainSensor *sensor, int32_t offset) {
+    (void)speed;
+    (void)offset;
+    Train *train = train_find(singleton_trains, train_id);
+    if (!singleton_track.inited || !train->inited) return;
+
+    TrackNode *dest = track_find_sensor(&singleton_track, sensor);
+    TrackPath path = search_path_to_node(&singleton_track, train->last_checkpoint.node, dest);
+    if (path.dist == 0) return;
+    for (uint32_t i = 0; i < path.list.size; i++) {
+        TrackEdge *edge = path.list.edges[i];
+        if (edge->src->type == NODE_BRANCH && edge_direction(edge) != edge->src->direction) {
+            controller_switch_one(edge->src->num, edge_direction(edge), 0);
+        }
+    }
 }

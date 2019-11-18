@@ -1,7 +1,6 @@
 #include <kernel.h>
 #include <server/clock.h>
 #include <server/train.h>
-#include <train/driver.h>
 #include <train/controller.h>
 #include <train/manager.h>
 #include <train/train.h>
@@ -54,7 +53,7 @@ static void train_root_task() {
         if (request.type == TRAIN_REQUEST_LOCATE_TRAINS) {
             TrainSensorList list;
             controller_read_sensors(&list);
-            train_manager_locate_trains(singleton_trains, &singleton_track, &list);
+            train_manager_locate_trains(&list);
         }
         if (request.type == TRAIN_REQUEST_SPEED) {
             uint32_t train_id = request.args[0];
@@ -76,7 +75,7 @@ static void train_root_task() {
                 .id = request.args[3]
             };
             int32_t offset = (int32_t)request.args[4];
-            driver_navigate(train_id, speed, &sensor, offset);
+            train_manager_navigate_train(train_id, speed, &sensor, offset);
         }
         if (request.type == TRAIN_REQUEST_SWITCH) {
             uint32_t switch_id = request.args[0];

@@ -21,6 +21,8 @@ void train_manager_init(int tid);
 
 void train_manager_initialize_train(Train *train);
 
-void train_manager_locate_trains(Train *trains, Track *track, TrainSensorList *list);
+void train_manager_locate_trains(TrainSensorList *list);
+
+void train_manager_navigate_train(uint32_t train_id, uint32_t speed, TrainSensor *sensor, int32_t offset);
 
 #endif /*__TRAIN_MANAGER_H__*/
