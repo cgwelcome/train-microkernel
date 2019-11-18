@@ -97,6 +97,22 @@ static int cmd_sw(int nargc, char **nargv) {
     return 1;
 }
 
+static int cmd_mv(int nargc, char **nargv) {
+    if (nargc != 3) {
+        PrintTerminal(io_tid, "usage: mv train_id sensor");
+        return 1;
+    }
+    uint32_t train_id = (uint32_t)atoi(nargv[1]);
+    char sensor_module = parse_sensor_module(nargv[2]);
+    uint32_t sensor_id = parse_sensor_id(nargv[2]);
+    if (is_train(train_id) && sensor_module != 0 && sensor_id != 0) {
+        TrainMove(train_tid, train_id, 10, sensor_module, sensor_id, 0);
+        return 0;
+    }
+    PrintTerminal(io_tid, "Invalid train id/sensor");
+    return 1;
+}
+
 static int cmd_quit(int nargc, char **nargv) {
     (void)nargc;
     (void)nargv;
@@ -144,6 +160,7 @@ static struct {
     { "init",   cmd_init },
     { "tr",     cmd_tr   },
     { "rv",     cmd_rv   },
+    { "mv",     cmd_mv   },
     { "sw",     cmd_sw   },
     { "q",      cmd_quit },
     { "quit",   cmd_quit },

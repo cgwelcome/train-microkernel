@@ -35,13 +35,14 @@ void TrainReverse(int tid, uint32_t train_id) {
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
-void TrainMove(int tid, uint32_t train_id, uint32_t speed, uint32_t node_id, int32_t offset) {
+void TrainMove(int tid, uint32_t train_id, uint32_t speed, char module, uint32_t id, int32_t offset) {
     TrainRequest request = {
         .type    = TRAIN_REQUEST_MOVE,
         .args[0] = train_id,
         .args[1] = speed,
-        .args[2] = node_id,
-        .args[3] = (uint32_t) offset,
+        .args[2] = module,
+        .args[3] = id,
+        .args[4] = (uint32_t) offset,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }

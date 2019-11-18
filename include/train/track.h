@@ -119,11 +119,13 @@ TrackNode *track_find_branch(Track *track, uint32_t switch_id);
  */
 void track_set_branch_direction(Track *track, uint32_t switch_id, uint8_t direction);
 
+uint8_t edge_direction(TrackEdge *edge);
+
 void path_clear(TrackPath *path);
 
-void path_add_edge(TrackPath *path, TrackEdge *edge);
-
 TrackNode *path_head(TrackPath *path);
+
+void path_add_edge(TrackPath *path, TrackEdge *edge);
 
 TrackEdge *node_select_edge(TrackNode *src, uint8_t direction);
 

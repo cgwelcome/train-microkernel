@@ -17,7 +17,7 @@ typedef enum {
 
 typedef struct {
     TrainRequestType type;
-    uint32_t         args[4];
+    uint32_t         args[5];
 } TrainRequest;
 
 /**

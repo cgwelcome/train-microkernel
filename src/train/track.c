@@ -50,11 +50,6 @@ void track_set_branch_direction(Track *track, uint32_t switch_id, uint8_t direct
     }
 }
 
-void path_clear(TrackPath *path) {
-    path->list.size = 0;
-    path->dist = 0;
-}
-
 uint8_t edge_direction(TrackEdge *edge) {
     TrackNode *node = edge->src;
     if (node->type == NODE_BRANCH) {
@@ -65,17 +60,23 @@ uint8_t edge_direction(TrackEdge *edge) {
     }
 }
 
-void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge) {
+static void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge) {
     if (edge != NULL) {
         edgelist->edges[edgelist->size] = edge;
         edgelist->size++;
     }
 }
 
-void edgelist_swap(TrackEdgeList *list, uint32_t i, uint32_t j) {
+static void edgelist_swap(TrackEdgeList *list, uint32_t i, uint32_t j) {
     TrackEdge *edge = list->edges[i];
     list->edges[i] = list->edges[j];
     list->edges[j] = edge;
+}
+
+
+void path_clear(TrackPath *path) {
+    path->list.size = 0;
+    path->dist = 0;
 }
 
 void path_add_edge(TrackPath *path, TrackEdge *edge) {
