@@ -24,7 +24,7 @@ void PrintBasicInterface(int io_tid) {
     Printf(io_tid, COM2, "\033[%u;%uH  Train 74: "                                 , LINE_LOCATION_START + 3, 1);
     Printf(io_tid, COM2, "\033[%u;%uH  Train 78: "                                 , LINE_LOCATION_START + 4, 1);
     Printf(io_tid, COM2, "\033[%u;%uH  Train 79: "                                 , LINE_LOCATION_START + 5, 1);
-    Printf(io_tid, COM2, "\033[%u;%uHSensors: ID, Train ID"                        , LINE_SENSOR_TITLE      , 1);
+    Printf(io_tid, COM2, "\033[%u;%uHSensors: ID, Train ID, Error"                 , LINE_SENSOR_TITLE      , 1);
     Printf(io_tid, COM2, "\033[%u;%uH> █"                                          , LINE_TERMINAL          , 1);
     Printf(io_tid, COM2, "\033[%u;%ur"                                             , LINE_LOAD              , 128);
 }

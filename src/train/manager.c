@@ -38,12 +38,14 @@ static void train_manager_update_next_checkpoint(Train *train) {
     TrackPath path = search_path_to_next_sensor(train->last_checkpoint.node);
     train->next_checkpoint.node = path_head(&path);
     // Compute arrival time with path.dist, train, track
-    train->next_checkpoint.expected_time = 0;
 }
 
 static void train_manager_locate_exists(Train *trains, SensorAttribution *attribution) {
     for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
-        if (trains[i].inited && trains[i].next_checkpoint.node == attribution->node) {
+        if (!trains[i].inited) continue;
+        if (trains[i].last_checkpoint.node == attribution->node) {
+            attribution->train = &trains[i];
+        } else if (trains[i].next_checkpoint.node == attribution->node) {
             attribution->train = &trains[i];
             train_manager_log_checkpoint(attribution->train);
             train_manager_update_next_checkpoint(attribution->train);
