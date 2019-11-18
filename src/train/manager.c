@@ -55,11 +55,10 @@ static void train_manager_locate_exists(Train *trains, SensorAttribution *attrib
 
 static void train_manager_locate_init(Train *train, SensorAttribution *attribution) {
     attribution->train = train;
-    train->inited = 1;
+    train->inited = true;
     train->last_checkpoint.node = attribution->node;
     train_manager_update_next_checkpoint(train);
 }
-
 
 void train_manager_locate_trains(Train *trains, Track *track, TrainSensorList *list) {
     if (!track->inited) return;

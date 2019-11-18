@@ -11,16 +11,11 @@
 #include <utils/assert.h>
 #include <utils/queue.h>
 
-// static Queue await_sensors[MAX_SENSOR_NUM];
-
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
 
 static void train_server_init() {
     singleton_track.inited = false;
-    // for (size_t i = 0; i < MAX_SENSOR_NUM; i++) {
-    //     queue_init(&await_sensors[i]);
-    // }
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
         train_init(&singleton_trains[i], train_index_to_id(i));
     }

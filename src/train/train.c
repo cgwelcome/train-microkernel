@@ -13,7 +13,7 @@ static const uint32_t velocities[15] = {
 void train_init(Train *train, uint32_t id) {
     train->id = id;
     train->speed = 0;
-    train->inited = 0;
+    train->inited = false;
     train->position.node = NULL;
     train->position.offset= 0;
     train->last_checkpoint.node = NULL;
