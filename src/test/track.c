@@ -46,7 +46,7 @@ int test_next_sensor(int argc, char **argv) {
         return 1;
     }
     TrackNode *node = track_find_sensor(&track, &sensor);
-    TrackPath path = node_search_next_current_type(node, NODE_SENSOR);
+    TrackPath path = search_path_to_next_sensor(node);
     print_path(iotid, &path);
     return 0;
 }
@@ -67,7 +67,7 @@ int test_search_path(int argc, char **argv) {
     }
     TrackNode *src = track_find_sensor(&track, &sensor1);
     TrackNode *dest = track_find_sensor(&track, &sensor2);
-    TrackPath path = track_search_path(&track, src, dest);
+    TrackPath path = search_path_to_node(&track, src, dest);
     print_path(iotid, &path);
     return 0;
 }
@@ -95,7 +95,7 @@ int test_search_allpath(int argc, char **argv) {
                     };
                     TrackNode *src = track_find_sensor(&track, &sensor1);
                     TrackNode *dest = track_find_sensor(&track, &sensor2);
-                    track_search_path(&track, src, dest);
+                    search_path_to_node(&track, src, dest);
                 }
             }
         }

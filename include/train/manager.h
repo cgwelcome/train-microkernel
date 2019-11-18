@@ -9,7 +9,7 @@
 typedef struct {
     TrainSensor sensor;
     Train *train;
-    uint32_t error;
+    int32_t error;
 } SensorAttribution;
 
 typedef struct {
@@ -19,6 +19,8 @@ typedef struct {
 
 void train_manager_init(int tid);
 
-void train_manager_locate_trains(TrainSensorList *list);
+void train_manager_initialize_train(Train *train);
+
+void train_manager_locate_trains(Train *trains, Track *track, TrainSensorList *list);
 
 #endif /*__TRAIN_MANAGER_H__*/

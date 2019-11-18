@@ -55,6 +55,16 @@ void path_clear(TrackPath *path) {
     path->dist = 0;
 }
 
+uint8_t edge_direction(TrackEdge *edge) {
+    TrackNode *node = edge->src;
+    if (node->type == NODE_BRANCH) {
+        return (edge == &node->edge[DIR_STRAIGHT]) ? DIR_STRAIGHT : DIR_CURVED;
+    }
+    else {
+        return DIR_AHEAD;
+    }
+}
+
 void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge) {
     if (edge != NULL) {
         edgelist->edges[edgelist->size] = edge;
@@ -88,7 +98,7 @@ TrackEdge *node_select_edge(TrackNode *src, uint8_t direction) {
     return node_valid(edge->dest) ? edge : NULL;
 }
 
-TrackEdge *node_select_next_current_edge(TrackNode *src) {
+TrackEdge *node_select_next_edge(TrackNode *src) {
     return node_select_edge(src, src->direction);
 }
 
@@ -110,13 +120,13 @@ TrackEdgeList node_select_adjacent(TrackNode *src) {
     return adjacent;
 }
 
-TrackPath node_search_next_current_type(TrackNode *src, TrackNodeType type) {
+TrackPath search_path_to_next_sensor(TrackNode *src) {
     TrackPath path;
     path_clear(&path);
-    TrackEdge *edge = node_select_next_current_edge(src);
-    while (edge != NULL && edge->dest->type != type) {
+    TrackEdge *edge = node_select_next_edge(src);
+    while (edge != NULL && edge->dest->type != NODE_SENSOR) {
         path_add_edge(&path, edge);
-        edge = node_select_next_current_edge(path_head(&path));
+        edge = node_select_next_edge(path_head(&path));
     }
     if (edge == NULL) {
         path_clear(&path);
@@ -144,7 +154,7 @@ static TrackPath recover_path(TrackNode *src, TrackNode *dest, TrackEdge **prev)
     return path;
 }
 
-TrackPath track_search_path(Track *track, TrackNode *src, TrackNode *dest) {
+TrackPath search_path_to_node(Track *track, TrackNode *src, TrackNode *dest) {
     PPQueue ppqueue;
     ppqueue_init(&ppqueue);
     TrackEdge *prev[track->node_count];
@@ -178,7 +188,7 @@ TrackPath track_search_path(Track *track, TrackNode *src, TrackNode *dest) {
 }
 
 void position_reverse(TrackPosition *current) {
-    TrackEdge *edge = node_select_next_current_edge(current->node);
+    TrackEdge *edge = node_select_next_edge(current->node);
     assert(current->offset <= edge->dist);
     current->node = edge->dest->reverse;
     current->offset = edge->dist - current->offset;
@@ -193,10 +203,10 @@ void position_move(TrackPosition *current, int32_t offset) {
         return;
     }
     current->offset += (uint32_t)offset;
-    TrackEdge *edge = node_select_next_current_edge(current->node);
+    TrackEdge *edge = node_select_next_edge(current->node);
     while (current->offset >= edge->dist) {
         current->offset -= edge->dist;
-        edge = node_select_next_current_edge(current->node);
+        edge = node_select_next_edge(current->node);
         current->node = edge->dest;
     }
 }

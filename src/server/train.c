@@ -9,9 +9,8 @@
 #include <user/ipc.h>
 #include <user/name.h>
 #include <utils/assert.h>
-#include <utils/bwio.h>
+#include <utils/queue.h>
 
-// static Queue initial_trains;
 // static Queue await_sensors[MAX_SENSOR_NUM];
 
 extern Track singleton_track;
@@ -19,11 +18,9 @@ extern Train singleton_trains[TRAIN_COUNT];
 
 static void train_server_init() {
     singleton_track.inited = false;
-    // queue_init(&initial_trains);
     // for (size_t i = 0; i < MAX_SENSOR_NUM; i++) {
     //     queue_init(&await_sensors[i]);
     // }
-    // sensor_log.size = 0;
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
         train_init(&singleton_trains[i], train_index_to_id(i));
     }
@@ -52,7 +49,7 @@ static void train_root_task() {
         }
         if (request.type == TRAIN_REQUEST_INIT_TRAIN) {
             uint32_t train_id = request.args[0];
-            // queue_push(&initial_trains, (int) train_id);
+            train_manager_initialize_train(train_find(singleton_trains, train_id));
             controller_speed_one(train_id, 10, 0);
         }
         if (request.type == TRAIN_REQUEST_WAKE_CONTROLLER) {
@@ -61,7 +58,7 @@ static void train_root_task() {
         if (request.type == TRAIN_REQUEST_LOCATE_TRAINS) {
             TrainSensorList list;
             controller_read_sensors(&list);
-            train_manager_locate_trains(&list);
+            train_manager_locate_trains(singleton_trains, &singleton_track, &list);
         }
         if (request.type == TRAIN_REQUEST_SPEED) {
             uint32_t train_id = request.args[0];

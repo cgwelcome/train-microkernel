@@ -70,7 +70,7 @@ void train_estimate_position(Train *train) {
 void train_touch_sensor(Train *train, TrackNode *sensor) {
     assert(sensor != NULL);
     train_set_position(train, sensor, 0);
-    uint32_t dist = node_select_next_current_edge(sensor)->dist;
+    uint32_t dist = node_select_next_edge(sensor)->dist;
     if (dist != (uint32_t) -1) {
         uint64_t expected_time = train_expected_time(train->speed, dist);
         train->next_sensor_expected_time = timer_read(TIMER3) + expected_time;

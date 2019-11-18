@@ -7,22 +7,18 @@
 #define TRAIN_COUNT 6
 
 typedef struct {
-    TrackPath path;
+    TrackNode *node;
     uint64_t expected_time;
+    uint64_t actual_time;
 } Checkpoint;
-
-typedef struct {
-    Checkpoint *location;
-    int64_t actual_time;
-} Timestamp;
 
 typedef struct {
     uint32_t id;
     uint32_t speed;
     int        omit_flag;
     TrackPosition position;
+    Checkpoint last_checkpoint;
     Checkpoint next_checkpoint;
-    Timestamp last_timestamp;
 
     /** Legacy */
     uint64_t last_position_update_time;

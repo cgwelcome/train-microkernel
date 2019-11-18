@@ -123,15 +123,15 @@ void PrintSensors(int io_tid, SensorAttributionList *list) {
             list->attributions[i].sensor.id
         );
         Train *train = list->attributions[i].train;
+        int32_t error = list->attributions[i].error;
         if (train == NULL) {
-            Printf(io_tid, COM2, "\033[s\033[%d;%dH%s\033[u",
-                LINE_SENSOR_START + i, 8,
-                "?"
+            Printf(io_tid, COM2, "\033[s\033[%d;%dH?\033[u",
+                LINE_SENSOR_START + i, 8
             );
         } else {
-            Printf(io_tid, COM2, "\033[s\033[%d;%dH%d\033[u",
+            Printf(io_tid, COM2, "\033[s\033[%d;%dH%u %d\033[u",
                 LINE_SENSOR_START + i, 8,
-                train->id
+                train->id, error
             );
         }
     };

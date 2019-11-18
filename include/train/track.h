@@ -127,13 +127,13 @@ TrackNode *path_head(TrackPath *path);
 
 TrackEdge *node_select_edge(TrackNode *src, uint8_t direction);
 
-TrackEdge *node_select_next_current_edge(TrackNode *src);
+TrackEdge *node_select_next_edge(TrackNode *src);
 
 TrackEdgeList node_select_adjacent(TrackNode *src);
 
-TrackPath node_search_next_current_type(TrackNode *src, TrackNodeType type);
+TrackPath search_path_to_next_sensor(TrackNode *src);
 
-TrackPath track_search_path(Track *track, TrackNode *src, TrackNode *dest);
+TrackPath search_path_to_node(Track *track, TrackNode *src, TrackNode *dest);
 
 void position_reverse(TrackPosition *current);
 
