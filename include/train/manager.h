@@ -7,7 +7,7 @@
 #define MAX_SENSOR_LOG 5
 
 typedef struct {
-    TrainSensor sensor;
+    TrackNode *node;
     Train *train;
     int32_t error;
 } SensorAttribution;

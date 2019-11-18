@@ -15,12 +15,14 @@ typedef struct {
 typedef struct {
     uint32_t id;
     uint32_t speed;
-    int        omit_flag;
+    bool inited;
+
     TrackPosition position;
     Checkpoint last_checkpoint;
     Checkpoint next_checkpoint;
 
     /** Legacy */
+    int        omit_flag;
     uint64_t last_position_update_time;
     uint64_t next_sensor_expected_time;
     uint64_t   prev_touch_time;

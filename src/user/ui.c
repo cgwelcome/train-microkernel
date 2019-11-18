@@ -9,48 +9,6 @@
 #include <user/io.h>
 #include <utils/assert.h>
 
-char parse_sensor_module(const char *raw) {
-    if (2 == strlen(raw) || strlen(raw) == 3) {
-        char module = (char)toupper(raw[0]);
-        if ('A' <= module && module <= 'E') {
-            return module;
-        }
-    }
-    return 0;
-}
-
-uint32_t parse_sensor_id(const char *raw) {
-    if (2 == strlen(raw) || strlen(raw) == 3) {
-        uint32_t id = (uint32_t)atoi(&raw[1]);
-        if (1 <= id && id <= 16) {
-            return id;
-        }
-    }
-    return 0;
-}
-
-uint8_t is_train(uint32_t train_id) {
-    uint32_t train_count = 6;
-    uint32_t train_ids[] = { 1, 24, 58, 74, 78, 79 };
-    for (uint32_t i = 0; i < train_count; i++) {
-        if (train_ids[i] == train_id) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-uint8_t is_speed(uint32_t speed) {
-    return (speed <= 14) ? 1 : 0;
-}
-
-uint8_t is_switch(uint32_t switch_id) {
-    if ((switch_id > 0 && switch_id < 19) || (switch_id > 0x98 && switch_id < 0x9D)) {
-        return 1;
-    }
-    return 0;
-}
-
 void PrintBasicInterface(int io_tid) {
     Printf(io_tid, COM2, "\033[%u;%uHCPU Idle Rate:"                               , LINE_IDLE              , 1);
     Printf(io_tid, COM2, "\033[%u;%uHTime: "                                       , LINE_TIME              , 1);
@@ -100,6 +58,19 @@ void PrintSwitch(int io_tid, unsigned int code, uint8_t direction) {
     Printf(io_tid, COM2, "\033[s\033[%u;%uH%c\033[u", LINE_SWITCH_START + row, 7 + col * 7, status);
 }
 
+void PrintCheckpoints(int io_tid, uint32_t train_id, Checkpoint *last, Checkpoint *next) {
+    uint32_t row = train_id_to_index(train_id);
+    Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K%s\033[u",
+            LINE_LOCATION_START + row, 13,
+            last->node->name
+    );
+    Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K%s\033[u",
+            LINE_LOCATION_START + row, 17,
+            next->node->name
+    );
+}
+
+
 void PrintVelocity(int io_tid, uint32_t train_id, uint32_t time, uint32_t velocity) {
     uint32_t row = train_id_to_index(train_id);
     Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K%u %u\033[u", LINE_LOCATION_START + row, 13, time, velocity);
@@ -117,22 +88,63 @@ void PrintTerminal(int io_tid, const char *buffer) {
 
 void PrintSensors(int io_tid, SensorAttributionList *list) {
     for (uint32_t i = 0; i < list->size; i++) {
-        Printf(io_tid, COM2, "\033[s\033[%d;%dH\033[K%c%u\033[u",
+        SensorAttribution *attribution = &list->attributions[i];
+        Printf(io_tid, COM2, "\033[s\033[%d;%dH\033[K%s\033[u",
             LINE_SENSOR_START + i, 3,
-            list->attributions[i].sensor.module,
-            list->attributions[i].sensor.id
+            attribution->node->name
         );
-        Train *train = list->attributions[i].train;
-        int32_t error = list->attributions[i].error;
-        if (train == NULL) {
+        if (attribution->train == NULL) {
             Printf(io_tid, COM2, "\033[s\033[%d;%dH?\033[u",
                 LINE_SENSOR_START + i, 8
             );
         } else {
             Printf(io_tid, COM2, "\033[s\033[%d;%dH%u %d\033[u",
                 LINE_SENSOR_START + i, 8,
-                train->id, error
+                attribution->train->id, attribution->error
             );
         }
     };
 }
+
+char parse_sensor_module(const char *raw) {
+    if (2 == strlen(raw) || strlen(raw) == 3) {
+        char module = (char)toupper(raw[0]);
+        if ('A' <= module && module <= 'E') {
+            return module;
+        }
+    }
+    return 0;
+}
+
+uint32_t parse_sensor_id(const char *raw) {
+    if (2 == strlen(raw) || strlen(raw) == 3) {
+        uint32_t id = (uint32_t)atoi(&raw[1]);
+        if (1 <= id && id <= 16) {
+            return id;
+        }
+    }
+    return 0;
+}
+
+uint8_t is_train(uint32_t train_id) {
+    uint32_t train_count = 6;
+    uint32_t train_ids[] = { 1, 24, 58, 74, 78, 79 };
+    for (uint32_t i = 0; i < train_count; i++) {
+        if (train_ids[i] == train_id) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+uint8_t is_speed(uint32_t speed) {
+    return (speed <= 14) ? 1 : 0;
+}
+
+uint8_t is_switch(uint32_t switch_id) {
+    if ((switch_id > 0 && switch_id < 19) || (switch_id > 0x98 && switch_id < 0x9D)) {
+        return 1;
+    }
+    return 0;
+}
+
