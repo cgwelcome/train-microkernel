@@ -17,6 +17,7 @@ static uint32_t expected_acceleration(uint32_t train_id) {
 }
 
 static uint32_t expected_velocity(uint32_t train_id, uint32_t speed) {
+    if (speed == 0) return 0;
     assert(speed >= 10 && speed <= 14);
     return expected_velocity_matrix[train_id_to_index(train_id)][speed - 10];
 }
@@ -35,6 +36,8 @@ static uint32_t model_integrate_velocity(uint32_t current_vec, uint32_t target_v
 }
 
 void model_estimate_train_status(Train *train) {
+    assert(train->inited);
+
     uint32_t now = (uint32_t) timer_read(TIMER3);
     uint32_t dt = now - train->last_position_update_time;
     train->last_position_update_time = now;
@@ -49,4 +52,11 @@ void model_estimate_train_status(Train *train) {
     if (train->position.node != NULL) {
         position_move(&train->position, (int32_t) dd);
     }
+}
+
+uint32_t model_estimate_train_stop_distance(Train *train) {
+    assert(train->inited);
+    uint32_t acc = expected_acceleration(train->id);
+    uint32_t vec = train->velocity;
+    return (vec * vec) / (2 * acc);
 }
