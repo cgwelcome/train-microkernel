@@ -1,35 +1,68 @@
 #include <kernel.h>
+#include <hardware/timer.h>
 #include <server/clock.h>
 #include <server/train.h>
 #include <train/controller.h>
 #include <train/manager.h>
+#include <train/model.h>
 #include <train/train.h>
 #include <user/clock.h>
 #include <user/tasks.h>
 #include <user/ipc.h>
 #include <user/name.h>
+#include <user/ui.h>
 #include <utils/assert.h>
 #include <utils/queue.h>
 
+#define READ_SERSOR_INTERVAL       100 // ms
+#define PRINT_STATUS_INTERVAL      200
+
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
+
+static uint32_t last_read_sensor_time;
+static uint32_t last_print_status_time;
 
 static void train_server_init() {
     singleton_track.inited = false;
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
         train_init(&singleton_trains[i], train_index_to_id(i));
     }
+
+    last_read_sensor_time = 0;
+    last_print_status_time = 0;
+}
+
+static void ts_try_read_sensors(TrainSensorList *sensorlist) {
+    uint32_t now = (uint32_t) timer_read(TIMER3);
+    if (now - last_read_sensor_time > READ_SERSOR_INTERVAL) {
+        last_read_sensor_time = now;
+        controller_read_sensors(sensorlist);
+    }
+}
+
+static void ts_try_print_status(int iotid, TrainSensorList *sensorlist) {
+    uint32_t now = (uint32_t) timer_read(TIMER3);
+    if (now - last_print_status_time > PRINT_STATUS_INTERVAL) {
+        last_print_status_time = now;
+        for (uint32_t i = 0; i < sensorlist->size; i++) {
+            PrintSensor(iotid, &sensorlist->sensors[i], now);
+        }
+        for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
+            PrintLocation(iotid, &singleton_trains[i]);
+        }
+    }
 }
 
 static void train_root_task() {
     int tid;
     TrainRequest request;
+    TrainSensorList sensorlist;
 
     RegisterAs(SERVER_NAME_TRAIN);
     int iotid = WhoIs(SERVER_NAME_IO);
     train_server_init();
     controller_init(iotid);
-    train_manager_init(iotid);
     controller_go(0);
     controller_speed_all(0, 0);
     for (;;) {
@@ -44,16 +77,23 @@ static void train_root_task() {
         }
         if (request.type == TRAIN_REQUEST_INIT_TRAIN) {
             uint32_t train_id = request.args[0];
-            train_manager_initialize_train(train_find(singleton_trains, train_id));
-            controller_speed_one(train_id, 10, 0);
+            TrackNode *node   = (TrackNode *) request.args[1];
+            Train *train = train_find(singleton_trains, train_id);
+            train->inited = true;
+            train->position.node   = node;
+            train->position.offset = 0;
         }
         if (request.type == TRAIN_REQUEST_WAKE_CONTROLLER) {
             controller_wake();
         }
         if (request.type == TRAIN_REQUEST_LOCATE_TRAINS) {
-            TrainSensorList list;
-            controller_read_sensors(&list);
-            train_manager_locate_trains(&list);
+            for (int i = 0; i < TRAIN_COUNT; i++) {
+                model_estimate_train_status(&singleton_trains[i]);
+            }
+            sensorlist.size = 0;
+            ts_try_read_sensors(&sensorlist);
+            ts_try_print_status(iotid, &sensorlist);
+            model_correct_train_status(&sensorlist);
         }
         if (request.type == TRAIN_REQUEST_SPEED) {
             uint32_t train_id = request.args[0];
@@ -69,13 +109,10 @@ static void train_root_task() {
         }
         if (request.type == TRAIN_REQUEST_MOVE) {
             uint32_t train_id = request.args[0];
-            uint32_t speed = request.args[1];
-            TrainSensor sensor = {
-                .module = (char)request.args[2],
-                .id = request.args[3]
-            };
-            int32_t offset = (int32_t)request.args[4];
-            train_manager_navigate_train(train_id, speed, &sensor, offset);
+            uint32_t speed    = request.args[1];
+            TrackNode *sensor = (TrackNode *) request.args[2];
+            int32_t offset    = (int32_t)     request.args[3];
+            train_manager_navigate_train(train_id, speed, sensor, offset);
         }
         if (request.type == TRAIN_REQUEST_SWITCH) {
             uint32_t switch_id = request.args[0];

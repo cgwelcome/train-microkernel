@@ -44,14 +44,14 @@ void Putw(int tid, int uart, char *buffer, size_t size) {
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
-int a2d(char ch) {
+static int a2d(char ch) {
     if(ch >= '0' && ch <= '9') return ch - '0';
     if(ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
     if(ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
     return -1;
 }
 
-char a2i(char ch, char **src, int base, int *nump) {
+static char a2i(char ch, char **src, int base, int *nump) {
     int num, digit;
     char *p;
 
@@ -65,7 +65,7 @@ char a2i(char ch, char **src, int base, int *nump) {
     return ch;
 }
 
-void ui2a(unsigned int num, unsigned int base, char *bf) {
+static void ui2a(unsigned int num, unsigned int base, char *bf) {
     int n = 0;
     int dgt;
     unsigned int d = 1;
@@ -83,7 +83,7 @@ void ui2a(unsigned int num, unsigned int base, char *bf) {
     *bf = 0;
 }
 
-void i2a(int num, char *bf) {
+static void i2a(int num, char *bf) {
     if (num < 0) {
         num = -num;
         *bf++ = '-';
@@ -91,7 +91,7 @@ void i2a(int num, char *bf) {
     ui2a((unsigned int) num, 10, bf);
 }
 
-void bufcpy(char *dst, char *src, int fill_count, char fill_char, int *dst_start) {
+static void bufcpy(char *dst, char *src, int fill_count, char fill_char, int *dst_start) {
     char ch;
     char *p = src;
 
@@ -100,7 +100,7 @@ void bufcpy(char *dst, char *src, int fill_count, char fill_char, int *dst_start
     while ((ch = *(src++)))  dst[(*dst_start)++] = ch;
 }
 
-void format(int tid, int uart, char *fmt, va_list va) {
+static void format(int tid, int uart, char *fmt, va_list va) {
     char bf[128], num[32];
     char ch, lz;
     int w;

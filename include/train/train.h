@@ -46,4 +46,10 @@ uint32_t train_index_to_id(uint32_t index);
  */
 Train *train_find(Train *trains, uint32_t train_id);
 
+/**
+ * If the train is close to a position (within 5cm), returns the distance
+ * between the train and the position. Otherwise, returns UINT32_MAX.
+ */
+uint32_t train_close_to(Train *train, TrackPosition position);
+
 #endif /*__TRAIN_TRAIN_H__*/

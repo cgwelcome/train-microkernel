@@ -10,10 +10,11 @@ void TrainInitTrack(int tid, TrackName name) {
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
-void TrainInitTrain(int tid, uint32_t train_id) {
+void TrainInitTrain(int tid, uint32_t train_id, TrackNode *node) {
     TrainRequest request = {
         .type    = TRAIN_REQUEST_INIT_TRAIN,
         .args[0] = train_id,
+        .args[1] = (uint32_t) node,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
@@ -35,14 +36,13 @@ void TrainReverse(int tid, uint32_t train_id) {
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
-void TrainMove(int tid, uint32_t train_id, uint32_t speed, char module, uint32_t id, int32_t offset) {
+void TrainMove(int tid, uint32_t train_id, uint32_t speed, TrackNode *node, int32_t offset) {
     TrainRequest request = {
         .type    = TRAIN_REQUEST_MOVE,
         .args[0] = train_id,
         .args[1] = speed,
-        .args[2] = module,
-        .args[3] = id,
-        .args[4] = (uint32_t) offset,
+        .args[2] = (uint32_t) node,
+        .args[3] = (uint32_t) offset,
     };
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }

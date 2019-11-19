@@ -39,29 +39,29 @@ static uint32_t model_integrate_velocity(uint32_t current_vec, uint32_t target_v
 }
 
 void model_estimate_train_status(Train *train) {
-    assert(train->inited);
+    if (train->inited) {
+        uint32_t now = (uint32_t) timer_read(TIMER3);
+        uint32_t dt = now - train->last_position_update_time;
+        train->last_position_update_time = now;
 
-    uint32_t now = (uint32_t) timer_read(TIMER3);
-    uint32_t dt = now - train->last_position_update_time;
-    train->last_position_update_time = now;
+        uint32_t acc = expected_acceleration(train->id);
+        uint32_t vec = expected_velocity(train->id, train->speed);
 
-    uint32_t acc = expected_acceleration(train->id);
-    uint32_t vec = expected_velocity(train->id, train->speed);
-
-    uint32_t v0 = train->velocity;
-    train->velocity = model_integrate_velocity(v0, vec, acc, dt);
-    uint32_t vt = train->velocity;
-    uint32_t dd = (v0 + vt) * dt / 2;
-    if (train->position.node != NULL) {
-        position_move(&train->position, (int32_t) dd);
+        uint32_t v0 = train->velocity;
+        train->velocity = model_integrate_velocity(v0, vec, acc, dt);
+        uint32_t vt = train->velocity;
+        uint32_t dd = (v0 + vt) * dt / 2000;
+        if (train->position.node != NULL) {
+            position_move(&train->position, (int32_t) dd);
+        }
     }
 }
 
-static uint32_t model_find_train_close_to(TrackNode *sensor) {
+static uint32_t find_train_close_to_sensor(TrackNode *sensor) {
     TrackPosition position = { .node = sensor, .offset = 0 };
     uint32_t min_dist = UINT32_MAX; uint32_t min_train_index = (uint32_t) -1;
     for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
-        uint32_t dist = train_close_to(&singleton_trains[i], &position);
+        uint32_t dist = train_close_to(&singleton_trains[i], position);
         if (dist < min_dist) {
             min_dist = dist;
             min_train_index = i;
@@ -71,9 +71,10 @@ static uint32_t model_find_train_close_to(TrackNode *sensor) {
 }
 
 void model_correct_train_status(TrainSensorList *sensorlist) {
+    if (!singleton_track.inited) return;
     for (uint32_t i = 0; i < sensorlist->size; i++) {
         TrackNode *sensor = track_find_sensor(&singleton_track, &sensorlist->sensors[i]);
-        uint32_t train_index = model_find_train_close_to(sensor);
+        uint32_t train_index = find_train_close_to_sensor(sensor);
         if (train_index != (uint32_t) -1) {
             singleton_trains[train_index].position.node   = sensor;
             singleton_trains[train_index].position.offset = 0;
@@ -82,7 +83,6 @@ void model_correct_train_status(TrainSensorList *sensorlist) {
 }
 
 uint32_t model_estimate_train_stop_distance(Train *train) {
-    assert(train->inited);
     uint32_t acc = expected_acceleration(train->id);
     uint32_t vec = train->velocity;
     return (vec * vec) / (2 * acc);

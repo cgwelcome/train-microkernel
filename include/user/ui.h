@@ -13,10 +13,12 @@
 #define LINE_LOCATION_START  9
 #define LINE_SENSOR_TITLE   15
 #define LINE_SENSOR_START   16
+#define LINE_SENSOR_END     21
 #define LINE_TERMINAL       22
-#define LINE_LOAD           24
-#define MAX_NUM_ARGS        10
+#define LINE_LOG_START      24
+#define LINE_LOG_END       128
 
+#define MAX_NUM_ARGS        10
 
 void PrintBasicInterface(int io_tid);
 
@@ -26,22 +28,10 @@ void PrintTime(int iotid);
 
 void PrintSwitch(int io_tid, unsigned int code, uint8_t direction);
 
-void PrintVelocity(int io_tid, uint32_t train_id, uint32_t time, uint32_t velocity);
+void PrintLocation(int io_tid, Train *train);
 
-void PrintTimeDifference(int io_tid, uint32_t train_id, uint64_t expected_time);
+void PrintSensor(int io_tid, TrainSensor *sensor, uint32_t time);
 
 void PrintTerminal(int io_tid, const char *cmd_buffer);
-
-void PrintSensors(int io_tid, SensorAttributionList *list);
-
-uint8_t is_train(uint32_t train_id);
-
-uint8_t is_speed(uint32_t speed);
-
-uint8_t is_switch(uint32_t switch_id);
-
-char parse_sensor_module(const char *raw);
-
-uint32_t parse_sensor_id(const char *raw);
 
 #endif /*__USER_TRAIN_H__*/

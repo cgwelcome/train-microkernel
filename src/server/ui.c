@@ -3,6 +3,7 @@
 #include <test.h>
 #include <server/io.h>
 #include <server/ui.h>
+#include <train/track.h>
 #include <user/io.h>
 #include <user/clock.h>
 #include <user/name.h>
@@ -14,35 +15,56 @@
 static int io_tid;
 static int train_tid;
 
-static int cmd_init(int nargc, char **nargv) {
-    if (nargc != 3) {
-        PrintTerminal(io_tid, "usage: init [track | train] id");
-        return 1;
+// NOTE: these structures must be read only in this file!
+extern Track singleton_track;
+extern const uint32_t train_ids[TRAIN_COUNT];
+
+static uint8_t is_train(uint32_t train_id) {
+    for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
+        if (train_ids[i] == train_id) {
+            return 1;
+        }
     }
-    char *type = nargv[1];
-    char *id   = nargv[2];
-    if (!strcmp(type, "track")) {
-        if (!strcmp(id, "a") || !strcmp(id, "A")) {
+    return 0;
+}
+
+static uint8_t is_speed(uint32_t speed) {
+    return speed <= 14;
+}
+
+static uint8_t is_switch(uint32_t switch_id) {
+    return (switch_id > 0 && switch_id < 19) || (switch_id > 0x98 && switch_id < 0x9D);
+}
+
+static int cmd_init(int nargc, char **nargv) {
+    if (nargc == 3 && !strcmp(nargv[1], "track")) {
+        char *track = nargv[2];
+        if (!strcmp(track, "a") || !strcmp(track, "A")) {
             TrainInitTrack(train_tid, TRAIN_TRACK_A);
             return 0;
         }
-        if (!strcmp(id, "b") || !strcmp(id, "B")) {
+        if (!strcmp(track, "b") || !strcmp(track, "B")) {
             TrainInitTrack(train_tid, TRAIN_TRACK_B);
             return 0;
         }
         PrintTerminal(io_tid, "invalid track");
         return 1;
     }
-    if (!strcmp(type, "train")) {
-        uint32_t train_id = (uint32_t)atoi(id);
+    if (nargc == 4 && !strcmp(nargv[1], "train")) {
+        if (!singleton_track.inited) {
+            PrintTerminal(io_tid, "initialize track first!");
+            return 1;
+        }
+        uint32_t train_id = (uint32_t)atoi(nargv[2]);
+        TrackNode *node   = track_find_node_by_name(&singleton_track, nargv[3]);
         if (is_train(train_id)) {
-            TrainInitTrain(train_tid, train_id);
+            TrainInitTrain(train_tid, train_id, node);
             return 0;
         }
         PrintTerminal(io_tid, "invalid train id");
         return 1;
     }
-    PrintTerminal(io_tid, "usage: init [track | train] id");
+    PrintTerminal(io_tid, "usage: init track track_name | init train id node");
     return 1;
 }
 
@@ -98,15 +120,15 @@ static int cmd_sw(int nargc, char **nargv) {
 }
 
 static int cmd_mv(int nargc, char **nargv) {
-    if (nargc != 3) {
-        PrintTerminal(io_tid, "usage: mv train_id sensor");
+    if (nargc != 4) {
+        PrintTerminal(io_tid, "usage: mv train_id node offset");
         return 1;
     }
     uint32_t train_id = (uint32_t)atoi(nargv[1]);
-    char sensor_module = parse_sensor_module(nargv[2]);
-    uint32_t sensor_id = parse_sensor_id(nargv[2]);
-    if (is_train(train_id) && sensor_module != 0 && sensor_id != 0) {
-        TrainMove(train_tid, train_id, 10, sensor_module, sensor_id, 0);
+    TrackNode *node   = track_find_node_by_name(&singleton_track, nargv[2]);
+    int32_t offset    = atoi(nargv[3]);
+    if (is_train(train_id)) {
+        TrainMove(train_tid, train_id, 10, node, offset);
         return 0;
     }
     PrintTerminal(io_tid, "Invalid train id/sensor");
@@ -140,8 +162,8 @@ static int cmd_test(int nargc, char **nargv) {
         PrintTerminal(io_tid, "usage: test name [arguments]");
         return 1;
     }
-    Printf(io_tid, COM2, "\033[%u;%uH", LINE_LOAD, 1);
-    Printf(io_tid, COM2, "\033[J", LINE_LOAD, 1);
+    Printf(io_tid, COM2, "\033[%u;%uH", LINE_LOG_START, 1);
+    Printf(io_tid, COM2, "\033[J", LINE_LOG_START, 1);
 
     for (uint32_t i = 0; testtable[i].name; i ++) {
         if (!strcmp(nargv[1], testtable[i].name)) {
