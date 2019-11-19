@@ -79,6 +79,7 @@ typedef struct {
 
 typedef struct {
     TrackEdgeList list;
+    uint32_t index;
     uint32_t dist;  /** in millimetres */
 } TrackPath;
 
@@ -123,9 +124,13 @@ uint8_t edge_direction(TrackEdge *edge);
 
 void path_clear(TrackPath *path);
 
-TrackNode *path_head(TrackPath *path);
-
 void path_add_edge(TrackPath *path, TrackEdge *edge);
+
+TrackNode *path_end(TrackPath *path);
+
+TrackNode *path_node_by_index(TrackPath *path, uint32_t i);
+
+void path_move(TrackPath *path, TrackNode *dest);
 
 TrackEdge *node_select_edge(TrackNode *src, uint8_t direction);
 

@@ -73,9 +73,9 @@ static void edgelist_swap(TrackEdgeList *list, uint32_t i, uint32_t j) {
     list->edges[j] = edge;
 }
 
-
 void path_clear(TrackPath *path) {
     path->list.size = 0;
+    path->index = 0;
     path->dist = 0;
 }
 
@@ -85,9 +85,25 @@ void path_add_edge(TrackPath *path, TrackEdge *edge) {
     path->dist += edge->dist;
 }
 
-TrackNode *path_head(TrackPath *path) {
+TrackNode *path_end(TrackPath *path) {
     if (path->dist == 0) return NULL;
     return path->list.edges[path->list.size-1]->dest;
+}
+
+TrackNode *path_node_by_index(TrackPath *path, uint32_t i) {
+    assert(i < path->list.size);
+    return path->list.edges[i]->dest;
+}
+
+void path_move(TrackPath *path, TrackNode *dest) {
+    assert(path->index < path->list.size);
+    TrackNode *node = path_node_by_index(path, path->index);
+    while (node != dest) {
+        path->index++;
+        assert(path->index < path->list.size);
+        node = path_node_by_index(path, path->index);
+    }
+    path->index++;
 }
 
 uint8_t node_valid(TrackNode *node) {
@@ -127,7 +143,7 @@ TrackPath search_path_to_next_sensor(TrackNode *src) {
     TrackEdge *edge = node_select_next_edge(src);
     while (edge != NULL && edge->dest->type != NODE_SENSOR) {
         path_add_edge(&path, edge);
-        edge = node_select_next_edge(path_head(&path));
+        edge = node_select_next_edge(path_end(&path));
     }
     if (edge == NULL) {
         path_clear(&path);

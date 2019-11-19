@@ -39,7 +39,7 @@ static void train_manager_log_checkpoint(Train *train) {
 
 static void train_manager_update_next_checkpoint(Train *train) {
     TrackPath path = search_path_to_next_sensor(train->last_checkpoint.node);
-    train->next_checkpoint.node = path_head(&path);
+    train->next_checkpoint.node = path_end(&path);
     // Compute arrival time with path.dist, train, track
 }
 
