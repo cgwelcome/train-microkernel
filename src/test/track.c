@@ -69,6 +69,14 @@ int test_search_path(int argc, char **argv) {
     TrackNode *dest = track_find_sensor(&track, &sensor2);
     TrackPath path = search_path_to_node(&track, src, dest);
     print_path(iotid, &path);
+    Printf(iotid, COM2, "Checkpoints\n\r");
+    for (uint32_t i = path.index; i < path.list.size; i++) {
+        TrackNode *node = path_node_by_index(&path, i);
+        if (node->type == NODE_SENSOR) {
+            Printf(iotid, COM2, "%s\n\r", node->name);
+            path_move(&path, node);
+        }
+    }
     return 0;
 }
 

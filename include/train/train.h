@@ -13,13 +13,14 @@ typedef struct {
 } Checkpoint;
 
 typedef struct {
+    bool inited;
     uint32_t id;
     uint32_t speed;
-    bool inited;
 
     TrackPosition position;
     Checkpoint last_checkpoint;
     Checkpoint next_checkpoint;
+    TrackPath path;
 
     /** Legacy */
     int        omit_flag;
