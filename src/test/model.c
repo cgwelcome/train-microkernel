@@ -7,6 +7,9 @@
 #include <train/track.h>
 #include <utils/assert.h>
 
+#define TRAIN_ID    1
+#define TRAIN_SPEED 14
+
 extern Track singleton_track;
 
 static uint64_t find_dist(TrackNode *start, TrackNode *end) {
@@ -33,7 +36,7 @@ int test_build_model(int argc, char **argv) {
     int clocktid = WhoIs(SERVER_NAME_CLOCK);
     int traintid = WhoIs(SERVER_NAME_TRAIN);
 
-    TrainSpeed(traintid, 74, 10);
+    TrainSpeed(traintid, TRAIN_ID, TRAIN_SPEED);
 
     TrainSensorList sensorlist;
     TrackNode *last_reach_sensor = NULL;
@@ -51,9 +54,13 @@ int test_build_model(int argc, char **argv) {
             }
             if (last_reach_sensor == reach_sensor) continue;
 
+            if (reach_sensor->id == 36) {
+                TrainSpeed(traintid, TRAIN_ID, 0);
+            }
+
             uint64_t dist = find_dist(last_reach_sensor, reach_sensor);
             uint64_t time = reach_time - last_reach_time;
-            if (dist != (uint64_t) -1 && dist != 0 && time >= 3000) {
+            if (dist != (uint64_t) -1 && dist != 0 && time >= 0) {
                 uint32_t sv = (uint32_t) (dist * 100000 / time);
                 Printf(iotid, COM2, "%s\t%s\t%u\t%u\t%u.%02u\r\n", last_reach_sensor->name, reach_sensor->name, (uint32_t) dist, (uint32_t) time, sv / 100, sv % 100);
 
