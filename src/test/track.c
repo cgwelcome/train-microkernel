@@ -103,7 +103,13 @@ int test_search_allpath(int argc, char **argv) {
                     };
                     TrackNode *src = track_find_sensor(&track, &sensor1);
                     TrackNode *dest = track_find_sensor(&track, &sensor2);
-                    search_path_to_node(&track, src, dest);
+                    TrackPath path = search_path_to_node(&track, src, dest);
+                    for (uint32_t i = path.index; i < path.list.size; i++) {
+                        TrackNode *node = path_node_by_index(&path, i);
+                        if (node->type == NODE_SENSOR) {
+                            path_move(&path, node);
+                        }
+                    }
                 }
             }
         }
