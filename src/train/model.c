@@ -2,6 +2,9 @@
 #include <train/model.h>
 #include <utils/assert.h>
 
+extern Track singleton_track;
+extern Train singleton_trains[TRAIN_COUNT];
+
 uint32_t acceleration_table[5] = { 137, 132, 124, 195, 125 };
 
 uint32_t expected_velocity_matrix[5][5] = {
@@ -51,6 +54,30 @@ void model_estimate_train_status(Train *train) {
     uint32_t dd = (v0 + vt) * dt / 2;
     if (train->position.node != NULL) {
         position_move(&train->position, (int32_t) dd);
+    }
+}
+
+static uint32_t model_find_train_close_to(TrackNode *sensor) {
+    TrackPosition position = { .node = sensor, .offset = 0 };
+    uint32_t min_dist = UINT32_MAX; uint32_t min_train_index = (uint32_t) -1;
+    for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
+        uint32_t dist = train_close_to(&singleton_trains[i], &position);
+        if (dist < min_dist) {
+            min_dist = dist;
+            min_train_index = i;
+        }
+    }
+    return min_train_index;
+}
+
+void model_correct_train_status(TrainSensorList *sensorlist) {
+    for (uint32_t i = 0; i < sensorlist->size; i++) {
+        TrackNode *sensor = track_find_sensor(&singleton_track, &sensorlist->sensors[i]);
+        uint32_t train_index = model_find_train_close_to(sensor);
+        if (train_index != (uint32_t) -1) {
+            singleton_trains[train_index].position.node   = sensor;
+            singleton_trains[train_index].position.offset = 0;
+        }
     }
 }
 
