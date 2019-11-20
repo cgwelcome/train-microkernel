@@ -7,6 +7,7 @@
 
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
+#define TRAILLING_DISTANCE 400
 
 void train_manager_navigate_train(uint32_t train_id, TrackNode *dest, int32_t offset) {
     Train *train = train_find(singleton_trains, train_id);
@@ -33,21 +34,38 @@ static void train_manager_prepare_ahead(Train *train) {
     }
 }
 
+static void train_manager_look_ahead(Train *train, uint32_t stop_distance) {
+    for (size_t i = 0; i < TRAIN_COUNT; i++) {
+        Train *other_train = &singleton_trains[i];
+        if (!other_train->inited || other_train->id == train->id) continue;
+        TrackPosition position = {
+            .node = other_train->position.node,
+            .offset = other_train->position.offset - stop_distance - TRAILLING_DISTANCE,
+        };
+        if (train_close_to(train, position) != UINT32_MAX) {
+            controller_speed_one(train->id, 0, 0);
+        }
+    }
+}
+
 void train_manager_issue_directives() {
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
         Train *train = &singleton_trains[i];
-        if (train->trajectory) {
-            path_move(&train->path, train->position.node);
-            train_manager_prepare_ahead(train);
+        if (train->inited) {
             uint32_t stop_distance = model_estimate_train_stop_distance(train);
-            TrackPosition position = {
-                .node = train->destination.node,
-                .offset = train->destination.offset - stop_distance,
-            };
-            if (train_close_to(train, position) != UINT32_MAX) {
-                controller_speed_one(train->id, 0, 0);
-                train->trajectory = false;
+            if (train->trajectory) {
+                path_move(&train->path, train->position.node);
+                train_manager_prepare_ahead(train);
+                TrackPosition position = {
+                    .node = train->destination.node,
+                    .offset = train->destination.offset - stop_distance,
+                };
+                if (train_close_to(train, position) != UINT32_MAX) {
+                    controller_speed_one(train->id, 0, 0);
+                    train->trajectory = false;
+                }
             }
+            train_manager_look_ahead(train, stop_distance);
         }
     }
 }
