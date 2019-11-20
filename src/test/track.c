@@ -5,9 +5,6 @@
 #include <user/io.h>
 #include <user/ui.h>
 
-// NOTE: this structure must be read only in this file!
-extern Track singleton_track;
-
 static void print_path(int iotid, TrackPath *path) {
     if (path->dist == 0) {
         Printf(iotid, COM2, "Path not found\n\r");
@@ -29,7 +26,7 @@ int test_next_sensor(int argc, char **argv) {
     }
     Track track;
     track_init(&track, TRAIN_TRACK_A);
-    TrackNode *node = track_find_node_by_name(&singleton_track, argv[1]);
+    TrackNode *node = track_find_node_by_name(&track, argv[1]);
     TrackPath path = search_path_to_next_sensor(node);
     print_path(iotid, &path);
     return 0;
@@ -43,16 +40,11 @@ int test_reserve(int argc, char **argv) {
     }
     Track track;
     track_init(&track, TRAIN_TRACK_A);
-    TrainSensor sensor = find_sensor(argv[1]);
-    if (!valid_sensor(&sensor)) {
-        Printf(iotid, COM2, "Invalid sensor\n\r");
-        return 1;
-    }
     TrackNodeList dest;
     TrackNodeList src;
     TrackPath path;
     nodelist_init(&dest);
-    TrackNode *node = track_find_sensor(&track, &sensor);
+    TrackNode *node = track_find_node_by_name(&track, argv[1]);
     uint32_t dist = (uint32_t)atoi(argv[2]);
 
     nodelist_add(&dest, node);
@@ -138,13 +130,13 @@ int test_search_path(int argc, char **argv) {
     }
     Track track;
     track_init(&track, TRAIN_TRACK_A);
-    TrackNode *src = track_find_node_by_name(&singleton_track, argv[1]);
-    TrackNode *dest = track_find_node_by_name(&singleton_track, argv[2]);
+    TrackNode *src = track_find_node_by_name(&track, argv[1]);
+    TrackNode *dest = track_find_node_by_name(&track, argv[2]);
     TrackPath path = search_path_to_node(&track, src, dest);
     print_path(iotid, &path);
     Printf(iotid, COM2, "Checkpoints\n\r");
     for (uint32_t i = path.index; i < path.list.size; i++) {
-        TrackNode *node = edgelist_destnode_by_index(&path.list, i);
+        TrackNode *node = edgelist_by_index(&path.list, i)->dest;
         if (node->type == NODE_SENSOR) {
             Printf(iotid, COM2, "%s\n\r", node->name);
             path_move(&path, node);
@@ -178,7 +170,7 @@ int test_search_allpath(int argc, char **argv) {
                     TrackNode *dest = track_find_sensor(&track, &sensor2);
                     TrackPath path = search_path_to_node(&track, src, dest);
                     for (uint32_t i = path.index; i < path.list.size; i++) {
-                        TrackNode *node = edgelist_destnode_by_index(&path.list, i);
+                        TrackNode *node = edgelist_by_index(&path.list, i)->dest;
                         if (node->type == NODE_SENSOR) {
                             path_move(&path, node);
                         }

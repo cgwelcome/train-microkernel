@@ -131,8 +131,7 @@ uint8_t edge_direction(TrackEdge *edge);
 void edgelist_init(TrackEdgeList *list);
 void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge);
 void edgelist_swap(TrackEdgeList *list, uint32_t i, uint32_t j);
-TrackNode *edgelist_srcnode_by_index(TrackEdgeList *list, uint32_t i);
-TrackNode *edgelist_destnode_by_index(TrackEdgeList *list, uint32_t i);
+TrackEdge *edgelist_by_index(TrackEdgeList *list, uint32_t i);
 TrackNodeList edgelist_to_nodelist(TrackEdgeList *edgelist);
 void nodelist_init(TrackNodeList *list);
 void nodelist_add(TrackNodeList *list, TrackNode *node);
@@ -141,10 +140,10 @@ void nodelist_add_reverse(TrackNodeList *list);
 
 void path_clear(TrackPath *path);
 void path_add_edge(TrackPath *path, TrackEdge *edge);
-TrackEdge *path_edge_by_index(TrackPath *path, uint32_t i);
 TrackPath path_to_greater_length(TrackPath *path, uint32_t dist);
 TrackNode *path_end(TrackPath *path);
 void path_move(TrackPath *path, TrackNode *dest);
+TrackPosition path_to_position(TrackPath *path, uint32_t dist);
 
 TrackEdge *node_select_edge(TrackNode *src, uint8_t direction);
 TrackEdge *node_select_next_edge(TrackNode *src);

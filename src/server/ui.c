@@ -56,6 +56,7 @@ static int cmd_init(int nargc, char **nargv) {
             return 1;
         }
         uint32_t train_id = (uint32_t)atoi(nargv[2]);
+        // TODO: track_find_node_by_name() could panic if mistype
         TrackNode *node   = track_find_node_by_name(&singleton_track, nargv[3]);
         if (is_train(train_id)) {
             TrainInitTrain(train_tid, train_id, node);
