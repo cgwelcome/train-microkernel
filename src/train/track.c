@@ -188,7 +188,9 @@ TrackEdgeList node_select_adjacent_edge(TrackNode *src) {
     else {
         edgelist_add(&adjacent, node_select_edge(src, DIR_AHEAD));
     }
-    edgelist_add(&adjacent, node_select_edge(src, DIR_REVERSE));
+    if (src->type != NODE_BRANCH && src->type != NODE_MERGE) {
+        edgelist_add(&adjacent, node_select_edge(src, DIR_REVERSE));
+    }
     return adjacent;
 }
 

@@ -16,7 +16,7 @@
 #define MAX_EDGE_LIST           280
 #define MAX_NODE_LIST           280
 #define MAX_EDGE_PATH           280
-#define REVERSE_PENALTY         400
+#define REVERSE_PENALTY        1400
 
 #define DIR_AHEAD 0
 #define DIR_STRAIGHT 0

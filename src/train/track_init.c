@@ -3143,8 +3143,11 @@ void track_init(Track *track, TrackName name) {
     }
     track->inited = true;
     for (uint32_t i = 0; i < track->node_count; i++) {
-        track->nodes[i].edge[DIR_REVERSE].src = &track->nodes[i];
-        track->nodes[i].edge[DIR_REVERSE].dest = track->nodes[i].reverse;
-        track->nodes[i].edge[DIR_REVERSE].dist = REVERSE_PENALTY;
+        TrackNode *node = &track->nodes[i];
+        if (node->type != NODE_BRANCH && node->type != NODE_MERGE) {
+            node->edge[DIR_REVERSE].src = node;
+            node->edge[DIR_REVERSE].dest = node->reverse;
+            node->edge[DIR_REVERSE].dist = REVERSE_PENALTY;
+        }
     }
 }
