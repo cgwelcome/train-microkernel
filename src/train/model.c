@@ -82,7 +82,8 @@ void model_correct_train_status(TrainSensorList *sensorlist) {
     }
 }
 
-uint32_t model_estimate_train_stop_distance(uint32_t train_id, uint32_t velocity) {
-    uint32_t acceleration = expected_acceleration(train_id);
-    return (velocity * velocity) / (2 * acceleration);
+uint32_t model_estimate_train_stop_distance(Train *train) {
+    uint32_t acc = expected_acceleration(train->id);
+    uint32_t vec = train->velocity;
+    return (vec * vec) / (2 * acc);
 }
