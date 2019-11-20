@@ -1,11 +1,14 @@
 #include <kernel.h>
 #include <hardware/timer.h>
-#include <user/name.h>
+#include <user/clock.h>
 #include <user/io.h>
+#include <user/name.h>
 #include <user/train.h>
 #include <train/controller.h>
 #include <train/track.h>
 #include <utils/assert.h>
+
+#include <string.h>
 
 #define TRAIN_ID    1
 #define TRAIN_SPEED 14
@@ -36,6 +39,8 @@ int test_build_model(int argc, char **argv) {
     int clocktid = WhoIs(SERVER_NAME_CLOCK);
     int traintid = WhoIs(SERVER_NAME_TRAIN);
 
+    int stopflag = argc > 0 && !strcmp(argv[1], "stop");
+
     TrainSpeed(traintid, TRAIN_ID, TRAIN_SPEED);
 
     TrainSensorList sensorlist;
@@ -54,13 +59,15 @@ int test_build_model(int argc, char **argv) {
             }
             if (last_reach_sensor == reach_sensor) continue;
 
-            if (reach_sensor->id == 36) {
-                TrainSpeed(traintid, TRAIN_ID, 0);
+            if (stopflag) {
+                if (reach_sensor->id == 36) {
+                    TrainSpeed(traintid, TRAIN_ID, 0);
+                }
             }
 
             uint64_t dist = find_dist(last_reach_sensor, reach_sensor);
             uint64_t time = reach_time - last_reach_time;
-            if (dist != (uint64_t) -1 && dist != 0 && time >= 0) {
+            if (dist != (uint64_t) -1 && dist != 0 && time >= 500) {
                 uint32_t sv = (uint32_t) (dist * 100000 / time);
                 Printf(iotid, COM2, "%s\t%s\t%u\t%u\t%u.%02u\r\n", last_reach_sensor->name, reach_sensor->name, (uint32_t) dist, (uint32_t) time, sv / 100, sv % 100);
 

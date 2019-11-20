@@ -16,18 +16,14 @@ typedef struct {
     bool inited;
     uint32_t id;
     uint32_t speed;
+    uint32_t velocity;
 
     TrackPosition position;
+    uint32_t last_position_update_time;
+
     Checkpoint last_checkpoint;
     Checkpoint next_checkpoint;
     TrackPath path;
-
-    /** Legacy */
-    int        omit_flag;
-    uint64_t last_position_update_time;
-    uint64_t next_sensor_expected_time;
-    uint64_t   prev_touch_time;
-    TrackNode *prev_touch_node;
 } Train;
 
 /**
@@ -51,24 +47,9 @@ uint32_t train_index_to_id(uint32_t index);
 Train *train_find(Train *trains, uint32_t train_id);
 
 /**
- * Convert speed to a velocity
+ * If the train is close to a position (within 5cm), returns the distance
+ * between the train and the position. Otherwise, returns UINT32_MAX.
  */
-uint32_t train_speed_to_velocity(uint32_t speed);
-
-/**
- * Given distance in mm, estimate the time with static velocity
- */
-uint32_t train_expected_time(uint32_t speed, uint32_t mm);
-
-/**
- * Given distance in mm, estimate the time with static velocity
- */
-uint32_t train_expected_distance(uint32_t speed, uint64_t ms);
-
-void train_set_position(Train *train, TrackNode *node, uint32_t dist);
-
-void train_estimate_position(Train *train);
-
-void train_touch_sensor(Train *train, TrackNode *sensor);
+uint32_t train_close_to(Train *train, TrackPosition position);
 
 #endif /*__TRAIN_TRAIN_H__*/
