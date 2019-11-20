@@ -61,11 +61,6 @@ typedef struct {
     uint32_t size;
 } TrackEdgeList;
 
-typedef struct {
-    TrackNode *nodes[MAX_NODE_LIST];
-    uint32_t size;
-} TrackNodeList;
-
 typedef struct PathNode {
     uint32_t id;
     const char *name;
@@ -78,6 +73,11 @@ typedef struct PathNode {
     TrackEdge edge[MAX_EDGE_DEGREE];
     bool reserved;
 } TrackNode;
+
+typedef struct {
+    TrackNode *nodes[MAX_NODE_LIST];
+    uint32_t size;
+} TrackNodeList;
 
 typedef struct {
     TrackNode *node;

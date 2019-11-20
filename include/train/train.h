@@ -10,9 +10,11 @@ typedef struct {
     bool inited;
     uint32_t id;
     uint32_t speed;
+
     uint32_t velocity;
+    uint32_t stop_distance;
     TrackPosition position;
-    uint32_t last_position_update_time;
+    uint32_t model_last_update_time;
 
     bool trajectory;
     TrackPath path;

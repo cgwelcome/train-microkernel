@@ -41,18 +41,24 @@ static uint32_t model_integrate_velocity(uint32_t current_vec, uint32_t target_v
 void model_estimate_train_status(Train *train) {
     if (train->inited) {
         uint32_t now = (uint32_t) timer_read(TIMER3);
-        uint32_t dt = now - train->last_position_update_time;
-        train->last_position_update_time = now;
+        uint32_t dt = now - train->model_last_update_time;
+        train->model_last_update_time = now;
 
         uint32_t acc = expected_acceleration(train->id);
         uint32_t vec = expected_velocity(train->id, train->speed);
 
+        // Update velocity
         uint32_t v0 = train->velocity;
         train->velocity = model_integrate_velocity(v0, vec, acc, dt);
         uint32_t vt = train->velocity;
+
+        // Update stop distance
+        train->stop_distance = (train->velocity * train->velocity) / (2 * acc);
+
+        // Update position
         uint32_t dd = (v0 + vt) * dt / 2000;
         if (train->position.node != NULL) {
-            position_move(&train->position, (int32_t) dd);
+            train->position = position_move(train->position, (int32_t) dd);
         }
     }
 }
@@ -80,10 +86,4 @@ void model_correct_train_status(TrainSensorList *sensorlist) {
             singleton_trains[train_index].position.offset = 0;
         }
     }
-}
-
-uint32_t model_estimate_train_stop_distance(Train *train) {
-    uint32_t acc = expected_acceleration(train->id);
-    uint32_t vec = train->velocity;
-    return (vec * vec) / (2 * acc);
 }

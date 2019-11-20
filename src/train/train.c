@@ -10,10 +10,12 @@ void train_init(Train *train, uint32_t id) {
     train->inited = false;
     train->id = id;
     train->speed = 0;
+
     train->velocity = 0;
+    train->stop_distance = 0;
     train->position.node = NULL;
     train->position.offset= 0;
-    train->last_position_update_time = 0;
+    train->model_last_update_time = 0;
 
     train->trajectory = false;
     train->blocked = false;
