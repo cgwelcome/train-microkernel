@@ -5,14 +5,14 @@
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
 
-uint32_t acceleration_table[5] = { 137, 132, 124, 195, 125 };
+uint32_t acceleration_table[5] = { 131, 131, 118, 180, 121 };
 
 uint32_t expected_velocity_matrix[5][5] = {
-    {340, 400, 470, 530, 600},
-    {350, 410, 480, 550, 630},
-    {320, 380, 450, 520, 600},
-    {490, 550, 600, 630, 630},
-    {270, 330, 390, 440, 500},
+    {327, 390, 455, 515, 595},
+    {335, 397, 470, 530, 620},
+    {303, 368, 438, 500, 600},
+    {470, 535, 580, 620, 620},
+    {265, 320, 370, 430, 495},
 };
 
 static uint32_t expected_acceleration(uint32_t train_id) {
@@ -82,7 +82,8 @@ void model_correct_train_status(TrainSensorList *sensorlist) {
     }
 }
 
-uint32_t model_estimate_train_stop_distance(uint32_t train_id, uint32_t velocity) {
-    uint32_t acceleration = expected_acceleration(train_id);
-    return (velocity * velocity) / (2 * acceleration);
+uint32_t model_estimate_train_stop_distance(Train *train) {
+    uint32_t acc = expected_acceleration(train->id);
+    uint32_t vec = train->velocity;
+    return (vec * vec) / (2 * acc);
 }

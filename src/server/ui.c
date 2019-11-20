@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include <kernel.h>
 #include <test.h>
 #include <server/io.h>
@@ -10,6 +9,8 @@
 #include <user/tasks.h>
 #include <user/train.h>
 #include <user/ui.h>
+
+#include <stdlib.h>
 
 // TODO: is there a better way to store these global variables?
 static int io_tid;
