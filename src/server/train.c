@@ -14,7 +14,7 @@
 #include <utils/assert.h>
 #include <utils/queue.h>
 
-#define READ_SERSOR_INTERVAL       100 // ms
+#define READ_SENSOR_INTERVAL       100 // ms
 #define PRINT_STATUS_INTERVAL      200
 
 extern Track singleton_track;
@@ -35,7 +35,7 @@ static void train_server_init() {
 
 static void ts_try_read_sensors(TrainSensorList *sensorlist) {
     uint32_t now = (uint32_t) timer_read(TIMER3);
-    if (now - last_read_sensor_time > READ_SERSOR_INTERVAL) {
+    if (now - last_read_sensor_time > READ_SENSOR_INTERVAL) {
         last_read_sensor_time = now;
         controller_read_sensors(sensorlist);
     }
