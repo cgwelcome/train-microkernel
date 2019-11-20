@@ -17,6 +17,9 @@ typedef struct {
     bool trajectory;
     TrackPath path;
     TrackPosition destination;
+
+    bool blocked;
+    uint32_t original_speed;
 } Train;
 
 /**

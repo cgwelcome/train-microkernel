@@ -23,8 +23,8 @@ void train_manager_navigate_train(uint32_t train_id, TrackNode *dest, int32_t of
     train->destination = destination;
 }
 
-static void train_manager_prepare_ahead(Train *train) {
-    TrackPath subpath = path_to_greater_length(&train->path, 800);
+static void train_manager_prepare_ahead(Train *train, uint32_t stop_distance) {
+    TrackPath subpath = path_to_greater_length(&train->path, stop_distance);
     for (uint32_t i = 0; i < subpath.list.size; i++) {
         TrackEdge *edge = edgelist_by_index(&subpath.list, i);
         TrackNode *src = edge->src;
@@ -43,7 +43,15 @@ static void train_manager_look_ahead(Train *train, uint32_t stop_distance) {
             .offset = other_train->position.offset - stop_distance - TRAILLING_DISTANCE,
         };
         if (train_close_to(train, position) != UINT32_MAX) {
-            controller_speed_one(train->id, 0, 0);
+            if (!train->blocked) {
+                train->original_speed = train->speed;
+                train->blocked = true;
+                controller_speed_one(train->id, 0, 0);
+            }
+        }
+        else if (train->blocked) {
+            train->blocked = false;
+            controller_speed_one(train->id, train->original_speed, 0);
         }
     }
 }
@@ -55,7 +63,7 @@ void train_manager_issue_directives() {
             uint32_t stop_distance = model_estimate_train_stop_distance(train);
             if (train->trajectory) {
                 path_move(&train->path, train->position.node);
-                train_manager_prepare_ahead(train);
+                train_manager_prepare_ahead(train, stop_distance);
                 TrackPosition position = {
                     .node = train->destination.node,
                     .offset = train->destination.offset - stop_distance,

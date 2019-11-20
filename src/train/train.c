@@ -16,6 +16,7 @@ void train_init(Train *train, uint32_t id) {
     train->last_position_update_time = 0;
 
     train->trajectory = false;
+    train->blocked = false;
 }
 
 uint32_t train_id_to_index(uint32_t train_id) {
