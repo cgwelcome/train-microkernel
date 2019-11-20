@@ -51,6 +51,101 @@ int test_next_sensor(int argc, char **argv) {
     return 0;
 }
 
+int test_reserve(int argc, char **argv) {
+    int iotid = WhoIs(SERVER_NAME_IO);
+    if (argc != 3) {
+        Printf(iotid, COM2, "Missing sensor/mm\n\r");
+        return 1;
+    }
+    Track track;
+    track_init(&track, TRAIN_TRACK_A);
+    TrainSensor sensor = find_sensor(argv[1]);
+    if (!valid_sensor(&sensor)) {
+        Printf(iotid, COM2, "Invalid sensor\n\r");
+        return 1;
+    }
+    TrackNodeList dest;
+    TrackNodeList src;
+    TrackPath path;
+    nodelist_init(&dest);
+    TrackNode *node = track_find_sensor(&track, &sensor);
+    uint32_t dist = (uint32_t)atoi(argv[2]);
+
+    nodelist_add(&dest, node);
+    nodelist_add(&dest, node->reverse);
+    path = search_path_to_next_sensor(node->reverse);
+    src = edgelist_to_nodelist(&path.list);
+    nodelist_append(&dest, &src);
+
+    path = search_path_to_next_sensor(node);
+    src = edgelist_to_nodelist(&path.list);
+    nodelist_append(&dest, &src);
+
+    if (path_end(&path) != NULL) {
+        path = search_path_to_next_length(path_end(&path), dist);
+        src = edgelist_to_nodelist(&path.list);
+        nodelist_append(&dest, &src);
+    }
+    if (path_end(&path) != NULL) {
+        path = search_path_to_next_sensor(path_end(&path));
+        src = edgelist_to_nodelist(&path.list);
+        nodelist_append(&dest, &src);
+    }
+    nodelist_add_reverse(&dest);
+
+    for (uint32_t i = 0; i < dest.size; i++) {
+        Printf(iotid, COM2, "%s\r\n", dest.nodes[i]->name);
+    }
+    return 0;
+}
+
+int test_reserve_all(int argc, char **argv) {
+    int iotid = WhoIs(SERVER_NAME_IO);
+    if (argc != 2) {
+        Printf(iotid, COM2, "Missing mm\n\r");
+        return 1;
+    }
+    Track track;
+    track_init(&track, TRAIN_TRACK_A);
+    for (char module1 = 'A'; module1 <= 'E'; module1++) {
+        for (uint32_t id1 = 1; id1 <= 16; id1++) {
+            TrainSensor sensor = {
+                .module = module1,
+                .id = id1,
+            };
+            uint32_t dist = (uint32_t)atoi(argv[1]);
+            TrackNode *node = track_find_sensor(&track, &sensor);
+            TrackNodeList dest;
+            TrackNodeList src;
+            TrackPath path;
+            nodelist_init(&dest);
+
+            nodelist_add(&dest, node);
+            nodelist_add(&dest, node->reverse);
+            path = search_path_to_next_sensor(node->reverse);
+            src = edgelist_to_nodelist(&path.list);
+            nodelist_append(&dest, &src);
+
+            path = search_path_to_next_sensor(node);
+            src = edgelist_to_nodelist(&path.list);
+            nodelist_append(&dest, &src);
+
+            if (path_end(&path) != NULL) {
+                path = search_path_to_next_length(path_end(&path), dist);
+                src = edgelist_to_nodelist(&path.list);
+                nodelist_append(&dest, &src);
+            }
+            if (path_end(&path) != NULL) {
+                path = search_path_to_next_sensor(path_end(&path));
+                src = edgelist_to_nodelist(&path.list);
+                nodelist_append(&dest, &src);
+            }
+            nodelist_add_reverse(&dest);
+        }
+    }
+    return 0;
+}
+
 int test_search_path(int argc, char **argv) {
     int iotid = WhoIs(SERVER_NAME_IO);
     if (argc != 3) {
@@ -71,7 +166,7 @@ int test_search_path(int argc, char **argv) {
     print_path(iotid, &path);
     Printf(iotid, COM2, "Checkpoints\n\r");
     for (uint32_t i = path.index; i < path.list.size; i++) {
-        TrackNode *node = path_node_by_index(&path, i);
+        TrackNode *node = edgelist_destnode_by_index(&path.list, i);
         if (node->type == NODE_SENSOR) {
             Printf(iotid, COM2, "%s\n\r", node->name);
             path_move(&path, node);
@@ -105,7 +200,7 @@ int test_search_allpath(int argc, char **argv) {
                     TrackNode *dest = track_find_sensor(&track, &sensor2);
                     TrackPath path = search_path_to_node(&track, src, dest);
                     for (uint32_t i = path.index; i < path.list.size; i++) {
-                        TrackNode *node = path_node_by_index(&path, i);
+                        TrackNode *node = edgelist_destnode_by_index(&path.list, i);
                         if (node->type == NODE_SENSOR) {
                             path_move(&path, node);
                         }

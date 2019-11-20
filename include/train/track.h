@@ -14,7 +14,8 @@
 #define MAX_SENSOR_PER_MODULE    16
 #define MAX_SENSOR_NUM           80
 #define MAX_EDGE_LIST           280
-#define MAX_EDGE_PATH           100
+#define MAX_NODE_LIST           280
+#define MAX_EDGE_PATH           280
 
 #define DIR_AHEAD 0
 #define DIR_STRAIGHT 0
@@ -55,10 +56,15 @@ typedef struct PathEdge {
     uint32_t dist; /** in millimetres */
 } TrackEdge;
 
-typedef struct TrackEdgeList {
+typedef struct {
     TrackEdge *edges[MAX_EDGE_LIST];
     uint32_t size;
 } TrackEdgeList;
+
+typedef struct {
+    TrackNode *nodes[MAX_NODE_LIST];
+    uint32_t size;
+} TrackNodeList;
 
 typedef struct PathNode {
     uint32_t id;
@@ -70,6 +76,7 @@ typedef struct PathNode {
     uint8_t    direction;
     TrackNode *reverse; /* same location, but opposite direction */
     TrackEdge edge[MAX_EDGE_DEGREE];
+    bool reserved;
 } TrackNode;
 
 typedef struct {
@@ -121,29 +128,35 @@ TrackNode *track_find_branch(Track *track, uint32_t switch_id);
 void track_set_branch_direction(Track *track, uint32_t switch_id, uint8_t direction);
 
 uint8_t edge_direction(TrackEdge *edge);
+void edgelist_init(TrackEdgeList *list);
+void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge);
+void edgelist_swap(TrackEdgeList *list, uint32_t i, uint32_t j);
+TrackNode *edgelist_srcnode_by_index(TrackEdgeList *list, uint32_t i);
+TrackNode *edgelist_destnode_by_index(TrackEdgeList *list, uint32_t i);
+TrackNodeList edgelist_to_nodelist(TrackEdgeList *edgelist);
+void nodelist_init(TrackNodeList *list);
+void nodelist_add(TrackNodeList *list, TrackNode *node);
+void nodelist_append(TrackNodeList *dest, const TrackNodeList *src);
+void nodelist_add_reverse(TrackNodeList *list);
 
 void path_clear(TrackPath *path);
-
 void path_add_edge(TrackPath *path, TrackEdge *edge);
-
+TrackEdge *path_edge_by_index(TrackPath *path, uint32_t i);
+TrackPath path_to_greater_length(TrackPath *path, uint32_t dist);
 TrackNode *path_end(TrackPath *path);
-
-TrackNode *path_node_by_index(TrackPath *path, uint32_t i);
-
 void path_move(TrackPath *path, TrackNode *dest);
 
 TrackEdge *node_select_edge(TrackNode *src, uint8_t direction);
-
 TrackEdge *node_select_next_edge(TrackNode *src);
+TrackEdgeList node_select_adjacent_edge(TrackNode *src);
+TrackNodeList node_select_adjacent_node(TrackNode *src);
 
-TrackEdgeList node_select_adjacent(TrackNode *src);
-
+TrackPath search_path_to_next_length(TrackNode *src, uint32_t dist);
+TrackPath search_path_to_next_node(TrackNode *src, TrackNode *dest);
 TrackPath search_path_to_next_sensor(TrackNode *src);
-
 TrackPath search_path_to_node(Track *track, TrackNode *src, TrackNode *dest);
 
 void position_reverse(TrackPosition *current);
-
 void position_move(TrackPosition *current, int32_t offset);
 
 #endif /*__TRAIN_TRACK_H__*/

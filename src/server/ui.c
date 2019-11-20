@@ -112,7 +112,6 @@ static int cmd_mv(int nargc, char **nargv) {
     PrintTerminal(io_tid, "Invalid train id/sensor");
     return 1;
 }
-
 static int cmd_quit(int nargc, char **nargv) {
     (void)nargc;
     (void)nargv;
@@ -126,13 +125,15 @@ static struct {
     const char *name;
     int (*func)(int argc, char **argv);
 } testtable[] = {
-    { "helloworld",      test_helloworld     },
-    { "argv",            test_argv           },
-    { "nextsensor",      test_next_sensor    },
-    { "model",           test_build_model    },
-    { "searchpath",      test_search_path    },
-    { "searchallpath",   test_search_allpath },
-    { NULL,              NULL                },
+    { "helloworld",      test_helloworld        },
+    { "argv",            test_argv              },
+    { "nextsensor",      test_next_sensor       },
+    { "model",           test_build_model       },
+    { "searchpath",      test_search_path       },
+    { "searchallpath",   test_search_allpath    },
+    { "reserve",         test_reserve           },
+    { "reserveall",      test_reserve_all       },
+    { NULL,              NULL                   },
 };
 
 static int cmd_test(int nargc, char **nargv) {

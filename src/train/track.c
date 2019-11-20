@@ -60,21 +60,73 @@ uint8_t edge_direction(TrackEdge *edge) {
     }
 }
 
-static void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge) {
+void edgelist_init(TrackEdgeList *list) {
+    list->size = 0;
+}
+
+void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge) {
     if (edge != NULL) {
         edgelist->edges[edgelist->size] = edge;
         edgelist->size++;
     }
 }
 
-static void edgelist_swap(TrackEdgeList *list, uint32_t i, uint32_t j) {
+void edgelist_swap(TrackEdgeList *list, uint32_t i, uint32_t j) {
     TrackEdge *edge = list->edges[i];
     list->edges[i] = list->edges[j];
     list->edges[j] = edge;
 }
 
+TrackNode *edgelist_srcnode_by_index(TrackEdgeList *list, uint32_t i) {
+    assert(i < list->size);
+    return list->edges[i]->src;
+}
+
+TrackNode *edgelist_destnode_by_index(TrackEdgeList *list, uint32_t i) {
+    assert(i < list->size);
+    return list->edges[i]->dest;
+}
+
+TrackNode *edgelist_last(TrackEdgeList *list) {
+    if (list->size == 0) return NULL;
+    return edgelist_destnode_by_index(list, list->size-1);
+}
+
+TrackNodeList edgelist_to_nodelist(TrackEdgeList *edgelist) {
+    TrackNodeList nodelist;
+    nodelist_init(&nodelist);
+    for (uint32_t i = 0; i < edgelist->size; i++) {
+        nodelist_add(&nodelist, edgelist_destnode_by_index(edgelist, i));
+    }
+    return nodelist;
+}
+
+void nodelist_init(TrackNodeList *list) {
+    list->size = 0;
+}
+
+void nodelist_add(TrackNodeList *list, TrackNode *node) {
+    assert(list);
+    assert(node);
+    list->nodes[list->size] = node;
+    list->size++;
+}
+
+void nodelist_append(TrackNodeList *dest, const TrackNodeList *src) {
+    for (uint32_t i = 0; i < src->size; i++) {
+        nodelist_add(dest, src->nodes[i]);
+    }
+}
+
+void nodelist_add_reverse(TrackNodeList *list) {
+    uint32_t size = list->size;
+    for (uint32_t i = 0; i < size; i++) {
+        nodelist_add(list, list->nodes[i]->reverse);
+    }
+}
+
 void path_clear(TrackPath *path) {
-    path->list.size = 0;
+    edgelist_init(&path->list);
     path->index = 0;
     path->dist = 0;
 }
@@ -85,25 +137,37 @@ void path_add_edge(TrackPath *path, TrackEdge *edge) {
     path->dist += edge->dist;
 }
 
-TrackNode *path_end(TrackPath *path) {
-    if (path->dist == 0) return NULL;
-    return path->list.edges[path->list.size-1]->dest;
+TrackEdge *path_edge_by_index(TrackPath *path, uint32_t i) {
+    assert(i < path->list.size);
+    return path->list.edges[i];
 }
 
-TrackNode *path_node_by_index(TrackPath *path, uint32_t i) {
-    assert(i < path->list.size);
-    return path->list.edges[i]->dest;
+TrackPath path_to_greater_length(TrackPath *path, uint32_t dist) {
+    TrackPath subpath;
+    path_clear(&subpath);
+    for (uint32_t i = path->index; i < path->list.size && path->dist < dist; i++) {
+        TrackEdge *edge = path_edge_by_index(path, i);
+        path_add_edge(&subpath, edge);
+    }
+    return subpath;
 }
 
 void path_move(TrackPath *path, TrackNode *dest) {
     assert(path->index < path->list.size);
-    TrackNode *node = path_node_by_index(path, path->index);
+    if (path_end(path) == dest) {
+        path->index = path->list.size;
+        return;
+    }
+    TrackNode *node = edgelist_srcnode_by_index(&path->list, path->index);
     while (node != dest) {
         path->index++;
         assert(path->index < path->list.size);
-        node = path_node_by_index(path, path->index);
+        node = edgelist_srcnode_by_index(&path->list, path->index);
     }
-    path->index++;
+}
+
+TrackNode *path_end(TrackPath *path) {
+    return edgelist_last(&path->list);
 }
 
 uint8_t node_valid(TrackNode *node) {
@@ -119,9 +183,9 @@ TrackEdge *node_select_next_edge(TrackNode *src) {
     return node_select_edge(src, src->direction);
 }
 
-TrackEdgeList node_select_adjacent(TrackNode *src) {
+TrackEdgeList node_select_adjacent_edge(TrackNode *src) {
     TrackEdgeList adjacent;
-    adjacent.size = 0;
+    edgelist_init(&adjacent);
     if (src->type == NODE_BRANCH) {
         if (src->broken) {
             edgelist_add(&adjacent, node_select_edge(src, src->direction));
@@ -137,7 +201,30 @@ TrackEdgeList node_select_adjacent(TrackNode *src) {
     return adjacent;
 }
 
+TrackNodeList node_select_adjacent_node(TrackNode *src) {
+    TrackNodeList nodelist;
+    nodelist_init(&nodelist);
+    TrackEdgeList edgelist = node_select_adjacent_edge(src);
+    for (uint32_t i = 0; i < edgelist.size; i++) {
+        nodelist_add(&nodelist, edgelist_destnode_by_index(&edgelist, i));
+    }
+    return nodelist;
+}
+
+TrackPath search_path_to_next_length(TrackNode *src, uint32_t dist) {
+    assert(src);
+    TrackPath path;
+    path_clear(&path);
+    TrackEdge *edge = node_select_next_edge(src);
+    while (edge != NULL && path.dist <= dist) {
+        path_add_edge(&path, edge);
+        edge = node_select_next_edge(path_end(&path));
+    }
+    return path;
+}
+
 TrackPath search_path_to_next_sensor(TrackNode *src) {
+    assert(src);
     TrackPath path;
     path_clear(&path);
     TrackEdge *edge = node_select_next_edge(src);
@@ -150,6 +237,21 @@ TrackPath search_path_to_next_sensor(TrackNode *src) {
     }
     else {
         path_add_edge(&path, edge);
+    }
+    return path;
+}
+
+TrackPath search_path_to_next_node(TrackNode *src, TrackNode *dest) {
+    TrackPath path;
+    path_clear(&path);
+    TrackEdge *edge = node_select_next_edge(src);
+    while (edge != NULL) {
+        path_add_edge(&path, edge);
+        if (edge->dest == dest) break;
+        edge = node_select_next_edge(path_end(&path));
+    }
+    if (edge == NULL) {
+        path_clear(&path);
     }
     return path;
 }
@@ -184,7 +286,7 @@ TrackPath search_path_to_node(Track *track, TrackNode *src, TrackNode *dest) {
     }
     while (ppqueue_size(&ppqueue) > 0) {
         TrackNode *node = track_find_node(track, ppqueue_pop(&ppqueue));
-        TrackEdgeList list = node_select_adjacent(node);
+        TrackEdgeList list = node_select_adjacent_edge(node);
         uint32_t node_dist = ppqueue_find_priority(&ppqueue, node->id);
         if (node_dist == UINT32_MAX) break;
         for (uint32_t i = 0; i < list.size; i++) {
