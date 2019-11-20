@@ -52,18 +52,25 @@ static TrackPosition rebase_position(TrackNode *root, TrackPosition pos) {
     return (TrackPosition) { .node = root, .offset = offset };
 }
 
-uint32_t train_close_to(Train *train, TrackPosition beacon) {
+static uint32_t train_close_dist (TrackPosition pos, TrackPosition dest) {
+    if (pos.offset - 50 <= dest.offset && dest.offset <= pos.offset + 50) {
+        return dest.offset > pos.offset ? (dest.offset - pos.offset) : (pos.offset - dest.offset);
+    }
+    return UINT32_MAX;
+}
+
+uint32_t train_close_to(Train *train, TrackPosition dest) {
     TrackPosition current = train->position;
-    if (current.node == NULL || beacon.node == NULL) {
+    if (current.node == NULL || dest.node == NULL) {
         return UINT32_MAX;
     }
-    TrackPosition rebased_beacon = rebase_position(current.node, beacon);
-    if (rebased_beacon.node != NULL) {
-        return current.offset - 50 <= rebased_beacon.offset && rebased_beacon.offset <= current.offset + 50;
+    TrackPosition rebased_dest = rebase_position(current.node, dest);
+    if (rebased_dest.node != NULL) {
+        return train_close_dist(current, rebased_dest);
     }
-    TrackPosition rebased_current = rebase_position(beacon.node, current);
+    TrackPosition rebased_current = rebase_position(dest.node, current);
     if (rebased_current.node != NULL) {
-        return rebased_current.offset - 50 <= beacon.offset && beacon.offset <= rebased_current.offset + 50;
+        return train_close_dist(rebased_current, dest);
     }
     return UINT32_MAX;
 }
