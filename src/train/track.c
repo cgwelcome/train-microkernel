@@ -135,7 +135,7 @@ void path_add_edge(TrackPath *path, TrackEdge *edge) {
 TrackPath path_to_greater_length(TrackPath *path, uint32_t dist) {
     TrackPath subpath;
     path_clear(&subpath);
-    for (uint32_t i = path->index; i < path->list.size && path->dist < dist; i++) {
+    for (uint32_t i = path->index; i < path->list.size && subpath.dist < dist; i++) {
         TrackEdge *edge = edgelist_by_index(&path->list, i);
         path_add_edge(&subpath, edge);
     }
@@ -143,7 +143,7 @@ TrackPath path_to_greater_length(TrackPath *path, uint32_t dist) {
 }
 
 void path_move(TrackPath *path, TrackNode *dest) {
-    assert(path->index < path->list.size);
+    if (path->index == path->list.size) return;
     if (path_end(path) == dest) {
         path->index = path->list.size;
         return;
