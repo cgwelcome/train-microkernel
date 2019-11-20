@@ -53,8 +53,8 @@ static TrackPosition rebase_position(TrackNode *root, TrackPosition pos) {
 }
 
 static uint32_t train_close_dist (TrackPosition pos, TrackPosition dest) {
-    uint32_t lower_bound = (pos.offset - 50 < pos.offset) ? (pos.offset - 50) : 0;
-    uint32_t upper_bound = (pos.offset + 50 > pos.offset) ? (pos.offset + 50) : UINT32_MAX;
+    uint32_t lower_bound = (pos.offset - 200 < pos.offset) ? (pos.offset - 200) : 0;
+    uint32_t upper_bound = (pos.offset + 200 > pos.offset) ? (pos.offset + 200) : UINT32_MAX;
     if (lower_bound <= dest.offset && dest.offset <= upper_bound) {
         return dest.offset > pos.offset ? (dest.offset - pos.offset) : (pos.offset - dest.offset);
     }
