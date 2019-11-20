@@ -53,24 +53,26 @@ static TrackPosition rebase_position(TrackNode *root, TrackPosition pos) {
 }
 
 static uint32_t train_close_dist (TrackPosition pos, TrackPosition dest) {
-    if (pos.offset - 50 <= dest.offset && dest.offset <= pos.offset + 50) {
+    uint32_t lower_bound = (pos.offset - 50 < pos.offset) ? (pos.offset - 50) : 0;
+    uint32_t upper_bound = (pos.offset + 50 > pos.offset) ? (pos.offset + 50) : UINT32_MAX;
+    if (lower_bound <= dest.offset && dest.offset <= upper_bound) {
         return dest.offset > pos.offset ? (dest.offset - pos.offset) : (pos.offset - dest.offset);
     }
     return UINT32_MAX;
 }
 
 uint32_t train_close_to(Train *train, TrackPosition dest) {
-    TrackPosition current = train->position;
-    if (current.node == NULL || dest.node == NULL) {
+    TrackPosition curr = train->position;
+    if (curr.node == NULL || dest.node == NULL) {
         return UINT32_MAX;
     }
-    TrackPosition rebased_dest = rebase_position(current.node, dest);
+    TrackPosition rebased_dest = rebase_position(curr.node, dest);
     if (rebased_dest.node != NULL) {
-        return train_close_dist(current, rebased_dest);
+        return train_close_dist(curr, rebased_dest);
     }
-    TrackPosition rebased_current = rebase_position(dest.node, current);
-    if (rebased_current.node != NULL) {
-        return train_close_dist(rebased_current, dest);
+    TrackPosition rebased_curr = rebase_position(dest.node, curr);
+    if (rebased_curr.node != NULL) {
+        return train_close_dist(rebased_curr, dest);
     }
     return UINT32_MAX;
 }
