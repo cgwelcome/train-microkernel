@@ -14,8 +14,8 @@ void train_init(Train *train, uint32_t id) {
     train->position.node = NULL;
     train->position.offset= 0;
     train->last_position_update_time = 0;
-    train->last_checkpoint.node = NULL;
-    train->next_checkpoint.node = NULL;
+
+    train->trajectory = false;
 }
 
 uint32_t train_id_to_index(uint32_t train_id) {

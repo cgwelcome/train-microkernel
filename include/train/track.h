@@ -153,8 +153,9 @@ TrackNodeList node_select_adjacent_node(TrackNode *src);
 TrackPath search_path_to_next_length(TrackNode *src, uint32_t dist);
 TrackPath search_path_to_next_node(TrackNode *src, TrackNode *dest);
 TrackPath search_path_to_next_sensor(TrackNode *src);
-TrackPath search_path_to_node(Track *track, TrackNode *src, TrackNode *dest);
+TrackPath search_path_to_node(Track *track, const TrackNode *src, const TrackNode *dest);
 
+TrackPosition position_standardize(TrackNode *node, int32_t offset);
 void position_reverse(TrackPosition *current);
 void position_move(TrackPosition *current, int32_t offset);
 

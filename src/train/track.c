@@ -246,7 +246,7 @@ TrackPath search_path_to_next_node(TrackNode *src, TrackNode *dest) {
     return path;
 }
 
-static TrackPath recover_path(TrackNode *src, TrackNode *dest, TrackEdge **prev) {
+static TrackPath recover_path(const TrackNode *src, const TrackNode *dest, TrackEdge **prev) {
     TrackPath path;
     path_clear(&path);
     for (uint32_t id = dest->id; id != src->id; id = prev[id]->src->id) {
@@ -263,7 +263,7 @@ static TrackPath recover_path(TrackNode *src, TrackNode *dest, TrackEdge **prev)
     return path;
 }
 
-TrackPath search_path_to_node(Track *track, TrackNode *src, TrackNode *dest) {
+TrackPath search_path_to_node(Track *track, const TrackNode *src, const TrackNode *dest) {
     PPQueue ppqueue;
     ppqueue_init(&ppqueue);
     TrackEdge *prev[track->node_count];
@@ -315,6 +315,30 @@ TrackPosition path_to_position(TrackPath *path, uint32_t dist) {
     position.node = edgelist_by_index(&path->list, i)->src;
     position.offset = target - total;
     return position;
+}
+
+TrackPosition position_standardize(TrackNode *node, int32_t offset) {
+    TrackPosition standard;
+    if (offset < 0) {
+        standard.node = node->reverse;
+        standard.offset = (uint32_t)offset;
+    }
+    else {
+        standard.node = node;
+        standard.offset = (uint32_t)offset;
+    }
+    TrackEdge *edge = node_select_next_edge(standard.node);
+    while (edge != NULL && standard.offset >= edge->dist) {
+        standard.offset -= edge->dist;
+        standard.node = edge->dest;
+        edge = node_select_next_edge(standard.node);
+    }
+    // Unreachable
+    if (edge == NULL) {
+        standard.node = NULL;
+        standard.offset = 0;
+    }
+    return standard;
 }
 
 void position_reverse(TrackPosition *current) {

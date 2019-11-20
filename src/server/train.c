@@ -94,6 +94,7 @@ static void train_root_task() {
             ts_try_read_sensors(&sensorlist);
             ts_try_print_status(iotid, &sensorlist);
             model_correct_train_status(&sensorlist);
+            train_manager_issue_directives();
         }
         if (request.type == TRAIN_REQUEST_SPEED) {
             uint32_t train_id = request.args[0];
@@ -112,7 +113,8 @@ static void train_root_task() {
             uint32_t speed    = request.args[1];
             TrackNode *sensor = (TrackNode *) request.args[2];
             int32_t offset    = (int32_t)     request.args[3];
-            train_manager_navigate_train(train_id, speed, sensor, offset);
+            train_manager_navigate_train(train_id, sensor, offset);
+            controller_speed_one(train_id, speed, 0);
         }
         if (request.type == TRAIN_REQUEST_SWITCH) {
             uint32_t switch_id = request.args[0];
