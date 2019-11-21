@@ -44,8 +44,12 @@ void Getw(int tid, int uart, char *buffer, size_t size);
 void Putw(int tid, int uart, char *buffer, size_t size);
 
 /**
- * Queues the given formatted string
- * for transmission by the given UART.
+ * Puts the given formatted string to the provided buffer.
+ */
+void SPrintf(char *buffer, size_t size, char *fmt, ...);
+
+/**
+ * Queues the given formatted string for transmission by the given UART.
  */
 void Printf(int tid, int uart, char *fmt, ...);
 

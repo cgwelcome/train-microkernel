@@ -4,6 +4,8 @@
 #include <user/name.h>
 #include <utils/assert.h>
 
+#define PRINTF_MAX_OUTPUT_SIZE 128
+
 void Getc(int tid, int uart, char *c) {
     IORequest request = {
         .type = IO_REQUEST_GET,
@@ -91,7 +93,7 @@ static void i2a(int num, char *bf) {
     ui2a((unsigned int) num, 10, bf);
 }
 
-static void bufcpy(char *dst, char *src, int fill_count, char fill_char, int *dst_start) {
+static void bufcpy(char *dst, char *src, int fill_count, char fill_char, size_t *dst_start) {
     char ch;
     char *p = src;
 
@@ -100,13 +102,14 @@ static void bufcpy(char *dst, char *src, int fill_count, char fill_char, int *ds
     while ((ch = *(src++)))  dst[(*dst_start)++] = ch;
 }
 
-static void format(int tid, int uart, char *fmt, va_list va) {
-    char bf[128], num[32];
+static size_t format(char *bf, size_t size, char *fmt, va_list va) {
+    char num[32];
     char ch, lz;
     int w;
 
-    int i = 0;
+    size_t i = 0;
     while ((ch = *(fmt++))) {
+        assert(i <= size);
         if (ch != '%')
             bf[i++] = ch;
         else {
@@ -129,7 +132,7 @@ static void format(int tid, int uart, char *fmt, va_list va) {
                 break;
             }
             switch(ch) {
-            case 0: return;
+            case 0: return i;
             case 'c':
                 bf[i++] = va_arg(va, char);
                 break;
@@ -154,13 +157,23 @@ static void format(int tid, int uart, char *fmt, va_list va) {
             }
         }
     }
-    Putw(tid, uart, bf, (size_t) i);
+    return i;
+}
+
+void SPrintf(char *buffer, size_t size, char *fmt, ...) {
+    va_list va;
+
+    va_start(va, fmt);
+    format(buffer, size, fmt, va);
+    va_end(va);
 }
 
 void Printf(int tid, int uart, char *fmt, ...) {
     va_list va;
 
     va_start(va, fmt);
-    format(tid, uart, fmt, va);
+    char buffer[PRINTF_MAX_OUTPUT_SIZE];
+    size_t size = format(buffer, PRINTF_MAX_OUTPUT_SIZE, fmt, va);
+    Putw(tid, uart, buffer, size);
     va_end(va);
 }
