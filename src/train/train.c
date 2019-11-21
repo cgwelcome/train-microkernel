@@ -54,6 +54,7 @@ uint32_t train_close_to(Train *train, TrackPosition dest) {
     TrackPosition range_end   = position_move(train->position,  200);
     if (position_in_range(dest, range_start, range_end)) {
         TrackPosition rebased_dest = position_rebase(range_start.node, dest, 10);
+        assert(rebased_dest.node != NULL);
         uint32_t train_offset = range_start.offset + 200;
         if (rebased_dest.offset > train_offset) {
             return rebased_dest.offset - train_offset;

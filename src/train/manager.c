@@ -6,8 +6,8 @@
 #include <utils/assert.h>
 #include <utils/queue.h>
 
-#define TRAILLING_DISTANCE 250
-#define SWITCH_RESERVATION_DISTANCE 1000
+#define TRAILLING_DISTANCE          400
+#define SWITCH_RESERVATION_DISTANCE 600
 
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
@@ -54,9 +54,20 @@ static bool train_manager_will_arrive(Train *train) {
 }
 
 static bool train_manager_will_collide(Train *train, Train *other) {
-    TrackPosition detect_range_start = train->position;
-    TrackPosition detect_range_end   = position_move(train->position, (int32_t) (train->stop_distance + TRAILLING_DISTANCE));
-    return position_in_range(other->position, detect_range_start, detect_range_end);
+    TrackPosition detect_range_start, detect_range_end;
+    // Case 1: train and other are in the same direction
+    detect_range_start = train->position;
+    detect_range_end   = position_move(train->position, (int32_t) (train->stop_distance + TRAILLING_DISTANCE + 200));
+    if (position_in_range(other->position, detect_range_start, detect_range_end)) {
+        return true;
+    }
+    // Case 2: train and other are in the opposite direction
+    detect_range_start = train->position;
+    detect_range_end   = position_move(train->position, (int32_t) (train->stop_distance + other->stop_distance + TRAILLING_DISTANCE + 200));
+    if (position_in_range(position_reverse(other->position), detect_range_start, detect_range_end)) {
+        return true;
+    }
+    return false;
 }
 
 static void train_manager_look_ahead(Train *train) {

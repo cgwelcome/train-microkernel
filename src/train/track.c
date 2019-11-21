@@ -418,18 +418,15 @@ TrackPosition position_move(TrackPosition current, int32_t offset) {
     return current;
 }
 
-static bool _position_in_range(TrackPosition pos, TrackPosition range_start, TrackPosition range_end) {
+bool position_in_range(TrackPosition pos, TrackPosition range_start, TrackPosition range_end) {
+    assert(pos.node != NULL);
+    assert(range_start.node != NULL);
+    assert(range_end.node != NULL);
+
     pos       = position_rebase(range_start.node, pos, 10);
     range_end = position_rebase(range_start.node, range_end, 10);
     if (pos.node != NULL && range_end.node != NULL) {
         return range_start.offset <= pos.offset && pos.offset <= range_end.offset;
     }
     return false;
-}
-
-bool position_in_range(TrackPosition pos, TrackPosition range_start, TrackPosition range_end) {
-    assert(pos.node != NULL);
-    assert(range_start.node != NULL);
-    assert(range_end.node != NULL);
-    return _position_in_range(pos, range_start, range_end) || _position_in_range(position_reverse(pos), range_start, range_end);
 }
