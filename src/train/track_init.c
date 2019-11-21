@@ -3142,4 +3142,12 @@ void track_init(Track *track, TrackName name) {
         throw("unknown track");
     }
     track->inited = true;
+    for (uint32_t i = 0; i < track->node_count; i++) {
+        TrackNode *node = &track->nodes[i];
+        if (node->type != NODE_BRANCH && node->type != NODE_MERGE) {
+            node->edge[DIR_REVERSE].src = node;
+            node->edge[DIR_REVERSE].dest = node->reverse;
+            node->edge[DIR_REVERSE].dist = REVERSE_PENALTY;
+        }
+    }
 }

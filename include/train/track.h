@@ -7,7 +7,7 @@
 #include <server/train.h>
 
 #define MAX_PATHNODE_NAME        10
-#define MAX_EDGE_DEGREE           2
+#define MAX_EDGE_DEGREE           3
 #define MAX_NODE_PER_TRACK      144
 
 #define MODULE_TOTAL_NUM          5
@@ -16,10 +16,12 @@
 #define MAX_EDGE_LIST           280
 #define MAX_NODE_LIST           280
 #define MAX_EDGE_PATH           280
+#define REVERSE_PENALTY        1400
 
 #define DIR_AHEAD 0
 #define DIR_STRAIGHT 0
 #define DIR_CURVED 1
+#define DIR_REVERSE 2
 
 typedef struct {
     char module;
