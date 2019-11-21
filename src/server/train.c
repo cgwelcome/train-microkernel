@@ -92,8 +92,8 @@ static void train_root_task() {
             }
             sensorlist.size = 0;
             ts_try_read_sensors(&sensorlist);
-            ts_try_print_status(iotid, &sensorlist);
             model_correct_train_status(&sensorlist);
+            ts_try_print_status(iotid, &sensorlist);
             train_manager_issue_directives();
         }
         if (request.type == TRAIN_REQUEST_SPEED) {

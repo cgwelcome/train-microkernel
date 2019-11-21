@@ -27,7 +27,7 @@ int test_next_sensor(int argc, char **argv) {
     Track track;
     track_init(&track, TRAIN_TRACK_A);
     TrackNode *node = track_find_node_by_name(&track, argv[1]);
-    TrackPath path = search_path_to_next_sensor(node);
+    TrackPath path = search_path_to_next_type(node, NODE_SENSOR);
     print_path(iotid, &path);
     return 0;
 }
@@ -49,11 +49,11 @@ int test_reserve(int argc, char **argv) {
 
     nodelist_add(&dest, node);
     nodelist_add(&dest, node->reverse);
-    path = search_path_to_next_sensor(node->reverse);
+    path = search_path_to_next_type(node->reverse, NODE_SENSOR);
     src = edgelist_to_nodelist(&path.list);
     nodelist_append(&dest, &src);
 
-    path = search_path_to_next_sensor(node);
+    path = search_path_to_next_type(node, NODE_SENSOR);
     src = edgelist_to_nodelist(&path.list);
     nodelist_append(&dest, &src);
 
@@ -63,7 +63,7 @@ int test_reserve(int argc, char **argv) {
         nodelist_append(&dest, &src);
     }
     if (path_end(&path) != NULL) {
-        path = search_path_to_next_sensor(path_end(&path));
+        path = search_path_to_next_type(path_end(&path), NODE_SENSOR);
         src = edgelist_to_nodelist(&path.list);
         nodelist_append(&dest, &src);
     }
@@ -98,11 +98,11 @@ int test_reserve_all(int argc, char **argv) {
 
             nodelist_add(&dest, node);
             nodelist_add(&dest, node->reverse);
-            path = search_path_to_next_sensor(node->reverse);
+            path = search_path_to_next_type(node->reverse, NODE_SENSOR);
             src = edgelist_to_nodelist(&path.list);
             nodelist_append(&dest, &src);
 
-            path = search_path_to_next_sensor(node);
+            path = search_path_to_next_type(node, NODE_SENSOR);
             src = edgelist_to_nodelist(&path.list);
             nodelist_append(&dest, &src);
 
@@ -112,7 +112,7 @@ int test_reserve_all(int argc, char **argv) {
                 nodelist_append(&dest, &src);
             }
             if (path_end(&path) != NULL) {
-                path = search_path_to_next_sensor(path_end(&path));
+                path = search_path_to_next_type(path_end(&path), NODE_SENSOR);
                 src = edgelist_to_nodelist(&path.list);
                 nodelist_append(&dest, &src);
             }

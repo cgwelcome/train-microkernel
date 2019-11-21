@@ -59,8 +59,7 @@ uint8_t edge_direction(TrackEdge *edge) {
     }
     if (src->type == NODE_BRANCH) {
         return (edge == &src->edge[DIR_STRAIGHT]) ? DIR_STRAIGHT : DIR_CURVED;
-    }
-    else {
+    } else {
         return DIR_AHEAD;
     }
 }
@@ -186,13 +185,11 @@ TrackEdgeList node_select_adjacent_edge(TrackNode *src) {
     if (src->type == NODE_BRANCH) {
         if (src->broken) {
             edgelist_add(&adjacent, node_select_edge(src, src->direction));
-        }
-        else {
+        } else {
             edgelist_add(&adjacent, node_select_edge(src, DIR_STRAIGHT));
             edgelist_add(&adjacent, node_select_edge(src, DIR_CURVED));
         }
-    }
-    else {
+    } else {
         edgelist_add(&adjacent, node_select_edge(src, DIR_AHEAD));
     }
     if (src->type != NODE_BRANCH && src->type != NODE_MERGE) {
@@ -223,19 +220,18 @@ TrackPath search_path_to_next_length(TrackNode *src, uint32_t dist) {
     return path;
 }
 
-TrackPath search_path_to_next_sensor(TrackNode *src) {
+TrackPath search_path_to_next_type(TrackNode *src, TrackNodeType type) {
     assert(src);
     TrackPath path;
     path_clear(&path);
     TrackEdge *edge = node_select_next_edge(src);
-    while (edge != NULL && edge->dest->type != NODE_SENSOR) {
+    while (edge != NULL && edge->dest->type != type) {
         path_add_edge(&path, edge);
         edge = node_select_next_edge(path_end(&path));
     }
     if (edge == NULL) {
         path_clear(&path);
-    }
-    else {
+    } else {
         path_add_edge(&path, edge);
     }
     return path;
@@ -333,8 +329,7 @@ TrackPosition position_standardize(TrackNode *node, int32_t offset) {
     if (offset < 0) {
         standard.node = node->reverse;
         standard.offset = (uint32_t)offset;
-    }
-    else {
+    } else {
         standard.node = node;
         standard.offset = (uint32_t)offset;
     }
@@ -351,11 +346,6 @@ TrackPosition position_standardize(TrackNode *node, int32_t offset) {
     }
     return standard;
 }
-
-bool position_equal(TrackPosition *pos1, TrackPosition *pos2) {
-    return (pos1->node == pos2->node && pos1->offset == pos2->offset) ? 1 : 0;
-}
-
 
 TrackPosition position_rebase(TrackNode *root, TrackPosition pos, uint32_t step_limit) {
     assert(root != NULL);
