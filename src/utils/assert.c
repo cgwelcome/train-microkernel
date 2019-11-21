@@ -7,7 +7,8 @@
 
 #define ERROR_MSG_MAX_SIZE 256
 
-static noreturn void _panic(char *file, int line, char *msg) {
+static __attribute__ ((noinline)) noreturn
+void _panic(char *file, int line, char *msg) {
     asm("mrs r12, cpsr");
     register uint32_t CPSR asm("r12");
 
