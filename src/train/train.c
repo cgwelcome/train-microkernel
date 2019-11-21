@@ -17,8 +17,16 @@ void train_init(Train *train, uint32_t id) {
     train->position.offset= 0;
     train->model_last_update_time = 0;
 
-    train->trajectory = false;
     train->blocked = false;
+    train->reverse = false;
+    train->trajectory = false;
+    train->original_speed = 0;
+
+    train->destination.node = NULL;
+    train->destination.offset = 0;
+    train->stop_destination.node = NULL;
+    train->stop_destination.offset = 0;
+
 }
 
 uint32_t train_id_to_index(uint32_t train_id) {

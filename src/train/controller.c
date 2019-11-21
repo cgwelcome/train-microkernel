@@ -43,7 +43,9 @@ static void controller_handle_directive(TrainDirective *directive) {
     switch (directive->type) {
         case TRAIN_DIRECTIVE_SPEED:
             Printf(iotid, COM1, "%c%c", (char) directive->data, (char) directive->id);
-            train_find(singleton_trains, directive->id)->speed = directive->data;
+            if (directive->data != TRAIN_STATUS_REVERSE) {
+                train_find(singleton_trains, directive->id)->speed = directive->data;
+            }
             break;
         case TRAIN_DIRECTIVE_SWITCH:
             switch (directive->data) {

@@ -16,12 +16,13 @@ typedef struct {
     TrackPosition position;
     uint32_t model_last_update_time;
 
+    bool blocked;
+    bool reverse;
     bool trajectory;
+    uint32_t original_speed;
     TrackPath path;
     TrackPosition destination;
-
-    bool blocked;
-    uint32_t original_speed;
+    TrackPosition stop_destination;
 } Train;
 
 /**

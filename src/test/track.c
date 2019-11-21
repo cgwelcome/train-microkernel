@@ -142,6 +142,12 @@ int test_search_path(int argc, char **argv) {
             path_move(&path, node);
         }
     }
+    /*for (uint32_t i = path.index; i < path.list.size; i++) {*/
+        /*TrackEdge *edge = edgelist_by_index(&path.list, i);*/
+        /*if (edge_direction(edge) == DIR_REVERSE) {*/
+            /*Printf(iotid, COM2, "%s%s\n\r", edge->src->name, edge->dest->name);*/
+        /*}*/
+    /*}*/
     return 0;
 }
 

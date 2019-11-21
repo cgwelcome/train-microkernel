@@ -24,6 +24,7 @@ void train_manager_navigate_train(uint32_t train_id, TrackNode *dest, int32_t of
     train->trajectory = true;
     train->path = path;
     train->destination = destination;
+    train->stop_destination = destination;
 }
 
 static void train_manager_prepare_ahead(Train *train) {
@@ -34,13 +35,20 @@ static void train_manager_prepare_ahead(Train *train) {
         if (src->type == NODE_BRANCH && edge_direction(edge) != src->direction) {
             controller_switch_one(src->num, edge_direction(edge), 0);
         }
+        if (!train->reverse && edge_direction(edge) == DIR_REVERSE) {
+            // Prepare Stop destination
+            train->reverse = true;
+            train->original_speed = train->speed;
+            train->stop_destination.node = edge->dest;
+            train->stop_destination.offset = 100;
+        }
     }
 }
 
 static bool train_manager_will_arrive(Train *train) {
     TrackPosition stop_range_start = train->position;
     TrackPosition stop_range_end   = position_move(train->position, (int32_t) (train->stop_distance));
-    return position_in_range(train->destination, stop_range_start, stop_range_end);
+    return position_in_range(train->stop_destination, stop_range_start, stop_range_end);
 }
 
 static bool train_manager_will_collide(Train *train, Train *other) {
@@ -60,17 +68,30 @@ static void train_manager_look_ahead(Train *train) {
     }
 }
 
+static void train_manager_handle_reverse(Train *train) {
+    train->reverse = false;
+    controller_speed_one(train->id, TRAIN_STATUS_REVERSE, 0);
+    controller_speed_one(train->id, train->original_speed, 0);
+    train->position = position_reverse(train->position);
+    if (train->trajectory) {
+        train->stop_destination = train->destination;
+    }
+}
+
 void train_manager_issue_directives() {
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
         Train *train = &singleton_trains[i];
         if (train->inited) {
+            if (train->reverse && train->velocity == 0) {
+                train_manager_handle_reverse(train);
+            }
             if (train->trajectory) {
                 path_move(&train->path, train->position.node);
                 train_manager_prepare_ahead(train);
-                if (train_manager_will_arrive(train)) {
-                    controller_speed_one(train->id, 0, 0);
-                    train->trajectory = false;
-                }
+            }
+            if (train->stop_destination.node != NULL && train_manager_will_arrive(train)) {
+                controller_speed_one(train->id, 0, 0);
+                train->stop_destination.node = NULL;
             }
             train_manager_look_ahead(train);
         }

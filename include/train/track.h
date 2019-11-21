@@ -158,6 +158,7 @@ TrackPath search_path_to_next_sensor(TrackNode *src);
 TrackPath search_path_to_node(Track *track, const TrackNode *src, const TrackNode *dest);
 
 TrackPosition position_standardize(TrackNode *node, int32_t offset);
+bool position_equal(TrackPosition *pos1, TrackPosition *pos2);
 TrackPosition position_rebase(TrackNode *root, TrackPosition pos, uint32_t step_limit);
 TrackPosition position_reverse(TrackPosition current);
 TrackPosition position_move(TrackPosition current, int32_t offset);

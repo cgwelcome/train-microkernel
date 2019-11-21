@@ -103,10 +103,10 @@ static void train_root_task() {
         }
         if (request.type == TRAIN_REQUEST_REVERSE) {
             uint32_t train_id = request.args[0];
-            uint32_t speed = train_find(singleton_trains, train_id)->speed;
+            Train *train = train_find(singleton_trains, train_id);
+            train->reverse = true;
+            train->original_speed = train->speed;
             controller_speed_one(train_id, 0, 0);
-            controller_speed_one(train_id, TRAIN_STATUS_REVERSE, CONTROLLER_REVERSE_DELAY);
-            controller_speed_one(train_id, speed, CONTROLLER_REVERSE_DELAY + 1);
         }
         if (request.type == TRAIN_REQUEST_MOVE) {
             uint32_t train_id = request.args[0];
