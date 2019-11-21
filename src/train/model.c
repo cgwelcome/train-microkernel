@@ -68,7 +68,7 @@ static uint32_t find_train_close_to_sensor(TrackNode *sensor) {
     uint32_t min_dist = UINT32_MAX; uint32_t min_train_index = (uint32_t) -1;
     for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
         if (singleton_trains[i].inited) {
-            uint32_t dist = train_close_to(&singleton_trains[i], position);
+            uint32_t dist = train_close_to(&singleton_trains[i], position, 200);
             if (dist < min_dist) {
                 min_dist = dist;
                 min_train_index = i;

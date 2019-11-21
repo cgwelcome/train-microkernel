@@ -51,6 +51,24 @@ static void ts_try_print_status(int iotid, TrainSensorList *sensorlist) {
         for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
             PrintLocation(iotid, &singleton_trains[i]);
         }
+        if (singleton_track.inited) {
+            for (uint32_t id = 1; id <= 18; id++) {
+                TrackNode *branch = track_find_branch(&singleton_track, id);
+                if (branch->owner == UINT32_MAX) {
+                    PrintSwitch(iotid, branch->num, 0);
+                } else {
+                    PrintSwitch(iotid, branch->num, branch->owner);
+                }
+            }
+            for (uint32_t id = 0x99; id <= 0x9C; id++) {
+                TrackNode *branch = track_find_branch(&singleton_track, id);
+                if (branch->owner == UINT32_MAX) {
+                    PrintSwitch(iotid, branch->num, 0);
+                } else {
+                    PrintSwitch(iotid, branch->num, branch->owner);
+                }
+            }
+        }
     }
 }
 
@@ -110,6 +128,7 @@ static void train_root_task() {
             train->trajectory = false;
             train->reverse = true;
             train->original_speed = train->speed;
+            train->stop_position = position_move(train->position, (int32_t) train->stop_distance);
             controller_speed_one(train_id, 0, 0);
         }
         if (request.type == TRAIN_REQUEST_MOVE) {

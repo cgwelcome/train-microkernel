@@ -21,8 +21,8 @@ typedef struct {
     bool trajectory;
     uint32_t original_speed;
     TrackPath path;
-    TrackPosition destination;
-    TrackPosition stop_destination;
+    TrackPosition stop_position;
+    TrackPosition final_destination;
 } Train;
 
 /**
@@ -46,9 +46,10 @@ uint32_t train_index_to_id(uint32_t index);
 Train *train_find(Train *trains, uint32_t train_id);
 
 /**
- * If the train is close to a position (within 50mm), returns the distance
- * between the train and the position. Otherwise, returns UINT32_MAX.
+ * If the train is close to a position (within tolerance in mm),
+ * returns the distance between the train and the position.
+ * Otherwise, returns UINT32_MAX.
  */
-uint32_t train_close_to(Train *train, TrackPosition dest);
+uint32_t train_close_to(Train *train, TrackPosition dest, int32_t tolerance);
 
 #endif /*__TRAIN_TRAIN_H__*/

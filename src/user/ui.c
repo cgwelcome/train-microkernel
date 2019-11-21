@@ -54,9 +54,9 @@ void PrintTime(int io_tid) {
 
 void PrintSwitch(int io_tid, unsigned int code, uint8_t direction) {
     assert((code > 0 && code < 19) || (code > 0x98 && code < 0x9D));
-    assert(direction == DIR_CURVED || direction == DIR_STRAIGHT);
+    // assert(direction == DIR_CURVED || direction == DIR_STRAIGHT);
     unsigned int row = 0, col = 0;
-    char status = (direction == DIR_CURVED ? 'C' : 'S');
+    // char status = (direction == DIR_CURVED ? 'C' : 'S');
     if (code > 0 && code < 19) {
         row = (code - 1) / 6;
         col = (code - 1) % 6;
@@ -66,19 +66,22 @@ void PrintSwitch(int io_tid, unsigned int code, uint8_t direction) {
         col = code - 0x99;
     }
     Printf(io_tid, COM2,
-            TERM_SAVE_CURSOR TERM_MOVE_CURSOR "%c" TERM_UNSAVE_CURSOR,
+            TERM_SAVE_CURSOR TERM_MOVE_CURSOR "%02d" TERM_UNSAVE_CURSOR,
             LINE_SWITCH_START + row, 7 + col * 7,
-            status);
+            /*status*/ direction);
 }
 
 void PrintLocation(int io_tid, Train *train) {
-    TrackPosition *pos = &train->position;
+    TrackPosition *pos  = &train->position;
+    TrackPosition *stop = &train->stop_position;
     if (pos->node != NULL) {
         uint32_t row = train_id_to_index(train->id);
         Printf(io_tid, COM2,
-                TERM_SAVE_CURSOR TERM_MOVE_CURSOR TERM_ERASE_LINE "%s %u" TERM_UNSAVE_CURSOR,
+                TERM_SAVE_CURSOR TERM_MOVE_CURSOR TERM_ERASE_LINE "%s %u %s %u %d %d" TERM_UNSAVE_CURSOR,
                 LINE_LOCATION_START + row, 13,
-                pos->node->name, pos->offset);
+                pos->node  == NULL ? "N" : pos->node->name,  pos->offset,
+                stop->node == NULL ? "N" : stop->node->name, stop->offset,
+                train->reverse, stop->node == NULL ? 0 : train_close_to(train, *stop, 200));
     }
 }
 

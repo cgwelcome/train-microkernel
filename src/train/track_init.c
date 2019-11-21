@@ -3411,8 +3411,7 @@ static void track_init_b(TrackNode *track) {
   track[139].reverse = &track[138];
 }
 
-void track_init(Track *track, TrackName name) {
-    track->name = name;
+void track_clean(Track *track) {
     for (size_t i = 0; i < track->node_count; i++) {
         TrackNode *node = &track->nodes[i];
         node->direction = DIR_AHEAD;
@@ -3428,25 +3427,23 @@ void track_init(Track *track, TrackName name) {
             node->edge[DIR_REVERSE].dist = REVERSE_PENALTY;
         }
     }
+}
+
+void track_init(Track *track, TrackName name) {
+    track->name = name;
     switch(name) {
     case TRAIN_TRACK_A:
         track->node_count = 144;
+        track_clean(track);
         track_init_a(track->nodes);
         break;
     case TRAIN_TRACK_B:
         track->node_count = 140;
+        track_clean(track);
         track_init_b(track->nodes);
         break;
     default:
         throw("unknown track");
     }
     track->inited = true;
-    for (uint32_t i = 0; i < track->node_count; i++) {
-        TrackNode *node = &track->nodes[i];
-        if (node->type != NODE_BRANCH && node->type != NODE_MERGE) {
-            node->edge[DIR_REVERSE].src = node;
-            node->edge[DIR_REVERSE].dest = node->reverse;
-            node->edge[DIR_REVERSE].dist = REVERSE_PENALTY;
-        }
-    }
 }

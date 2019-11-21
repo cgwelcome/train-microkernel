@@ -22,10 +22,11 @@ void train_init(Train *train, uint32_t id) {
     train->trajectory = false;
     train->original_speed = 0;
 
-    train->destination.node = NULL;
-    train->destination.offset = 0;
-    train->stop_destination.node = NULL;
-    train->stop_destination.offset = 0;
+    path_clear(&train->path);
+    train->final_destination.node = NULL;
+    train->final_destination.offset = 0;
+    train->stop_position.node = NULL;
+    train->stop_position.offset = 0;
 
 }
 
@@ -47,11 +48,13 @@ Train *train_find(Train *trains, uint32_t train_id) {
     return &trains[train_id_to_index(train_id)];
 }
 
-uint32_t train_close_to(Train *train, TrackPosition dest) {
+uint32_t train_close_to(Train *train, TrackPosition dest, int32_t tolerance) {
     assert(train->inited);
+    assert(dest.node != NULL);
+    assert(tolerance >= 0);
 
-    TrackPosition range_start = position_move(train->position, -200);
-    TrackPosition range_end   = position_move(train->position,  200);
+    TrackPosition range_start = position_move(train->position, -tolerance);
+    TrackPosition range_end   = position_move(train->position,  tolerance);
     if (position_in_range(dest, range_start, range_end)) {
         TrackPosition rebased_dest = position_rebase(range_start.node, dest, 10);
         assert(rebased_dest.node != NULL);

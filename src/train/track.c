@@ -69,6 +69,7 @@ void edgelist_init(TrackEdgeList *list) {
 }
 
 void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge) {
+    assert(edgelist->size < MAX_EDGE_LIST);
     if (edge != NULL) {
         edgelist->edges[edgelist->size] = edge;
         edgelist->size++;
@@ -105,8 +106,8 @@ void nodelist_init(TrackNodeList *list) {
 }
 
 void nodelist_add(TrackNodeList *list, TrackNode *node) {
-    assert(list);
-    assert(node);
+    assert(list != NULL && node != NULL);
+    assert(list->size < MAX_NODE_LIST);
     list->nodes[list->size] = node;
     list->size++;
 }
@@ -137,16 +138,18 @@ void path_add_edge(TrackPath *path, TrackEdge *edge) {
 }
 
 TrackPath path_to_greater_length(TrackPath *path, uint32_t dist) {
-    TrackPath subpath;
-    path_clear(&subpath);
+    TrackPath subpath; path_clear(&subpath);
     for (uint32_t i = path->index; i < path->list.size && subpath.dist < dist; i++) {
         TrackEdge *edge = edgelist_by_index(&path->list, i);
+        assert(edge != NULL);
         path_add_edge(&subpath, edge);
     }
     return subpath;
 }
 
 void path_move(TrackPath *path, TrackNode *dest) {
+    assert(path != NULL && dest != NULL);
+
     if (path->index == path->list.size) return;
     if (path_end(path) == dest) {
         path->index = path->list.size;
@@ -209,9 +212,8 @@ TrackNodeList node_select_adjacent_node(TrackNode *src) {
 }
 
 TrackPath search_path_to_next_length(TrackNode *src, uint32_t dist) {
-    assert(src);
-    TrackPath path;
-    path_clear(&path);
+    assert(src != NULL);
+    TrackPath path; path_clear(&path);
     TrackEdge *edge = node_select_next_edge(src);
     while (edge != NULL && path.dist <= dist) {
         path_add_edge(&path, edge);
@@ -221,9 +223,8 @@ TrackPath search_path_to_next_length(TrackNode *src, uint32_t dist) {
 }
 
 TrackPath search_path_to_next_type(TrackNode *src, TrackNodeType type) {
-    assert(src);
-    TrackPath path;
-    path_clear(&path);
+    assert(src != NULL);
+    TrackPath path; path_clear(&path);
     TrackEdge *edge = node_select_next_edge(src);
     while (edge != NULL && edge->dest->type != type) {
         path_add_edge(&path, edge);
@@ -238,8 +239,8 @@ TrackPath search_path_to_next_type(TrackNode *src, TrackNodeType type) {
 }
 
 TrackPath search_path_to_next_node(TrackNode *src, TrackNode *dest) {
-    TrackPath path;
-    path_clear(&path);
+    assert(src != NULL && dest != NULL);
+    TrackPath path; path_clear(&path);
     TrackEdge *edge = node_select_next_edge(src);
     while (edge != NULL) {
         path_add_edge(&path, edge);
@@ -253,9 +254,10 @@ TrackPath search_path_to_next_node(TrackNode *src, TrackNode *dest) {
 }
 
 static TrackPath recover_path(const TrackNode *src, const TrackNode *dest, TrackEdge **prev) {
-    TrackPath path;
-    path_clear(&path);
+    assert(src != NULL && dest != NULL);
+    TrackPath path; path_clear(&path);
     for (uint32_t id = dest->id; id != src->id; id = prev[id]->src->id) {
+        assert(prev[id] != NULL);
         path_add_edge(&path, prev[id]);
     }
     if (path.list.size == 0) return path;
@@ -270,6 +272,8 @@ static TrackPath recover_path(const TrackNode *src, const TrackNode *dest, Track
 }
 
 TrackPath search_path_to_node(Track *track, const TrackNode *src, const TrackNode *dest) {
+    assert(src != NULL && dest != NULL);
+
     PPQueue ppqueue;
     ppqueue_init(&ppqueue);
     TrackEdge *prev[track->node_count];
@@ -296,18 +300,14 @@ TrackPath search_path_to_node(Track *track, const TrackNode *src, const TrackNod
             return recover_path(src, dest, prev);
         }
     }
-    TrackPath path;
-    path_clear(&path);
+    TrackPath path; path_clear(&path);
     return path;
 }
 
 TrackPosition path_to_position(TrackPath *path, uint32_t dist) {
-    assert(path);
-    TrackPosition position;
+    assert(path != NULL);
     if (path->dist < dist) {
-        position.node = NULL;
-        position.offset = 0;
-        return position;
+        return (TrackPosition) { .node = NULL, .offset = 0 };
     }
     uint32_t target = path->dist - dist;
     uint32_t total = 0;
@@ -317,34 +317,10 @@ TrackPosition path_to_position(TrackPath *path, uint32_t dist) {
         if (edge->dist + total > dist) break;
         total += edge->dist;
     }
-    position.node = edgelist_by_index(&path->list, i)->src;
-    position.offset = target - total;
-    return position;
-}
-
-TrackPosition position_standardize(TrackNode *node, int32_t offset) {
-    assert(node != NULL);
-
-    TrackPosition standard;
-    if (offset < 0) {
-        standard.node = node->reverse;
-        standard.offset = (uint32_t)offset;
-    } else {
-        standard.node = node;
-        standard.offset = (uint32_t)offset;
-    }
-    TrackEdge *edge = node_select_next_edge(standard.node);
-    while (edge != NULL && standard.offset >= edge->dist) {
-        standard.offset -= edge->dist;
-        standard.node = edge->dest;
-        edge = node_select_next_edge(standard.node);
-    }
-    // Unreachable
-    if (edge == NULL) {
-        standard.node = NULL;
-        standard.offset = 0;
-    }
-    return standard;
+    return (TrackPosition) {
+        .node   = edgelist_by_index(&path->list, i)->src,
+        .offset = target - total,
+    };
 }
 
 TrackPosition position_rebase(TrackNode *root, TrackPosition pos, uint32_t step_limit) {
@@ -369,20 +345,18 @@ TrackPosition position_rebase(TrackNode *root, TrackPosition pos, uint32_t step_
 TrackPosition position_reverse(TrackPosition current) {
     assert(current.node != NULL);
 
-    if (current.node->type == NODE_EXIT) {
-        assert(current.offset == 0);
-        return (TrackPosition) { .node = current.node->reverse, .offset = 0 };
-    }
-
     TrackEdge *edge = node_select_next_edge(current.node);
-    assert(edge != NULL);
-    if (current.offset > edge->dist) {
-        throw("position_reverse: invalid position %s %u with edge dist %u", current.node->name, current.offset, edge->dist);
+    while (edge != NULL && current.offset > edge->dist) {
+        current.offset -= edge->dist;
+        current.node    = edge->dest;
+        edge = node_select_next_edge(current.node);
     }
-    return (TrackPosition) {
-        .node   = edge->dest->reverse,
-        .offset = edge->dist - current.offset,
-    };
+    if (edge == NULL) {
+        assert(current.node->type == NODE_EXIT && current.offset == 0);
+        return (TrackPosition) { current.node->reverse, 0 };
+    } else {
+        return (TrackPosition) { edge->dest->reverse, edge->dist - current.offset };
+    }
 }
 
 TrackPosition position_move(TrackPosition current, int32_t offset) {
@@ -405,6 +379,8 @@ TrackPosition position_move(TrackPosition current, int32_t offset) {
             current.offset = 0;
         }
     }
+
+    assert(current.node != NULL);
     return current;
 }
 

@@ -64,7 +64,7 @@ static void controller_handle_directive(TrainDirective *directive) {
                 if (!branch->broken) {
                     branch->direction = (uint8_t) directive->data;
                 }
-                PrintSwitch(iotid, branch->num, branch->direction);
+                // PrintSwitch(iotid, branch->num, branch->direction);
             }
             break;
         default:
