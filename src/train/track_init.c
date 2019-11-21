@@ -3413,6 +3413,21 @@ static void track_init_b(TrackNode *track) {
 
 void track_init(Track *track, TrackName name) {
     track->name = name;
+    for (size_t i = 0; i < track->node_count; i++) {
+        TrackNode *node = &track->nodes[i];
+        node->direction = DIR_AHEAD;
+        for (int i = 0; i < MAX_EDGE_DEGREE; i++) {
+            node->edge[i].reverse = NULL;
+            node->edge[i].src  = NULL;
+            node->edge[i].dest = NULL;
+            node->edge[i].dist = 0;
+        }
+        if (node->type != NODE_BRANCH && node->type != NODE_MERGE) {
+            node->edge[DIR_REVERSE].src = node;
+            node->edge[DIR_REVERSE].dest = node->reverse;
+            node->edge[DIR_REVERSE].dist = REVERSE_PENALTY;
+        }
+    }
     switch(name) {
     case TRAIN_TRACK_A:
         track->node_count = 144;
