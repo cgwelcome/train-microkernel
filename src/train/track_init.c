@@ -1432,7 +1432,7 @@ static void track_init_a(TrackNode *track) {
   track[122].name = "BR156";
   track[122].type = NODE_BRANCH;
   track[122].num = 156;
-  track[122].broken = 0;
+  track[122].broken = 1;
   track[122].direction = DIR_CURVED;
   track[122].reverse = &track[123];
   track[122].edge[DIR_STRAIGHT].reverse = &track[121].edge[DIR_AHEAD];
