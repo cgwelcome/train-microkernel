@@ -40,9 +40,9 @@ static void train_manager_prepare_ahead(Train *train) {
             // Prepare Stop destination
             train->reverse = true;
             train->original_speed = train->speed;
-            train->stop_destination.node = edge->dest;
+            train->stop_destination.node = edge->src;
             train->stop_destination.offset = 0;
-            train->stop_destination = position_move(train->stop_destination, 100);
+            train->stop_destination = position_move(train->stop_destination, 30);
         }
     }
 }

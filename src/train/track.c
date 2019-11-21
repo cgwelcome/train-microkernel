@@ -155,7 +155,7 @@ void path_move(TrackPath *path, TrackNode *dest) {
     }
     TrackNode *node = edgelist_by_index(&path->list, path->index)->src;
     uint32_t count = 0;
-    while (node != dest && path->index+count < path->list.size) {
+    while (node != dest && path->index+count+1 < path->list.size) {
         count++;
         node = edgelist_by_index(&path->list, path->index+count)->src;
     }
