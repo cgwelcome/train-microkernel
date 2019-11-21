@@ -385,10 +385,8 @@ TrackPosition position_reverse(TrackPosition current) {
 
     TrackEdge *edge = node_select_next_edge(current.node);
     assert(edge != NULL);
-    if (current.offset <= edge->dist) {
-        char error_msg[128];
-        SPrintf(error_msg, 128, "the error location is %s %u", current.node->name, current.offset);
-        throw(error_msg);
+    if (current.offset > edge->dist) {
+        throw("position_reverse: invalid position %s %lu", current.node->name, current.offset);
     }
     return (TrackPosition) {
         .node   = edge->dest->reverse,

@@ -100,10 +100,10 @@ void handle_request(int tid, uint32_t request) {
         current_task->tf->r0 = (uint32_t) name_server_tid;
     }
     else if (request == SYSCALL_PANIC) {
-        char * expr = (char *) current_task->tf->r0;
-        char * file = (char *) current_task->tf->r1;
-        int    line = (int)    current_task->tf->r2;
-        panic(expr, file, line);
+        char * file = (char *) current_task->tf->r0;
+        int    line = (int)    current_task->tf->r1;
+        char * msg  = (char *) current_task->tf->r2;
+        panic(file, line, msg);
     }
 }
 
