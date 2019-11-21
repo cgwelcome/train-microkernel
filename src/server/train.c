@@ -99,11 +99,15 @@ static void train_root_task() {
         if (request.type == TRAIN_REQUEST_SPEED) {
             uint32_t train_id = request.args[0];
             uint32_t speed    = request.args[1];
+            Train *train = train_find(singleton_trains, train_id);
+            train->trajectory = false;
+            train->reverse = false;
             controller_speed_one(train_id, speed, 0);
         }
         if (request.type == TRAIN_REQUEST_REVERSE) {
             uint32_t train_id = request.args[0];
             Train *train = train_find(singleton_trains, train_id);
+            train->trajectory = false;
             train->reverse = true;
             train->original_speed = train->speed;
             controller_speed_one(train_id, 0, 0);

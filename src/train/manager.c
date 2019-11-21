@@ -22,6 +22,7 @@ void train_manager_navigate_train(uint32_t train_id, TrackNode *dest, int32_t of
     if (path.dist == 0) return;
 
     train->trajectory = true;
+    train->reverse = false;
     train->path = path;
     train->destination = destination;
     train->stop_destination = destination;
@@ -40,7 +41,8 @@ static void train_manager_prepare_ahead(Train *train) {
             train->reverse = true;
             train->original_speed = train->speed;
             train->stop_destination.node = edge->dest;
-            train->stop_destination.offset = 100;
+            train->stop_destination.offset = 0;
+            train->stop_destination = position_move(train->stop_destination, 100);
         }
     }
 }

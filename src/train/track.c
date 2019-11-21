@@ -2,6 +2,7 @@
 #include <train/track.h>
 #include <utils/assert.h>
 #include <utils/ppqueue.h>
+#include <user/io.h>
 
 Track singleton_track;
 
@@ -154,7 +155,7 @@ void path_move(TrackPath *path, TrackNode *dest) {
     }
     TrackNode *node = edgelist_by_index(&path->list, path->index)->src;
     uint32_t count = 0;
-    while (node != dest) {
+    while (node != dest && path->index+count < path->list.size) {
         count++;
         node = edgelist_by_index(&path->list, path->index+count)->src;
     }
@@ -385,9 +386,9 @@ TrackPosition position_reverse(TrackPosition current) {
 
     TrackEdge *edge = node_select_next_edge(current.node);
     assert(edge != NULL);
-    if (current.offset <= edge->dist) {
+    if (current.offset > edge->dist) {
         char error_msg[128];
-        SPrintf(error_msg, 128, "the error location is %s %u", current.node->name, current.offset);
+        SPrintf(error_msg, 128, "the error location is %s %u %u", current.node->name, current.offset, edge->dist);
         throw(error_msg);
     }
     return (TrackPosition) {
