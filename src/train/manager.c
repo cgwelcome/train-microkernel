@@ -36,29 +36,20 @@ static void train_manager_prepare_ahead(Train *train) {
     }
 }
 
-static void train_manager_look_ahead(Train *train, uint32_t stop_distance) {
+static bool train_manager_will_collide(Train *train, Train *other) {
+    TrackPosition detect_range_start = train->position;
+    TrackPosition detect_range_end   = position_move(train->position, (int32_t) (train->stop_distance + TRAILLING_DISTANCE));
+    return position_in_range(other->position, detect_range_start, detect_range_end);
+}
+
+static void train_manager_look_ahead(Train *train) {
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
-        Train *other_train = &singleton_trains[i];
-        if (!other_train->inited || other_train->id == train->id) continue;
-        TrackPosition head = {
-            .node = other_train->position.node,
-            .offset = other_train->position.offset - stop_distance - TRAILLING_DISTANCE,
-        };
-        TrackPosition rear = {
-            .node = other_train->position.node->reverse,
-            .offset = other_train->position.offset + stop_distance + TRAILLING_DISTANCE,
-        };
-        if (train_close_to(train, head) != UINT32_MAX || train_close_to(train, rear) != UINT32_MAX) {
-            /*if (!train->blocked) {*/
-                /*train->original_speed = train->speed;*/
-                /*train->blocked = true;*/
+        Train *other = &singleton_trains[i];
+        if (other->inited && other->id != train->id) {
+            if (train_manager_will_collide(train, other)) {
                 controller_speed_one(train->id, 0, 0);
-            /*}*/
+            }
         }
-        /*else if (train->blocked) {*/
-            /*train->blocked = false;*/
-            /*controller_speed_one(train->id, train->original_speed, 0);*/
-        /*}*/
     }
 }
 
@@ -78,7 +69,7 @@ void train_manager_issue_directives() {
                     train->trajectory = false;
                 }
             }
-            train_manager_look_ahead(train, stop_distance);
+            train_manager_look_ahead(train);
         }
     }
 }
