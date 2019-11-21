@@ -7,7 +7,6 @@
 #include <user/tasks.h>
 
 void k4_root_task() {
-    CreateNameServer();
     CreateClockServer();
     CreateIOServer();
     CreateTrainServer();

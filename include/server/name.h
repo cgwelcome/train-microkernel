@@ -23,15 +23,7 @@ typedef struct {
     char name[MAX_NAME_SIZE];
 } NSRequest;
 
-/**
- * Initialize some global counters for the Name Server.
- */
-void InitNameServer();
-
-/**
- * Creates a global Name Server
- */
-void CreateNameServer();
+void name_server_root_task();
 
 /** @}*/
 

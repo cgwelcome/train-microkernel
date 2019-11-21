@@ -12,8 +12,6 @@ typedef struct {
     int tid;
 } NameRecord;
 
-int name_server_tid;
-
 static Queue whois_queue;
 static int record_count;
 static NameRecord records[MAX_NAMERECORD_NUM];
@@ -66,11 +64,13 @@ static void name_flush_whois_queue() {
     }
 }
 
-static void name_server_task() {
+void name_server_root_task() {
     int retval;
     int tid;
     NSRequest request;
 
+    record_count = 0;
+    queue_init(&whois_queue);
     for (;;) {
         // Wait for a name request or lookup
         Receive(&tid, (char *)&request, sizeof(request));
@@ -91,18 +91,5 @@ static void name_server_task() {
             default:
                 throw("unknown request");
         }
-    }
-}
-
-void InitNameServer() {
-    name_server_tid = -1;
-    record_count = 0;
-    queue_init(&whois_queue);
-}
-
-void CreateNameServer() {
-    // TODO: add thread-safe flag to avoid duplicate name server.
-    if (name_server_tid < 0) {
-        name_server_tid = Create(PRIORITY_SERVER_NAME, &name_server_task);
     }
 }

@@ -54,7 +54,8 @@
 #define SYSCALL_IPC_PEEK            0x0000000A
 #define SYSCALL_IPC_REPLY           0x0000000B
 #define SYSCALL_IRQ_AWAITEVENT      0x0000000C
-#define SYSCALL_PANIC               0x0000000D
+#define SYSCALL_NS_INVOKE           0x0000000D
+#define SYSCALL_PANIC               0x0000000E
 
 /**
  * Default task names for important servers

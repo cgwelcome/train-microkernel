@@ -74,7 +74,6 @@ static void rps_client() {
 
 void k2_root_task() {
     bwsetfifo(COM2, OFF);
-    CreateNameServer();
     CreateRPS(2000);
     for (int i = 0; i < RPS_CLIENT_NUM; i++) {
         Create(500, &rps_client);

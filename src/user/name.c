@@ -5,16 +5,10 @@
 #include <user/tasks.h>
 #include <utils/assert.h>
 
-extern int name_server_tid;
-
-static int PingNameServer() {
-    int retry = 0;
-    while (name_server_tid < 0) {
-        if (retry >= 500) return -1;
-        retry++;
-        Yield();
-    }
-    return 0;
+static int InvokeNameServer() {
+    register int ret asm("r0");
+    SYSCALL_INVOKE(SYSCALL_NS_INVOKE);
+    return ret;
 }
 
 void RegisterAs(const char *name) {
@@ -24,10 +18,7 @@ void RegisterAs(const char *name) {
     request.type = NS_REGISTER;
     strcpy(request.name, name);
 
-    if (PingNameServer() < 0) {
-        throw("RegisterAs failed, name server not ready");
-    }
-
+    int name_server_tid = InvokeNameServer();
     assert(Send(name_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
@@ -38,11 +29,8 @@ int WhoIs(const char *name) {
     request.type = NS_WHOIS;
     strcpy(request.name, name);
 
-    if (PingNameServer() < 0) {
-        throw("WhoIs failed, name server not ready");
-    }
-
     int result;
+    int name_server_tid = InvokeNameServer();
     assert(Send(name_server_tid, (char *)&request, sizeof(request), (char *)&result, sizeof(result)) >= 0);
     return result;
 }

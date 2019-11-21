@@ -1,7 +1,6 @@
 #include <user/ipc.h>
 #include <user/tasks.h>
 #include <utils/assert.h>
-#include <utils/bwio.h>
 
 #define MESSAGESIZE 4
 #define RECEIVERFIRST 1

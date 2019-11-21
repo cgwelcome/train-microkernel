@@ -6,17 +6,16 @@
 #define __UTILS_ASSERT_H__
 
 #include <arm.h>
-#include <stdint.h>
-#include <stdnoreturn.h>
 #include <kernel.h>
-#include <utils/bwio.h>
 
-noreturn void panic(char *expr, char *file, int line);
+#include <stdnoreturn.h>
+
+noreturn void panic(char *file, int line, char *fmt, ...);
 
 #define assert(expr) \
-    if (!(expr)) panic("Assertion failed: "#expr, __FILE__, __LINE__)
+    if (!(expr)) panic(__FILE__, __LINE__, "Assertion failed: "#expr)
 
-#define throw(error_msg) \
-    panic(error_msg, __FILE__, __LINE__)
+#define throw(...) \
+    panic(__FILE__, __LINE__, __VA_ARGS__)
 
 #endif

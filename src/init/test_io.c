@@ -55,7 +55,6 @@ void io_race_test() {
 }
 
 void io_test_root_task() {
-    CreateNameServer();
     CreateIOServer();
 
     int servertid = WhoIs(SERVER_NAME_IO);

@@ -1,6 +1,7 @@
 #ifndef __USER_IO_H__
 #define __USER_IO_H__
 
+#include <stdarg.h>
 #include <stddef.h>
 
 /**
@@ -9,18 +10,6 @@
  *
  * @{
  */
-
-typedef char *va_list;
-
-#define __va_argsiz(t) \
-    (((sizeof(t) + sizeof(int) - 1) / sizeof(int)) * sizeof(int))
-
-#define va_start(ap, pN) ((ap) = ((va_list) __builtin_next_arg(pN)))
-
-#define va_end(ap) ((void)0)
-
-#define va_arg(ap, t) \
-    (((ap) = (ap) + __va_argsiz(t)), *((t*) (void*) ((ap) - __va_argsiz(t))))
 
 /**
  * Returns next unreturned character from the given UART.
@@ -42,11 +31,6 @@ void Getw(int tid, int uart, char *buffer, size_t size);
  * Queues the given string for transmission by the given UART.
  */
 void Putw(int tid, int uart, char *buffer, size_t size);
-
-/**
- * Puts the given formatted string to the provided buffer.
- */
-void SPrintf(char *buffer, size_t size, char *fmt, ...);
 
 /**
  * Queues the given formatted string for transmission by the given UART.

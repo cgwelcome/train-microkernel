@@ -47,6 +47,7 @@ void clock_server_task() {
     CSRequest request;
 
     RegisterAs(SERVER_NAME_CLOCK);
+    pqueue_init(&delay_queue);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {
@@ -78,10 +79,6 @@ void clock_notifier_task() {
         AwaitEvent(TC2UI_EVENT);
         assert(Send(clock_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
     }
-}
-
-void InitClockServer() {
-    pqueue_init(&delay_queue);
 }
 
 void CreateClockServer() {
