@@ -166,7 +166,7 @@ uint8_t node_valid(TrackNode *node) {
 
 TrackEdge *node_select_edge(TrackNode *src, uint8_t direction) {
     TrackEdge *edge = &src->edge[direction];
-    return node_valid(edge->dest) ? edge : NULL;
+    return node_valid(src) ? edge : NULL;
 }
 
 TrackEdge *node_select_next_edge(TrackNode *src) {
@@ -318,6 +318,8 @@ TrackPosition path_to_position(TrackPath *path, uint32_t dist) {
 }
 
 TrackPosition position_standardize(TrackNode *node, int32_t offset) {
+    assert(node != NULL);
+
     TrackPosition standard;
     if (offset < 0) {
         standard.node = node->reverse;
@@ -341,26 +343,77 @@ TrackPosition position_standardize(TrackNode *node, int32_t offset) {
     return standard;
 }
 
-void position_reverse(TrackPosition *current) {
-    TrackEdge *edge = node_select_next_edge(current->node);
-    assert(current->offset <= edge->dist);
-    current->node = edge->dest->reverse;
-    current->offset = edge->dist - current->offset;
+TrackPosition position_rebase(TrackNode *root, TrackPosition pos, uint32_t step_limit) {
+    assert(root != NULL);
+    assert(pos.node != NULL);
+
+    uint32_t step = 0;
+    uint32_t offset = pos.offset;
+    while (root != pos.node) {
+        if (root->type == NODE_EXIT) {
+            return (TrackPosition) { .node = NULL, .offset = 0 };
+        }
+        if ((step++) >= step_limit) {
+            return (TrackPosition) { .node = NULL, .offset = 0 };
+        }
+        offset += root->edge[root->direction].dist;
+        root    = root->edge[root->direction].dest;
+    }
+    return (TrackPosition) { .node = root, .offset = offset };
 }
 
-void position_move(TrackPosition *current, int32_t offset) {
-    if (offset == 0) return;
+TrackPosition position_reverse(TrackPosition current) {
+    assert(current.node != NULL);
+
+    if (current.node->type == NODE_EXIT) {
+        assert(current.offset == 0);
+        return (TrackPosition) { .node = current.node->reverse, .offset = 0 };
+    }
+
+    TrackEdge *edge = node_select_next_edge(current.node);
+    assert(edge != NULL);
+    assert(current.offset <= edge->dist);
+    return (TrackPosition) {
+        .node   = edge->dest->reverse,
+        .offset = edge->dist - current.offset,
+    };
+}
+
+TrackPosition position_move(TrackPosition current, int32_t offset) {
+    assert(current.node != NULL);
+
+    if (current.node->type == NODE_EXIT || offset == 0) return current;
     if (offset < 0) {
-        position_reverse(current);
-        position_move(current, -offset);
-        position_reverse(current);
-        return;
+        current = position_reverse(current);
+        current = position_move(current, -offset);
+        current = position_reverse(current);
+    } else {
+        current.offset += (uint32_t)offset;
+        TrackEdge *edge = node_select_next_edge(current.node);
+        while (edge != NULL && current.offset >= edge->dist) {
+            current.node    = edge->dest;
+            current.offset -= edge->dist;
+            edge = node_select_next_edge(current.node);
+        }
+        if (current.node->type == NODE_EXIT) {
+            current.offset = 0;
+        }
     }
-    current->offset += (uint32_t)offset;
-    TrackEdge *edge = node_select_next_edge(current->node);
-    while (current->offset >= edge->dist) {
-        current->offset -= edge->dist;
-        edge = node_select_next_edge(current->node);
-        current->node = edge->dest;
+    return current;
+}
+
+static bool _position_in_range(TrackPosition pos, TrackPosition range_start, TrackPosition range_end) {
+    pos       = position_rebase(range_start.node, pos, 10);
+    range_end = position_rebase(range_start.node, range_end, 10);
+    if (pos.node != NULL && range_end.node != NULL) {
+        return range_start.offset <= pos.offset && pos.offset <= range_end.offset;
     }
+    return false;
+}
+
+bool position_in_range(TrackPosition pos, TrackPosition range_start, TrackPosition range_end) {
+    assert(pos.node != NULL);
+    assert(range_start.node != NULL);
+    assert(range_end.node != NULL);
+    return _position_in_range(pos, range_start, range_end) || _position_in_range(position_reverse(pos), range_start, range_end);
 }

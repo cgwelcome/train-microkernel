@@ -39,43 +39,19 @@ Train *train_find(Train *trains, uint32_t train_id) {
     return &trains[train_id_to_index(train_id)];
 }
 
-static TrackPosition rebase_position(TrackNode *root, TrackPosition pos) {
-    uint32_t offset = pos.offset;
-    uint32_t step = 0;
-    while (root != pos.node) {
-        if (root->type == NODE_EXIT) {
-            return (TrackPosition) { .node = NULL, .offset = 0 };
-        }
-        if ((step++) >= 5) {
-            return (TrackPosition) { .node = NULL, .offset = 0 };
-        }
-        offset += root->edge[root->direction].dist;
-        root    = root->edge[root->direction].dest;
-    }
-    return (TrackPosition) { .node = root, .offset = offset };
-}
-
-static uint32_t train_close_dist (TrackPosition pos, TrackPosition dest) {
-    uint32_t lower_bound = (pos.offset - 200 < pos.offset) ? (pos.offset - 200) : 0;
-    uint32_t upper_bound = (pos.offset + 200 > pos.offset) ? (pos.offset + 200) : UINT32_MAX;
-    if (lower_bound <= dest.offset && dest.offset <= upper_bound) {
-        return dest.offset > pos.offset ? (dest.offset - pos.offset) : (pos.offset - dest.offset);
-    }
-    return UINT32_MAX;
-}
-
 uint32_t train_close_to(Train *train, TrackPosition dest) {
-    TrackPosition curr = train->position;
-    if (curr.node == NULL || dest.node == NULL) {
-        return UINT32_MAX;
-    }
-    TrackPosition rebased_dest = rebase_position(curr.node, dest);
-    if (rebased_dest.node != NULL) {
-        return train_close_dist(curr, rebased_dest);
-    }
-    TrackPosition rebased_curr = rebase_position(dest.node, curr);
-    if (rebased_curr.node != NULL) {
-        return train_close_dist(rebased_curr, dest);
+    assert(train->inited);
+
+    TrackPosition range_start = position_move(train->position, -200);
+    TrackPosition range_end   = position_move(train->position,  200);
+    if (position_in_range(dest, range_start, range_end)) {
+        TrackPosition rebased_dest = position_rebase(range_start.node, dest, 10);
+        uint32_t train_offset = range_start.offset + 200;
+        if (rebased_dest.offset > train_offset) {
+            return rebased_dest.offset - train_offset;
+        } else {
+            return train_offset - rebased_dest.offset;
+        }
     }
     return UINT32_MAX;
 }
