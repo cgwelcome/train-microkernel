@@ -17,7 +17,6 @@ static void child_task() {
 }
 
 void clock_test_root_task() {
-    CreateNameServer();
     CreateClockServer();
     Create(2000, &child_task);
     CreateIdleTask();

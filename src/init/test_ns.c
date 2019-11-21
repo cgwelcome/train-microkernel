@@ -18,7 +18,6 @@ void register_test() {
 }
 
 void ns_test_root_task() {
-    CreateNameServer();
     Create(1000, &whois_block_test);
     for (int i = 0; i < 100; i++) Yield();
     Create(1000, &register_test);

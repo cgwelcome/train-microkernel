@@ -203,6 +203,10 @@ void io_server_task() {
     Queue halting_queue; queue_init(&halting_queue);
 
     RegisterAs(SERVER_NAME_IO);
+    io_init_uart(COM1);
+    io_init_uart(COM2);
+    io_init_channel(COM1);
+    io_init_channel(COM2);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {
@@ -281,13 +285,6 @@ static void io_notifier_task(uint32_t uart) {
         request.data = interrupts;
         assert(Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
     }
-}
-
-void InitIOServer() {
-    io_init_uart(COM1);
-    io_init_uart(COM2);
-    io_init_channel(COM1);
-    io_init_channel(COM2);
 }
 
 void CreateIOServer() {

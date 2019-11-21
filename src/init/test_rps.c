@@ -4,7 +4,6 @@
 #include <user/name.h>
 #include <user/tasks.h>
 #include <utils/assert.h>
-#include <utils/bwio.h>
 
 static RPSResponse rps_quit(int tid)  {
     RPSResponse response;
@@ -68,7 +67,6 @@ static void rpstest_client2() {
 }
 
 void rps_test_root_task() {
-    CreateNameServer();
     CreateRPS();
     Create(1000, &rpstest_client1);
     Create(1000, &rpstest_client2);

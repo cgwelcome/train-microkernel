@@ -11,7 +11,8 @@
 #include <utils/assert.h>
 #include <utils/bwio.h>
 
-uint64_t boot_time, halt_time;
+static uint64_t boot_time, halt_time;
+static int name_server_tid;
 
 void initialize() {
     // Enable L1I/L1D cache
@@ -28,10 +29,8 @@ void initialize() {
     // Initialize software and hardware handlers
     swi_handler_init();
     hwi_handler_init();
-    // Initialize global variables for servers
-    InitIOServer();
-    InitNameServer();
-    InitClockServer();
+    // Prepare for the name server
+    name_server_tid = -1;
     // Create first user task.
     task_create(-1, PRIORITY_ROOT_TASK, &k4_root_task, 0);
 }
@@ -93,6 +92,12 @@ void handle_request(int tid, uint32_t request) {
     else if (request == SYSCALL_IRQ_AWAITEVENT) {
         int event = (int) current_task->tf->r0;
         event_await(tid, event);
+    }
+    else if (request == SYSCALL_NS_INVOKE) {
+        if (name_server_tid == -1) {
+            name_server_tid = task_create(-1, PRIORITY_SERVER_NAME, &name_server_root_task, 0);
+        }
+        current_task->tf->r0 = (uint32_t) name_server_tid;
     }
     else if (request == SYSCALL_PANIC) {
         char * expr = (char *) current_task->tf->r0;

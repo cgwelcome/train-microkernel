@@ -2,7 +2,6 @@
 #include <user/ipc.h>
 #include <user/tasks.h>
 #include <utils/assert.h>
-#include <utils/bwio.h>
 
 // Send String to the Parent Task
 void recvblock_child_test() {

@@ -5,7 +5,6 @@
 #include <user/name.h>
 #include <user/tasks.h>
 #include <user/ui.h>
-#include <utils/bwio.h>
 
 static void idle_task() {
     int io_tid = WhoIs(SERVER_NAME_IO);
