@@ -65,15 +65,15 @@ typedef struct {
 
 typedef struct PathNode {
     uint32_t id;
+    uint32_t owner; /* = UINT32_MAX if no one owns it */
     const char *name;
     TrackNodeType type;
     uint32_t num;
 
     uint8_t   broken;
-    uint8_t    direction;
+    uint8_t   direction;
     TrackNode *reverse; /* same location, but opposite direction */
     TrackEdge edge[MAX_EDGE_DEGREE];
-    bool reserved;
 } TrackNode;
 
 typedef struct {
