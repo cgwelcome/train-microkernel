@@ -1,9 +1,10 @@
+#include <hardware/timer.h>
 #include <train/manager.h>
 #include <train/model.h>
 #include <train/train.h>
 #include <user/ui.h>
+#include <utils/assert.h>
 #include <utils/queue.h>
-#include <hardware/timer.h>
 
 #define TRAILLING_DISTANCE 250
 #define SWITCH_RESERVATION_DISTANCE 1000
@@ -36,6 +37,12 @@ static void train_manager_prepare_ahead(Train *train) {
     }
 }
 
+static bool train_manager_will_arrive(Train *train) {
+    TrackPosition stop_range_start = train->position;
+    TrackPosition stop_range_end   = position_move(train->position, (int32_t) (train->stop_distance));
+    return position_in_range(train->destination, stop_range_start, stop_range_end);
+}
+
 static bool train_manager_will_collide(Train *train, Train *other) {
     TrackPosition detect_range_start = train->position;
     TrackPosition detect_range_end   = position_move(train->position, (int32_t) (train->stop_distance + TRAILLING_DISTANCE));
@@ -60,11 +67,7 @@ void train_manager_issue_directives() {
             if (train->trajectory) {
                 path_move(&train->path, train->position.node);
                 train_manager_prepare_ahead(train);
-                TrackPosition position = {
-                    .node = train->destination.node,
-                    .offset = train->destination.offset - train->stop_distance,
-                };
-                if (train_close_to(train, position) != UINT32_MAX) {
+                if (train_manager_will_arrive(train)) {
                     controller_speed_one(train->id, 0, 0);
                     train->trajectory = false;
                 }
