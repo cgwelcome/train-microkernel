@@ -60,7 +60,7 @@ typedef struct PathEdge {
 
 typedef struct {
     TrackEdge *edges[MAX_EDGE_LIST];
-    uint32_t size;
+    size_t size;
 } TrackEdgeList;
 
 typedef struct PathNode {
@@ -78,7 +78,7 @@ typedef struct PathNode {
 
 typedef struct {
     TrackNode *nodes[MAX_NODE_LIST];
-    uint32_t size;
+    size_t size;
 } TrackNodeList;
 
 typedef struct {
@@ -88,7 +88,7 @@ typedef struct {
 
 typedef struct {
     TrackEdgeList list;
-    uint32_t index;
+    size_t index;
     uint32_t dist;  /** in millimetres */
 } TrackPath;
 
@@ -132,8 +132,8 @@ void track_set_branch_direction(Track *track, uint32_t switch_id, uint8_t direct
 uint8_t edge_direction(TrackEdge *edge);
 void edgelist_init(TrackEdgeList *list);
 void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge);
-void edgelist_swap(TrackEdgeList *list, uint32_t i, uint32_t j);
-TrackEdge *edgelist_by_index(TrackEdgeList *list, uint32_t i);
+void edgelist_swap(TrackEdgeList *list, size_t i, size_t j);
+TrackEdge *edgelist_by_index(TrackEdgeList *list, size_t i);
 TrackNodeList edgelist_to_nodelist(TrackEdgeList *edgelist);
 void nodelist_init(TrackNodeList *list);
 void nodelist_add(TrackNodeList *list, TrackNode *node);
@@ -144,7 +144,7 @@ void path_clear(TrackPath *path);
 void path_add_edge(TrackPath *path, TrackEdge *edge);
 TrackPath path_to_greater_length(TrackPath *path, uint32_t dist);
 TrackNode *path_end(TrackPath *path);
-void path_move(TrackPath *path, TrackNode *dest);
+void path_rebase(TrackPath *path, TrackNode *dest);
 TrackPosition path_to_position(TrackPath *path, uint32_t dist);
 
 TrackEdge *node_select_edge(TrackNode *src, uint8_t direction);

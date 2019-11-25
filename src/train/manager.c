@@ -151,7 +151,7 @@ void train_manager_issue_directives() {
         if (train->inited) {
             train_manager_look_ahead(train);
             if (train->trajectory) {
-                path_move(&train->path, train->position.node);
+                path_rebase(&train->path, train->position.node);
                 train_manager_prepare_ahead(train);
             }
             if (train->stop_position.node != NULL) {

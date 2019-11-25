@@ -9,22 +9,22 @@ uint32_t ppqueue_size(PPQueue *ppqueue) {
     return ppqueue->size;
 }
 
-uint32_t ppqueue_find_priority(PPQueue *ppqueue, uint32_t id) {
+uint32_t ppqueue_find_priority(PPQueue *ppqueue, size_t id) {
     return ppqueue->array[id].priority;
 }
 
-static void ppqueue_write_to_index(PPQueue *ppqueue, uint32_t i, PPQueueRecord *record) {
+static void ppqueue_write_to_index(PPQueue *ppqueue, size_t i, PPQueueRecord *record) {
     ppqueue->ref[i] = record;
     ppqueue->ref[i]->index = i;
 }
 
-static void ppqueue_swap(PPQueue *ppqueue, uint32_t i, uint32_t j) {
+static void ppqueue_swap(PPQueue *ppqueue, size_t i, size_t j) {
     PPQueueRecord *record = ppqueue->ref[i];
     ppqueue_write_to_index(ppqueue, i, ppqueue->ref[j]);
     ppqueue_write_to_index(ppqueue, j, record);
 }
 
-static void ppqueue_bubbleup(PPQueue *ppqueue, uint32_t k) {
+static void ppqueue_bubbleup(PPQueue *ppqueue, size_t k) {
     uint32_t i = k;
     while (i != 0 && ppqueue->ref[(i-1)/2]->priority > ppqueue->ref[i]->priority) {
         ppqueue_swap(ppqueue, i, (i-1)/2);
@@ -32,7 +32,7 @@ static void ppqueue_bubbleup(PPQueue *ppqueue, uint32_t k) {
     }
 }
 
-static void ppqueue_bubbledown(PPQueue *ppqueue, uint32_t i) {
+static void ppqueue_bubbledown(PPQueue *ppqueue, size_t i) {
     uint32_t min = i;
     if (2*i+1 < ppqueue->size && ppqueue->ref[2*i+1]->priority < ppqueue->ref[min]->priority) {
         min = 2*i+1;
@@ -55,13 +55,13 @@ uint32_t ppqueue_pop(PPQueue *ppqueue) {
     return id;
 }
 
-void ppqueue_change_priority(PPQueue *ppqueue, uint32_t id, uint32_t priority) {
+void ppqueue_change_priority(PPQueue *ppqueue, size_t id, uint32_t priority) {
     assert(ppqueue->size < PPQUEUE_SIZE);
     ppqueue->array[id].priority = priority;
     ppqueue_bubbleup(ppqueue, ppqueue->array[id].index);
 }
 
-void ppqueue_insert(PPQueue *ppqueue, uint32_t id, uint32_t priority) {
+void ppqueue_insert(PPQueue *ppqueue, size_t id, uint32_t priority) {
     assert(ppqueue->size < PPQUEUE_SIZE);
 
     ppqueue->array[id].id = id;

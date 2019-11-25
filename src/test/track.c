@@ -134,20 +134,20 @@ int test_search_path(int argc, char **argv) {
     TrackNode *dest = track_find_node_by_name(&track, argv[2]);
     TrackPath path = search_path_to_node(&track, src, dest);
     print_path(iotid, &path);
-    Printf(iotid, COM2, "Checkpoints\n\r");
-    for (uint32_t i = path.index; i < path.list.size; i++) {
-        TrackNode *node = edgelist_by_index(&path.list, i)->dest;
-        if (node->type == NODE_SENSOR) {
-            Printf(iotid, COM2, "%s\n\r", node->name);
-            path_move(&path, node);
+    for (size_t i = path.index; i < path.list.size; i++) {
+        TrackEdge *edge = edgelist_by_index(&path.list, i);
+        if (edge_direction(edge) == DIR_REVERSE) {
+            Printf(iotid, COM2, "%s%s\n\r", edge->src->name, edge->dest->name);
         }
     }
-    /*for (uint32_t i = path.index; i < path.list.size; i++) {*/
-        /*TrackEdge *edge = edgelist_by_index(&path.list, i);*/
-        /*if (edge_direction(edge) == DIR_REVERSE) {*/
-            /*Printf(iotid, COM2, "%s%s\n\r", edge->src->name, edge->dest->name);*/
-        /*}*/
-    /*}*/
+    Printf(iotid, COM2, "Checkpoints\n\r");
+    for (size_t i = path.index; i < path.list.size; i++) {
+        TrackEdge *edge = edgelist_by_index(&path.list, i);
+        if (edge->dest->type == NODE_SENSOR) {
+            path_rebase(&path, edge->dest);
+            Printf(iotid, COM2, "%u\n\r", path.index);
+        }
+    }
     return 0;
 }
 
@@ -175,10 +175,10 @@ int test_search_allpath(int argc, char **argv) {
                     TrackNode *src = track_find_sensor(&track, &sensor1);
                     TrackNode *dest = track_find_sensor(&track, &sensor2);
                     TrackPath path = search_path_to_node(&track, src, dest);
-                    for (uint32_t i = path.index; i < path.list.size; i++) {
-                        TrackNode *node = edgelist_by_index(&path.list, i)->dest;
-                        if (node->type == NODE_SENSOR) {
-                            path_move(&path, node);
+                    for (size_t i = path.index; i < path.list.size; i++) {
+                        TrackEdge *edge = edgelist_by_index(&path.list, i);
+                        if (edge->dest->type == NODE_SENSOR) {
+                            path_rebase(&path, edge->dest);
                         }
                     }
                 }
