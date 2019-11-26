@@ -138,6 +138,17 @@ static int cmd_mv(int nargc, char **nargv) {
     PrintTerminal(io_tid, "Invalid train id/node name");
     return 1;
 }
+
+static int cmd_clear(int nargc, char **nargv) {
+    (void)nargc;
+    (void)nargv;
+    // Clear log region
+    Printf(io_tid, COM2, "\033[%u;%uH", LINE_LOG_START, 1);
+    Printf(io_tid, COM2, "\033[J", LINE_LOG_START, 1);
+    return 0;
+}
+
+
 static int cmd_quit(int nargc, char **nargv) {
     (void)nargc;
     (void)nargv;
@@ -165,8 +176,6 @@ static int cmd_test(int nargc, char **nargv) {
         PrintTerminal(io_tid, "usage: test name [arguments]");
         return 1;
     }
-    Printf(io_tid, COM2, "\033[%u;%uH", LINE_LOG_START, 1);
-    Printf(io_tid, COM2, "\033[J", LINE_LOG_START, 1);
 
     for (uint32_t i = 0; testtable[i].name; i ++) {
         if (!strcmp(nargv[1], testtable[i].name)) {
@@ -182,15 +191,16 @@ static struct {
     const char *name;
     int (*func)(int nargc, char **nargv);
 } cmdtable[] = {
-    { "init",   cmd_init },
-    { "tr",     cmd_tr   },
-    { "rv",     cmd_rv   },
-    { "mv",     cmd_mv   },
-    { "sw",     cmd_sw   },
-    { "q",      cmd_quit },
-    { "quit",   cmd_quit },
-    { "test",   cmd_test },
-    { NULL,     NULL     },
+    { "init",   cmd_init  },
+    { "tr",     cmd_tr    },
+    { "rv",     cmd_rv    },
+    { "mv",     cmd_mv    },
+    { "sw",     cmd_sw    },
+    { "clear",  cmd_clear },
+    { "q",      cmd_quit  },
+    { "quit",   cmd_quit  },
+    { "test",   cmd_test  },
+    { NULL,     NULL      },
 };
 
 

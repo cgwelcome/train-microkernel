@@ -33,6 +33,7 @@ void PrintBasicInterface(int io_tid) {
     Printf(io_tid, COM2, TERM_MOVE_CURSOR "Sensors: ID, Train ID, Error"                 , LINE_SENSOR_TITLE      , 1);
     Printf(io_tid, COM2, TERM_MOVE_CURSOR "> █"                                          , LINE_TERMINAL          , 1);
     Printf(io_tid, COM2, TERM_ENABLE_SCROLL                                              , LINE_LOG_START         , LINE_LOG_END);
+    Printf(io_tid, COM2, TERM_MOVE_CURSOR                                                , LINE_LOG_START         , 1);
 }
 
 void PrintIdle(int io_tid, int usage) {
