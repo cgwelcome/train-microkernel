@@ -19,7 +19,7 @@ TrackNode *track_find_node_by_name(Track *track, char *node_name) {
             return &track->nodes[i];
         }
     }
-    throw("unknown node name");
+    return NULL;
 }
 
 TrackNode *track_find_sensor(Track *track, TrainSensor *sensor) {

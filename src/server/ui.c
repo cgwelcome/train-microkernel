@@ -29,11 +29,11 @@ static uint8_t is_train(uint32_t train_id) {
     return 0;
 }
 
-static uint8_t is_speed(uint32_t speed) {
+static bool is_speed(uint32_t speed) {
     return speed <= 14;
 }
 
-static uint8_t is_switch(uint32_t switch_id) {
+static bool is_switch(uint32_t switch_id) {
     return (switch_id > 0 && switch_id < 19) || (switch_id > 0x98 && switch_id < 0x9D);
 }
 
@@ -57,13 +57,12 @@ static int cmd_init(int nargc, char **nargv) {
             return 1;
         }
         uint32_t train_id = (uint32_t)atoi(nargv[2]);
-        // TODO: track_find_node_by_name() could panic if mistype
         TrackNode *node   = track_find_node_by_name(&singleton_track, nargv[3]);
-        if (is_train(train_id)) {
+        if (node != NULL && is_train(train_id)) {
             TrainInitTrain(train_tid, train_id, node);
             return 0;
         }
-        PrintTerminal(io_tid, "invalid train id");
+        PrintTerminal(io_tid, "invalid train id/node name");
         return 1;
     }
     PrintTerminal(io_tid, "usage: init track track_name | init train id node");
@@ -122,18 +121,21 @@ static int cmd_sw(int nargc, char **nargv) {
 }
 
 static int cmd_mv(int nargc, char **nargv) {
-    if (nargc != 4) {
-        PrintTerminal(io_tid, "usage: mv train_id node offset");
+    if (nargc != 3 && nargc != 4) {
+        PrintTerminal(io_tid, "usage: mv train_id node [offset]");
         return 1;
     }
     uint32_t train_id = (uint32_t)atoi(nargv[1]);
     TrackNode *node   = track_find_node_by_name(&singleton_track, nargv[2]);
-    int32_t offset    = atoi(nargv[3]);
-    if (is_train(train_id)) {
+    int32_t offset = 0;
+    if (nargc == 4) {
+        offset = atoi(nargv[3]);
+    }
+    if (node != NULL && is_train(train_id)) {
         TrainMove(train_tid, train_id, 10, node, offset);
         return 0;
     }
-    PrintTerminal(io_tid, "Invalid train id/sensor");
+    PrintTerminal(io_tid, "Invalid train id/node name");
     return 1;
 }
 static int cmd_quit(int nargc, char **nargv) {
