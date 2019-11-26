@@ -157,8 +157,6 @@ static struct {
     { "model",           test_build_model       },
     { "searchpath",      test_search_path       },
     { "searchallpath",   test_search_allpath    },
-    { "reserve",         test_reserve           },
-    { "reserveall",      test_reserve_all       },
     { NULL,              NULL                   },
 };
 
