@@ -305,6 +305,11 @@ TrackPath search_path_to_node(Track *track, const TrackNode *src, const TrackNod
     return path;
 }
 
+void position_clear(TrackPosition *position) {
+    position->node = NULL;
+    position->offset = 0;
+}
+
 TrackPosition path_to_position(TrackPath *path, uint32_t dist) {
     assert(path != NULL);
     if (path->dist < dist) {

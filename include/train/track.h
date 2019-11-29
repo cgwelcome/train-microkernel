@@ -157,6 +157,7 @@ TrackPath search_path_to_next_node(TrackNode *src, TrackNode *dest);
 TrackPath search_path_to_next_type(TrackNode *src, TrackNodeType type);
 TrackPath search_path_to_node(Track *track, const TrackNode *src, const TrackNode *dest);
 
+void position_clear(TrackPosition *position);
 TrackPosition position_rebase(TrackNode *root, TrackPosition pos, uint32_t step_limit);
 TrackPosition position_reverse(TrackPosition current);
 TrackPosition position_move(TrackPosition current, int32_t offset);

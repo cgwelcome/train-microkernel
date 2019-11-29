@@ -6,24 +6,38 @@
 
 #define TRAIN_COUNT 6
 
-typedef struct {
+typedef enum {
+    TRAIN_STATE_NONE,
+    TRAIN_STATE_CRUISE,
+    TRAIN_STATE_BRAKE_COMMAND,
+    TRAIN_STATE_BRAKE_REVERSE,
+    TRAIN_STATE_BRAKE_TRAFFIC,
+    TRAIN_STATE_WAIT_COMMAND,
+    TRAIN_STATE_WAIT_REVERSE,
+    TRAIN_STATE_WAIT_TRAFFIC,
+} TrainState;
+
+typedef struct Train Train;
+
+struct Train {
     bool inited;
     uint32_t id;
     uint32_t speed;
+    uint32_t original_speed;
 
     uint32_t velocity;
     uint32_t stop_distance;
     TrackPosition position;
     uint32_t model_last_update_time;
 
-    bool blocked;
-    bool reverse;
-    bool trajectory;
-    uint32_t original_speed;
+    TrainState state;
+    void (*driver_handle)(Train *);
+
+    bool routing;
     TrackPath path;
-    TrackPosition stop_position;
-    TrackPosition final_destination;
-} Train;
+    TrackPosition reverse_position;
+    TrackPosition final_position;
+};
 
 /**
  * Initialize train with id

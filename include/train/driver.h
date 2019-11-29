@@ -3,31 +3,23 @@
 
 #include <train/train.h>
 
-typedef enum {
-    DRIVER_REQUEST_SPEED,
-    DRIVER_REQUEST_REVERSE,
-} DriverRequestType;
+void driver_handle_speed(Train *train, uint32_t speed);
 
-typedef struct {
-    DriverRequestType type;
-    uint32_t speed;
-} DriverRequest;
+void driver_handle_reverse(Train *train);
 
-void driver_transition(Train *train, TrainState state);
+void driver_cruise(Train *train);
 
-void driver_cruise(Train *train, DriverRequest *request);
+void driver_brake_command(Train *train);
 
-void driver_brake_command(Train *train, DriverRequest *request);
+void driver_brake_reverse(Train *train);
 
-void driver_brake_reverse(Train *train, DriverRequest *request);
+void driver_brake_traffic(Train *train);
 
-void driver_brake_traffic(Train *train, DriverRequest *request);
+void driver_wait_command(Train *train);
 
-void driver_wait_command(Train *train, DriverRequest *request);
+void driver_wait_reverse(Train *train);
 
-void driver_wait_reverse(Train *train, DriverRequest *request);
-
-void driver_wait_traffic(Train *train, DriverRequest *request);
+void driver_wait_traffic(Train *train);
 
 void driver_speed_entry(Train *train);
 

@@ -30,7 +30,7 @@ static uint8_t is_train(uint32_t train_id) {
 }
 
 static bool is_speed(uint32_t speed) {
-    return speed <= 14;
+    return (speed == 0) || (10 <= speed && speed <= 14);
 }
 
 static bool is_switch(uint32_t switch_id) {

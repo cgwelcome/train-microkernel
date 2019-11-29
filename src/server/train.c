@@ -4,6 +4,7 @@
 #include <server/train.h>
 #include <train/controller.h>
 #include <train/manager.h>
+#include <train/driver.h>
 #include <train/model.h>
 #include <train/train.h>
 #include <user/clock.h>
@@ -100,6 +101,8 @@ static void train_root_task() {
             train->inited = true;
             train->position.node   = node;
             train->position.offset = 0;
+            train->state = TRAIN_STATE_WAIT_COMMAND;
+            train->driver_handle = driver_wait_command;
         }
         if (request.type == TRAIN_REQUEST_WAKE_CONTROLLER) {
             controller_wake();
@@ -116,28 +119,23 @@ static void train_root_task() {
         }
         if (request.type == TRAIN_REQUEST_SPEED) {
             uint32_t train_id = request.args[0];
-            uint32_t speed    = request.args[1];
+            uint32_t speed = request.args[1];
             Train *train = train_find(singleton_trains, train_id);
-            train->trajectory = false;
-            train->reverse = false;
-            controller_speed_one(train_id, speed, 0);
+            driver_handle_speed(train, speed);
         }
         if (request.type == TRAIN_REQUEST_REVERSE) {
             uint32_t train_id = request.args[0];
             Train *train = train_find(singleton_trains, train_id);
-            train->trajectory = false;
-            train->reverse = true;
-            train->original_speed = train->speed;
-            train->stop_position = position_move(train->position, (int32_t) train->stop_distance);
-            controller_speed_one(train_id, 0, 0);
+            driver_handle_reverse(train);
         }
         if (request.type == TRAIN_REQUEST_MOVE) {
             uint32_t train_id = request.args[0];
             uint32_t speed    = request.args[1];
             TrackNode *sensor = (TrackNode *) request.args[2];
             int32_t offset    = (int32_t)     request.args[3];
-            train_manager_navigate_train(train_id, sensor, offset);
-            controller_speed_one(train_id, speed, 0);
+            Train *train = train_find(singleton_trains, train_id);
+            train_manager_navigate_train(train, sensor, offset);
+            driver_handle_speed(train, speed);
         }
         if (request.type == TRAIN_REQUEST_SWITCH) {
             uint32_t switch_id = request.args[0];

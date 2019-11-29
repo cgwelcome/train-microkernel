@@ -10,24 +10,21 @@ void train_init(Train *train, uint32_t id) {
     train->inited = false;
     train->id = id;
     train->speed = 0;
+    train->original_speed = 0;
 
     train->velocity = 0;
     train->stop_distance = 0;
-    train->position.node = NULL;
-    train->position.offset= 0;
+    position_clear(&train->position);
     train->model_last_update_time = 0;
 
-    train->blocked = false;
-    train->reverse = false;
-    train->trajectory = false;
-    train->original_speed = 0;
 
+    train->state = TRAIN_STATE_NONE;
+    train->driver_handle = NULL;
+
+    train->routing = false;
     path_clear(&train->path);
-    train->final_destination.node = NULL;
-    train->final_destination.offset = 0;
-    train->stop_position.node = NULL;
-    train->stop_position.offset = 0;
-
+    position_clear(&train->reverse_position);
+    position_clear(&train->final_position);
 }
 
 uint32_t train_id_to_index(uint32_t train_id) {

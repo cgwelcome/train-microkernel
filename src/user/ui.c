@@ -74,15 +74,15 @@ void PrintSwitch(int io_tid, unsigned int code, uint8_t direction) {
 
 void PrintLocation(int io_tid, Train *train) {
     TrackPosition *pos  = &train->position;
-    TrackPosition *stop = &train->stop_position;
+    TrackPosition *stop = &train->final_position;
     if (pos->node != NULL) {
         uint32_t row = train_id_to_index(train->id);
         Printf(io_tid, COM2,
-                TERM_SAVE_CURSOR TERM_MOVE_CURSOR TERM_ERASE_LINE "%s %u %s %u %d %d" TERM_UNSAVE_CURSOR,
+                TERM_SAVE_CURSOR TERM_MOVE_CURSOR TERM_ERASE_LINE "%s %u %s %u %d" TERM_UNSAVE_CURSOR,
                 LINE_LOCATION_START + row, 13,
                 pos->node  == NULL ? "N" : pos->node->name,  pos->offset,
                 stop->node == NULL ? "N" : stop->node->name, stop->offset,
-                train->reverse, stop->node == NULL ? 0 : train_close_to(train, *stop, 200));
+                stop->node == NULL ? 0 : train_close_to(train, *stop, 200));
     }
 }
 
