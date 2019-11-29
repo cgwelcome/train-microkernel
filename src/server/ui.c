@@ -168,6 +168,7 @@ static struct {
     { "model",           test_build_model       },
     { "searchpath",      test_search_path       },
     { "searchallpath",   test_search_allpath    },
+    { "reverse",         test_reverse           },
     { NULL,              NULL                   },
 };
 
@@ -202,7 +203,6 @@ static struct {
     { "test",   cmd_test  },
     { NULL,     NULL      },
 };
-
 
 static int dispatch_command(char *cmd) {
     char *word;
