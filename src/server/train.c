@@ -99,8 +99,10 @@ static void train_root_task() {
             TrackNode *node   = (TrackNode *) request.args[1];
             Train *train = train_find(singleton_trains, train_id);
             train->inited = true;
+            train->velocity = 0;
             train->position.node   = node;
             train->position.offset = 0;
+            train->speed = 0;
             train->state = TRAIN_STATE_WAIT_COMMAND;
             train->driver_handle = driver_wait_command;
         }
