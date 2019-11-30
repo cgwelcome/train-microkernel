@@ -9,6 +9,10 @@ const uint32_t train_ids[TRAIN_COUNT] = { 1, 24, 58, 74, 78, 79 };
 void train_init(Train *train, uint32_t id) {
     train->inited = false;
     train->id = id;
+    train_clear(train);
+}
+
+void train_clear(Train *train) {
     train->speed = 0;
     train->original_speed = 0;
 

@@ -45,6 +45,11 @@ struct Train {
 void train_init(Train *train, uint32_t id);
 
 /**
+ * Reset the variables to default values
+ */
+void train_clear(Train *train);
+
+/**
  * Convert a trains id to an index
  */
 uint32_t train_id_to_index(uint32_t train_id);
