@@ -139,9 +139,11 @@ void driver_wait_command(Train *train) {
 void driver_wait_reverse(Train *train) {
     assert(train->speed == 0);
     if (train_manager_will_arrive_final(train)) {
+        // Original speed is irrelevant since train has arrived at its destination
         driver_transition(train, TRAIN_STATE_WAIT_COMMAND);
     }
     else if (train_manager_will_collide_train(train)) {
+        // Original speed is kept when stuck in traffic
         driver_transition(train, TRAIN_STATE_WAIT_TRAFFIC);
     }
     else if (train->original_speed > 0) {
@@ -155,8 +157,19 @@ void driver_wait_reverse(Train *train) {
 
 void driver_wait_traffic(Train *train) {
     assert(train->speed == 0);
-    if (train_manager_unblocked_train(train)) {
-        driver_transition(train, TRAIN_STATE_WAIT_COMMAND);
+    // Driver will reverse if train manager re-route the train
+    if (train_manager_will_arrive_reverse(train)) {
+        // Original speed is kept when reversing
+        driver_transition(train, TRAIN_STATE_WAIT_REVERSE);
+    }
+    else if (train_manager_unblocked_train(train)) {
+        train->speed = train->original_speed;
+        if (train->speed > 0) {
+            driver_transition(train, TRAIN_STATE_CRUISE);
+        }
+        else {
+            driver_transition(train, TRAIN_STATE_WAIT_COMMAND);
+        }
     }
 }
 
