@@ -164,7 +164,6 @@ static struct {
 } testtable[] = {
     { "helloworld",      test_helloworld        },
     { "argv",            test_argv              },
-    { "nextsensor",      test_next_sensor       },
     { "model",           test_build_model       },
     { "searchpath",      test_search_path       },
     { "searchallpath",   test_search_allpath    },

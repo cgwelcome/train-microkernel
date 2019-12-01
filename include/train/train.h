@@ -17,6 +17,12 @@ typedef enum {
     TRAIN_STATE_WAIT_TRAFFIC,
 } TrainState;
 
+typedef enum {
+    TRAIN_MODE_FREE,
+    TRAIN_MODE_PATH,
+    TRAIN_MODE_ROAM,
+} TrainMode;
+
 typedef struct Train Train;
 
 struct Train {
@@ -33,7 +39,7 @@ struct Train {
     TrainState state;
     void (*driver_handle)(Train *);
 
-    bool routing;
+    TrainMode mode;
     TrackPath path;
     TrackPosition reverse_position;
     TrackPosition final_position;

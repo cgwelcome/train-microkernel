@@ -6,7 +6,7 @@
 
 void train_manager_initialize_train(Train *train);
 
-void train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offset);
+void train_manager_navigate_train(Train *train, uint32_t speed, TrackNode *dest, int32_t offset);
 
 void train_manager_issue_directives();
 

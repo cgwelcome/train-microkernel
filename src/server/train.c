@@ -122,11 +122,13 @@ static void train_root_task() {
             uint32_t train_id = request.args[0];
             uint32_t speed = request.args[1];
             Train *train = train_find(singleton_trains, train_id);
+            train->mode = TRAIN_MODE_FREE;
             driver_handle_speed(train, speed);
         }
         if (request.type == TRAIN_REQUEST_REVERSE) {
             uint32_t train_id = request.args[0];
             Train *train = train_find(singleton_trains, train_id);
+            train->mode = TRAIN_MODE_FREE;
             driver_handle_reverse(train);
         }
         if (request.type == TRAIN_REQUEST_MOVE) {
@@ -135,8 +137,7 @@ static void train_root_task() {
             TrackNode *sensor = (TrackNode *) request.args[2];
             int32_t offset    = (int32_t)     request.args[3];
             Train *train = train_find(singleton_trains, train_id);
-            train_manager_navigate_train(train, sensor, offset);
-            driver_handle_speed(train, speed);
+            train_manager_navigate_train(train, speed, sensor, offset);
         }
         if (request.type == TRAIN_REQUEST_SWITCH) {
             uint32_t switch_id = request.args[0];

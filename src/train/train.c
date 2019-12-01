@@ -25,7 +25,7 @@ void train_clear(Train *train) {
     train->state = TRAIN_STATE_NONE;
     train->driver_handle = NULL;
 
-    train->routing = false;
+    train->mode = TRAIN_MODE_FREE;
     path_clear(&train->path);
     position_clear(&train->reverse_position);
     position_clear(&train->final_position);
@@ -51,8 +51,8 @@ Train *train_find(Train *trains, uint32_t train_id) {
 
 uint32_t train_close_to(Train *train, TrackPosition dest, int32_t tolerance) {
     assert(train->inited);
-    assert(dest.node != NULL);
     assert(tolerance >= 0);
+    if (dest.node == NULL) return UINT32_MAX;
 
     TrackPosition range_start = position_move(train->position, -tolerance);
     TrackPosition range_end   = position_move(train->position,  tolerance);

@@ -5,7 +5,7 @@
 #include <user/io.h>
 
 #define TRAIN_SPEED    10
-#define TRAIN_ID       58
+#define TRAIN_ID       78
 #define NODE_TRACK_A  "A8"
 #define NODE_TRACK_B  "A13"
 
@@ -17,12 +17,10 @@ static void test_reverse_simple() {
     TrackNode *node = NULL;
     switch (singleton_track.name) {
         case TRAIN_TRACK_A:
-            TrainInitTrack(train_tid, TRAIN_TRACK_A);
             node = track_find_node_by_name(&singleton_track, "B15");
             break;
         case TRAIN_TRACK_B:
-            TrainInitTrack(train_tid, TRAIN_TRACK_B);
-            node = track_find_node_by_name(&singleton_track, "A15");
+            node = track_find_node_by_name(&singleton_track, "B16");
             break;
     }
     TrainMove(train_tid, TRAIN_ID, TRAIN_SPEED, node, 0);
@@ -33,17 +31,14 @@ static void test_reverse_onspot() {
     TrackNode *node = NULL;
     switch (singleton_track.name) {
         case TRAIN_TRACK_A:
-            TrainInitTrack(train_tid, TRAIN_TRACK_A);
             node = track_find_node_by_name(&singleton_track, NODE_TRACK_A)->reverse;
             break;
         case TRAIN_TRACK_B:
-            TrainInitTrack(train_tid, TRAIN_TRACK_B);
             node = track_find_node_by_name(&singleton_track, NODE_TRACK_B)->reverse;
             break;
     }
     TrainMove(train_tid, TRAIN_ID, TRAIN_SPEED, node, 0);
     Printf(io_tid, COM2, "Check expected position %s\n\r", node->name);
-    Printf(io_tid, COM2, "Check train light direction\n\r");
 }
 
 static struct {
@@ -77,9 +72,13 @@ int test_reverse(int argc, char **argv) {
             break;
     }
     Printf(io_tid, COM2, "Check train %u is not controlled by Marklin device\n\r", TRAIN_ID);
-    Printf(io_tid, COM2, "Initialize train %u on %s [Enter] \n\r", TRAIN_ID, node->name);
-    Getc(io_tid, COM2, NULL);
     TrainInitTrain(train_tid, TRAIN_ID, node);
+    char confirm = 'n';
+    while (confirm != 'y') {
+        Printf(io_tid, COM2, "Initialize train %u on %s [y] \n\r", TRAIN_ID, node->name);
+        Getc(io_tid, COM2, &confirm);
+    }
     test_reverse_simple();
+    /*test_reverse_onspot();*/
     return 0;
 }

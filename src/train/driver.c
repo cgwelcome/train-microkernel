@@ -12,7 +12,7 @@ static struct {
     { TRAIN_STATE_BRAKE_COMMAND, driver_brake_command, driver_speed_entry   },
     { TRAIN_STATE_BRAKE_REVERSE, driver_brake_reverse, driver_speed_entry   },
     { TRAIN_STATE_BRAKE_TRAFFIC, driver_brake_traffic, driver_speed_entry   },
-    { TRAIN_STATE_WAIT_COMMAND,  driver_wait_command,  NULL                 },
+    { TRAIN_STATE_WAIT_COMMAND,  driver_wait_command,  driver_wait_entry    },
     { TRAIN_STATE_WAIT_REVERSE,  driver_wait_reverse,  driver_reverse_entry },
     { TRAIN_STATE_WAIT_TRAFFIC,  driver_wait_traffic , NULL                 },
     { TRAIN_STATE_NONE,          NULL,                 NULL                 },
@@ -83,16 +83,36 @@ void driver_handle_reverse(Train *train) {
     }
 }
 
+void driver_handle_move(Train *train, uint32_t speed) {
+    switch (train->state) {
+        case TRAIN_STATE_CRUISE:
+        case TRAIN_STATE_BRAKE_COMMAND:
+        case TRAIN_STATE_WAIT_COMMAND:
+            train->speed = speed;
+            driver_transition(train, TRAIN_STATE_CRUISE);
+            break;
+        case TRAIN_STATE_BRAKE_REVERSE:
+        case TRAIN_STATE_BRAKE_TRAFFIC:
+        case TRAIN_STATE_WAIT_TRAFFIC:
+        case TRAIN_STATE_WAIT_REVERSE:
+            train->original_speed = speed;
+            break;
+        case TRAIN_STATE_NONE:
+            throw("unexpected train state none");
+            break;
+    }
+}
+
 void driver_cruise(Train *train) {
     assert(train->speed > 0);
-    if (train_manager_will_arrive_final(train)) {
-        train->speed = 0;
-        driver_transition(train, TRAIN_STATE_BRAKE_COMMAND);
-    }
-    else if (train_manager_will_arrive_reverse(train)) {
+    if (train_manager_will_arrive_reverse(train)) {
         train->original_speed = train->speed;
         train->speed = 0;
         driver_transition(train, TRAIN_STATE_BRAKE_REVERSE);
+    }
+    else if (train_manager_will_arrive_final(train)) {
+        train->speed = 0;
+        driver_transition(train, TRAIN_STATE_BRAKE_COMMAND);
     }
     else if (train_manager_will_collide_train(train)) {
         train->original_speed = train->speed;
@@ -173,11 +193,20 @@ void driver_wait_traffic(Train *train) {
     }
 }
 
+void driver_wait_entry(Train *train) {
+    position_clear(&train->final_position);
+}
+
 void driver_speed_entry(Train *train) {
     controller_speed_one(train->id, train->speed, 0);
 }
 
 void driver_reverse_entry(Train *train) {
+    if (train->mode == TRAIN_MODE_PATH) {
+        assert(train->reverse_position.node != NULL);
+        path_next_node(&train->path, train->reverse_position.node->reverse);
+        train->reverse_position = path_reverse_position(&train->path);
+    }
     train->position = position_reverse(train->position);
     controller_speed_one(train->id, TRAIN_STATUS_REVERSE, 0);
 }
