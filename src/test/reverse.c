@@ -35,7 +35,7 @@ static void test_reverse_simple() {
     Printf(io_tid, COM2, "Check expected destination %s\n\r", node->name);
 }
 
-static void test_reverse_side_branch() {
+static void test_reverse_shortmove() {
     if (!singleton_track.inited) return;
     TrackNode *node0 = NULL;
     TrackNode *node1 = NULL;
@@ -65,10 +65,40 @@ static void test_reverse_side_branch() {
     }
 }
 
+static void test_reverse_backbranch() {
+    if (!singleton_track.inited) return;
+    TrackNode *node0 = NULL;
+    TrackNode *node1 = NULL;
+    uint32_t switch_id;
+    switch (singleton_track.name) {
+        case TRAIN_TRACK_A:
+            node0 = track_find_node_by_name(&singleton_track, "E10");
+            switch_id =  16;
+            node1 = track_find_node_by_name(&singleton_track, "B1");
+            break;
+        case TRAIN_TRACK_B:
+            node0 = track_find_node_by_name(&singleton_track, "D5");
+            switch_id =  13;
+            node1 = track_find_node_by_name(&singleton_track, "B6");
+            break;
+    }
+    Printf(io_tid, COM2, "Check expected destination %s\n\r", node0->name);
+    TrainMove(train_tid, train1_id, train1_speed, node0, 0);
+    Getc(io_tid, COM2, NULL);
+    Printf(io_tid, COM2, "Switch: %u\n\r", switch_id);
+    TrainSwitch(train_tid, switch_id, DIR_CURVED);
+    Getc(io_tid, COM2, NULL);
+    Printf(io_tid, COM2, "Check expected destination %s\n\r", node1->name);
+    TrainMove(train_tid, train1_id, train1_speed, node1, 0);
+    Getc(io_tid, COM2, NULL);
+}
+
+
 static TestCase reverse_suite[] = {
     { "Reverse onspot",      test_reverse_onspot      },
     { "Reverse simple",      test_reverse_simple      },
-    { "Reverse sidebranch",  test_reverse_side_branch },
+    { "Reverse shortmove",   test_reverse_shortmove   },
+    { "Reverse backbranch",  test_reverse_backbranch  },
     { NULL,                  NULL                     },
 };
 

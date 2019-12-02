@@ -194,6 +194,7 @@ static void train_manager_prepare_ahead(Train *train) {
     train_manager_prepare_branches(train, &list);
     if (train_manager_will_arrive_reverse(train)) {
         list = path_filter_by_type(&train->reverse_path, NODE_BRANCH);
+        edgelist_reverse(&list);
         train_manager_prepare_branches(train, &list);
     }
 }

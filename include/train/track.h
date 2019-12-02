@@ -131,6 +131,7 @@ uint8_t edge_direction(TrackEdge *edge);
 TrackNode *edge_select_src(TrackEdge *edge);
 void edgelist_init(TrackEdgeList *list);
 void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge);
+void edgelist_reverse(TrackEdgeList *edgelist);
 
 void path_clear(TrackPath *path);
 void path_add_edge(TrackPath *path, TrackEdge *edge);

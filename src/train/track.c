@@ -79,6 +79,12 @@ void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge) {
     edgelist->size++;
 }
 
+void edgelist_reverse(TrackEdgeList *edgelist) {
+    for (uint32_t i = 0; i < edgelist->size; i++) {
+        edgelist->edges[i] = edgelist->edges[i]->reverse;
+    }
+}
+
 void path_clear(TrackPath *path) {
     edgelist_init(&path->list);
     path->dist = 0;
