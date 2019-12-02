@@ -176,6 +176,7 @@ void driver_wait_traffic(Train *train) {
     // Driver will reverse if train manager re-route the train
     if (train_manager_will_arrive_reverse(train)) {
         // Original speed is kept when reversing
+        train->blocked_train = NULL;
         driver_transition(train, TRAIN_STATE_WAIT_REVERSE);
     } else if (train_manager_unblocked_train(train)) {
         train->speed = train->original_speed;

@@ -8,7 +8,7 @@
 #include <utils/assert.h>
 #include <utils/queue.h>
 
-#define TRAILLING_DISTANCE      700
+#define TRAILLING_DISTANCE     1000
 #define PREPARE_AHEAD_DISTANCE  700
 #define REST_POSITION_ERROR     100
 #define TRAIN_AROUND_REVERSE    500

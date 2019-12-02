@@ -5,7 +5,7 @@
 #include <user/train.h>
 #include <user/io.h>
 
-#define TRAIN1_ID       58
+#define TRAIN1_ID       24
 #define NODE1_TRACK_A  "A8"
 #define NODE1_TRACK_B  "A13"
 #define TRAIN_SPEED     10
@@ -62,7 +62,6 @@ static void basic_print_menu(TestCase *suite) {
     Printf(io_tid, COM2, "[q] : quit\n\r");
 }
 
-
 void basic_menu(TestCase *suite, uint32_t size) {
     char option = 0;
     for (;;) {
@@ -83,7 +82,7 @@ void basic_menu(TestCase *suite, uint32_t size) {
             Printf(io_tid, COM2, "Invalid option\n\r");
         }
     }
-    Printf(io_tid, COM2, "Quitting...\n\r");
+    Printf(io_tid, COM2, "Exit Test Program...\n\r");
 }
 
 int test_setup(int argc, char **argv) {

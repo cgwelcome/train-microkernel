@@ -44,7 +44,16 @@ static void test_collision_rest_bump() {
     TrainMove(train_tid, train1_id, 10, train2_node, 0);
 }
 
+// Track B
 static void test_collision_rest_switch() {
+    TrackNode *node1 = track_find_node_by_name(&singleton_track, "E7");
+    TrackNode *node2 = track_find_node_by_name(&singleton_track, "D3");
+    basic_train_setup(train1_id, node1);
+    basic_train_setup(train2_id, node2);
+    Getc(io_tid, COM2, NULL);
+    Printf(io_tid, COM2, "GO!\n\r");
+    TrainSpeed(train_tid, train1_id, 10);
+    TrainSpeed(train_tid, train2_id, 10);
 }
 
 static void test_collision_congestion() {
@@ -60,6 +69,7 @@ static void test_collision_reverse_ahead() {
     TrainSpeed(train_tid, train2_id, 10);
     char c = 0;
     while (c != 'q') {
+        Printf(io_tid, COM2, "Reversing\n\r");
         Getc(io_tid, COM2, &c);
         TrainReverse(train_tid, train2_id);
     }
