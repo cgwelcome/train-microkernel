@@ -16,8 +16,9 @@
 #define MAX_EDGE_LIST           280
 #define MAX_NODE_LIST           280
 #define MAX_EDGE_PATH           280
-#define REVERSE_PENALTY         700
-#define REVERSE_OVERSHOOT       170
+// Warning: Do not set reverse penalty to 0
+#define REVERSE_PENALTY           1
+#define REVERSE_OVERSHOOT       140
 
 #define DIR_AHEAD 0
 #define DIR_STRAIGHT 0

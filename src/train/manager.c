@@ -7,13 +7,14 @@
 #include <utils/assert.h>
 #include <utils/queue.h>
 
-#define TRAILLING_DISTANCE     1000
+#define TRAILLING_DISTANCE      700
 #define PREPARE_AHEAD_DISTANCE  800
-#define REST_POSITION_ERROR     200
+#define REST_POSITION_ERROR     150
 #define TRAIN_AROUND_REVERSE    500
 
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
+
 
 void train_manager_setup_reverse(Train *train) {
     TrackEdge *edge = path_reverse_edge(&train->path);
@@ -30,21 +31,20 @@ void train_manager_setup_reverse(Train *train) {
     train->reverse_path = track_follow_path(train->reverse_anchor.node, train->reverse_position.node);
 }
 
-void train_manager_navigate_train(Train *train, uint32_t speed, TrackNode *dest, int32_t offset) {
-    if (!singleton_track.inited || !train->inited) return;
+uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offset) {
+    if (!singleton_track.inited || !train->inited) return 1;
 
     TrackPosition destination = position_move((TrackPosition) {dest, 0}, offset);
-    if (destination.node == NULL) return;
+    if (destination.node == NULL) return 1;
     TrackPath path = track_search_path(&singleton_track, train->position.node, destination.node);
-    if (path.dist == 0) return;
+    if (path.dist == 0) return 1;
 
     train->mode = TRAIN_MODE_PATH;
     train->path = path;
 
     train_manager_setup_reverse(train);
     train->final_position = destination;
-    // Drive only there is exist a path
-    driver_handle_move(train, speed);
+    return 0;
 }
 
 static bool train_manager_will_collide(Train *train, Train *other) {
@@ -66,7 +66,7 @@ static bool train_manager_will_collide(Train *train, Train *other) {
 }
 
 bool train_manager_unblocked_train(Train *train) {
-    assert(train->blocked_train != NULL);
+    if (train->blocked_train == NULL) return true;
     if (train_manager_will_collide(train, train->blocked_train)) {
         return false;
     }
@@ -80,7 +80,7 @@ static bool train_manager_reserve_available(Train *train, TrackNode *node) {
 
 
 bool train_manager_unblocked_switch(Train *train) {
-    assert(train->blocked_switch != NULL);
+    if (train->blocked_switch == NULL) return true;
     if (!train_manager_reserve_available(train, train->blocked_switch)) {
         return false;
     }
@@ -201,6 +201,13 @@ static void train_manager_prepare_ahead(Train *train) {
 static void train_manager_update_routing(Train *train) {
     path_next_node(&train->path, train->position.node);
     train_manager_prepare_ahead(train);
+    if (train->state == TRAIN_STATE_WAIT_TRAFFIC) {
+        uint8_t status = train_manager_navigate_train(train,
+                train->final_position.node, (int32_t)train->final_position.offset);
+        if (status == 0) {
+            driver_handle_reverse(train);
+        }
+    }
 }
 
 void train_manager_issue_directives() {

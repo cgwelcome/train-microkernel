@@ -144,7 +144,6 @@ TrackEdgeList path_filter_by_type(TrackPath *path, TrackNodeType type) {
     return list;
 }
 
-
 uint8_t node_valid(TrackNode *node) {
     return (node->type != NODE_NONE && node->type != NODE_EXIT) ? 1 : 0;
 }
@@ -163,7 +162,7 @@ TrackEdgeList node_select_adjacent_edge(TrackNode *src) {
     edgelist_init(&adjacent);
     if (!node_valid(src)) return adjacent;
     if (src->type == NODE_BRANCH) {
-        if (src->broken || src->owner != UINT32_MAX) {
+        if (src->broken) {
             edgelist_add(&adjacent, node_select_edge(src, src->direction));
         } else {
             edgelist_add(&adjacent, node_select_edge(src, DIR_STRAIGHT));
@@ -198,6 +197,7 @@ static TrackPath recover_path(const TrackNode *src, const TrackNode *dest, Track
     }
     return path;
 }
+
 TrackPath track_search_path(Track *track, const TrackNode *src, const TrackNode *dest) {
     assert(src != NULL && dest != NULL);
 

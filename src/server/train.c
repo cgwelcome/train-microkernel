@@ -98,6 +98,7 @@ static void train_root_task() {
             uint32_t train_id = request.args[0];
             TrackNode *node   = (TrackNode *) request.args[1];
             Train *train = train_find(singleton_trains, train_id);
+            controller_speed_one(train->id, 0, 0);
             train_clear(train);
             train->inited = true;
             train->position.node   = node;
@@ -137,7 +138,10 @@ static void train_root_task() {
             TrackNode *sensor = (TrackNode *) request.args[2];
             int32_t offset    = (int32_t)     request.args[3];
             Train *train = train_find(singleton_trains, train_id);
-            train_manager_navigate_train(train, speed, sensor, offset);
+            uint8_t status = train_manager_navigate_train(train, sensor, offset);
+            if (status == 0) {
+                driver_handle_move(train, speed);
+            }
         }
         if (request.type == TRAIN_REQUEST_SWITCH) {
             uint32_t switch_id = request.args[0];

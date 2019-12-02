@@ -71,9 +71,12 @@ void driver_handle_reverse(Train *train) {
         case TRAIN_STATE_BRAKE_TRAFFIC:
             driver_transition(train, TRAIN_STATE_BRAKE_REVERSE);
             break;
+        case TRAIN_STATE_WAIT_TRAFFIC:
+            // Keep the orignal speed
+            driver_transition(train, TRAIN_STATE_WAIT_REVERSE);
+            break;
         case TRAIN_STATE_WAIT_COMMAND:
         case TRAIN_STATE_WAIT_REVERSE:
-        case TRAIN_STATE_WAIT_TRAFFIC:
             train->original_speed = train->speed;
             driver_transition(train, TRAIN_STATE_WAIT_REVERSE);
             break;
