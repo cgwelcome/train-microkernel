@@ -250,6 +250,23 @@ TrackPath track_follow_path(TrackNode *src, TrackNode *dest) {
     return path;
 }
 
+TrackPath track_cover_dist(TrackNode *src, uint32_t dist) {
+    TrackPath path;
+    path_clear(&path);
+    TrackEdge *edge = node_select_next_edge(src);
+    while (edge != NULL && path.dist <= dist) {
+        path_add_edge(&path, edge);
+        edge = node_select_next_edge(edge->dest);
+    }
+    if (edge == NULL) {
+        path_clear(&path);
+    } else {
+        path_add_edge(&path, edge);
+    }
+    return path;
+}
+
+
 void position_clear(TrackPosition *position) {
     position->node = NULL;
     position->offset = 0;

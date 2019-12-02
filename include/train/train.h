@@ -39,12 +39,17 @@ struct Train {
     TrainState state;
     void (*driver_handle)(Train *);
 
+    // Navigation
     TrainMode mode;
     TrackPath path;
     TrackPosition reverse_anchor;
     TrackPosition reverse_position;
     TrackPath reverse_path;
     TrackPosition final_position;
+
+    // Traffic
+    Train *blocked_train;
+    TrackNode *blocked_switch;
 };
 
 /**

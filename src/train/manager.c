@@ -7,8 +7,8 @@
 #include <utils/assert.h>
 #include <utils/queue.h>
 
-#define TRAILLING_DISTANCE      200
-#define PREPARE_AHEAD_DISTANCE  500
+#define TRAILLING_DISTANCE     1000
+#define PREPARE_AHEAD_DISTANCE  800
 #define REST_POSITION_ERROR     200
 #define TRAIN_AROUND_REVERSE    500
 
@@ -66,7 +66,25 @@ static bool train_manager_will_collide(Train *train, Train *other) {
 }
 
 bool train_manager_unblocked_train(Train *train) {
-    (void)train;
+    assert(train->blocked_train != NULL);
+    if (train_manager_will_collide(train, train->blocked_train)) {
+        return false;
+    }
+    train->blocked_train = NULL;
+    return true;
+}
+
+static bool train_manager_reserve_available(Train *train, TrackNode *node) {
+    return (node->owner == UINT32_MAX || node->owner == train->id);
+}
+
+
+bool train_manager_unblocked_switch(Train *train) {
+    assert(train->blocked_switch != NULL);
+    if (!train_manager_reserve_available(train, train->blocked_switch)) {
+        return false;
+    }
+    train->blocked_switch = NULL;
     return true;
 }
 
@@ -74,6 +92,21 @@ bool train_manager_will_collide_train(Train *train) {
     for (size_t i = 0; i < TRAIN_COUNT; i++) {
         Train *other = &singleton_trains[i];
         if (other->inited && other->id != train->id && train_manager_will_collide(train, other)) {
+            train->blocked_train = other;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool train_manager_will_collide_switch(Train *train) {
+    TrackPath path = track_cover_dist(train->position.node, train->stop_distance + TRAILLING_DISTANCE);
+    for (size_t i = 0; i < path.list.size; i++) {
+        TrackEdge *edge = path.list.edges[i];
+        TrackNode *dest = edge->dest;
+        if (dest->type != NODE_BRANCH && dest->type != NODE_MERGE) continue;
+        if (!train_manager_reserve_available(train, dest)) {
+            train->blocked_switch = dest;
             return true;
         }
     }
@@ -95,10 +128,6 @@ bool train_manager_will_arrive_final(Train *train) {
 bool train_manager_will_arrive_reverse(Train *train) {
     return (train->reverse_position.node != NULL) &&
         train_manager_will_arrive_position(train, &train->reverse_position);
-}
-
-static bool train_manager_reserve_available(Train *train, TrackNode *node) {
-    return (node->owner == UINT32_MAX || node->owner == train->id);
 }
 
 static void train_manager_reserve_branch(Train *train, TrackNode *node) {

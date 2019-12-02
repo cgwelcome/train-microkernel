@@ -10,6 +10,10 @@ void train_manager_navigate_train(Train *train, uint32_t speed, TrackNode *dest,
 
 void train_manager_issue_directives();
 
+bool train_manager_unblocked_switch(Train *train);
+
+bool train_manager_will_collide_switch(Train *train);
+
 bool train_manager_unblocked_train(Train *train);
 
 bool train_manager_will_collide_train(Train *train);
