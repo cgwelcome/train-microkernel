@@ -18,4 +18,6 @@ bool train_manager_will_arrive_final(Train *train);
 
 bool train_manager_will_arrive_reverse(Train *train);
 
+void train_manager_setup_reverse(Train *train);
+
 #endif /*__TRAIN_MANAGER_H__*/

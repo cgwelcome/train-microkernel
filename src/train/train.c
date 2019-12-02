@@ -27,7 +27,9 @@ void train_clear(Train *train) {
 
     train->mode = TRAIN_MODE_FREE;
     path_clear(&train->path);
+    position_clear(&train->reverse_anchor);
     position_clear(&train->reverse_position);
+    path_clear(&train->reverse_path);
     position_clear(&train->final_position);
 }
 

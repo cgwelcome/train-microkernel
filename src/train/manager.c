@@ -15,6 +15,21 @@
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
 
+void train_manager_setup_reverse(Train *train) {
+    TrackEdge *edge = path_reverse_edge(&train->path);
+    if (edge == NULL) {
+        position_clear(&train->reverse_anchor);
+        position_clear(&train->reverse_position);
+        path_clear(&train->reverse_path);
+        return;
+    };
+    train->reverse_anchor.node = edge->src;
+    train->reverse_anchor.offset = 0;
+    train->reverse_position = position_move(train->reverse_anchor, REVERSE_OVERSHOOT);
+    assert(train->reverse_position.node != NULL);
+    train->reverse_path = track_follow_path(train->reverse_anchor.node, train->reverse_position.node);
+}
+
 void train_manager_navigate_train(Train *train, uint32_t speed, TrackNode *dest, int32_t offset) {
     if (!singleton_track.inited || !train->inited) return;
 
@@ -25,8 +40,10 @@ void train_manager_navigate_train(Train *train, uint32_t speed, TrackNode *dest,
 
     train->mode = TRAIN_MODE_PATH;
     train->path = path;
-    train->reverse_position = path_reverse_position(&path);
+
+    train_manager_setup_reverse(train);
     train->final_position = destination;
+    // Drive only there is exist a path
     driver_handle_move(train, speed);
 }
 
@@ -117,6 +134,10 @@ static void train_manager_reserve_branches(Train *train) {
     TrackPath subpath = path_cover_dist(&train->path, train->stop_distance + PREPARE_AHEAD_DISTANCE);
     train_manager_reserve_by_type(train, &subpath, NODE_MERGE);
     train_manager_reserve_by_type(train, &subpath, NODE_BRANCH);
+    if (train_manager_will_arrive_reverse(train)) {
+        train_manager_reserve_by_type(train, &train->reverse_path, NODE_MERGE);
+        train_manager_reserve_by_type(train, &train->reverse_path, NODE_BRANCH);
+    }
 }
 
 static void train_manager_release_branches(Train *train) {
@@ -127,16 +148,24 @@ static void train_manager_release_branches(Train *train) {
     }
 }
 
-static void train_manager_prepare_ahead(Train *train) {
-    TrackPath subpath = path_cover_dist(&train->path, train->stop_distance + PREPARE_AHEAD_DISTANCE);
-    TrackEdgeList list = path_filter_by_type(&subpath, NODE_BRANCH);
-    for (size_t i = 0; i < list.size; i++) {
-        TrackEdge *edge = list.edges[i];
+static void train_manager_prepare_branches(Train *train, TrackEdgeList *list) {
+    for (size_t i = 0; i < list->size; i++) {
+        TrackEdge *edge = list->edges[i];
         assert(edge != NULL && edge->src != NULL);
         if (edge->src->owner != train->id) break;
         if (edge_direction(edge) != edge->src->direction) {
             controller_switch_one(edge->src->num, edge_direction(edge), 0);
         }
+    }
+}
+
+static void train_manager_prepare_ahead(Train *train) {
+    TrackPath subpath = path_cover_dist(&train->path, train->stop_distance + PREPARE_AHEAD_DISTANCE);
+    TrackEdgeList list = path_filter_by_type(&subpath, NODE_BRANCH);
+    train_manager_prepare_branches(train, &list);
+    if (train_manager_will_arrive_reverse(train)) {
+        list = path_filter_by_type(&train->reverse_path, NODE_BRANCH);
+        train_manager_prepare_branches(train, &list);
     }
 }
 

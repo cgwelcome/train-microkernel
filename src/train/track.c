@@ -92,8 +92,7 @@ void path_add_edge(TrackPath *path, TrackEdge *edge) {
 }
 
 TrackNode *path_end(TrackPath *path) {
-    assert(path->list.size > 0);
-    return path->list.edges[path->list.size-1]->dest;
+    return (path->list.size > 0) ? path->list.edges[path->list.size-1]->dest : NULL;
 }
 
 TrackEdge *path_next_node(TrackPath *path, TrackNode *dest) {
@@ -111,19 +110,15 @@ TrackEdge *path_next_node(TrackPath *path, TrackNode *dest) {
     return NULL;
 }
 
-TrackPosition path_reverse_position(TrackPath *path) {
+TrackEdge *path_reverse_edge(TrackPath *path) {
     for (size_t i = path->index; i < path->list.size; i++) {
         TrackEdge *edge = path->list.edges[i];
         assert(edge != NULL);
-        if (&edge->src->edge[DIR_REVERSE] == edge) {
-            TrackPosition position = {
-                .node = edge->src,
-                .offset = 0,
-            };
-            return position_move(position, REVERSE_OVERSHOOT);
+        if (edge_direction(edge) == DIR_REVERSE) {
+            return edge;
         }
     }
-    return (TrackPosition) { .node = NULL, .offset = 0 };
+    return NULL;
 }
 
 TrackPath path_cover_dist(TrackPath *path, uint32_t dist) {
@@ -203,7 +198,6 @@ static TrackPath recover_path(const TrackNode *src, const TrackNode *dest, Track
     }
     return path;
 }
-
 TrackPath track_search_path(Track *track, const TrackNode *src, const TrackNode *dest) {
     assert(src != NULL && dest != NULL);
 
@@ -235,6 +229,24 @@ TrackPath track_search_path(Track *track, const TrackNode *src, const TrackNode 
         }
     }
     TrackPath path; path_clear(&path);
+    return path;
+}
+
+TrackPath track_follow_path(TrackNode *src, TrackNode *dest) {
+    assert(src != NULL);
+    assert(dest != NULL);
+    TrackPath path;
+    path_clear(&path);
+    TrackEdge *edge = node_select_next_edge(src);
+    while (edge != NULL && edge->dest == dest) {
+        path_add_edge(&path, edge);
+        edge = node_select_next_edge(edge->dest);
+    }
+    if (edge == NULL) {
+        path_clear(&path);
+    } else {
+        path_add_edge(&path, edge);
+    }
     return path;
 }
 

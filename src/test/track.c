@@ -33,10 +33,6 @@ int test_search_path(int argc, char **argv) {
     TrackEdgeList list = path_filter_by_type(&path, NODE_SENSOR);
     Printf(iotid, COM2, "Sensors\n\r");
     for (size_t i = 0; i < list.size; i++) {
-        TrackPosition position = path_reverse_position(&path);
-        if (position.node != NULL) {
-            Printf(iotid, COM2, "Reverse: %s\n\r", position.node->name);
-        }
         path_next_node(&path, list.edges[i]->src);
         Printf(iotid, COM2, "%s\n\r", list.edges[i]->src->name);
     }

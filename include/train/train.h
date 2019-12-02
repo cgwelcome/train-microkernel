@@ -41,7 +41,9 @@ struct Train {
 
     TrainMode mode;
     TrackPath path;
+    TrackPosition reverse_anchor;
     TrackPosition reverse_position;
+    TrackPath reverse_path;
     TrackPosition final_position;
 };
 

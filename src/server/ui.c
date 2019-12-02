@@ -165,6 +165,7 @@ static struct {
     { "helloworld",      test_helloworld        },
     { "argv",            test_argv              },
     { "model",           test_build_model       },
+    { "setup",           test_setup             },
     { "searchpath",      test_search_path       },
     { "searchallpath",   test_search_allpath    },
     { "reverse",         test_reverse           },

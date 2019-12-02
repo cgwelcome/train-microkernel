@@ -17,7 +17,7 @@
 #define MAX_NODE_LIST           280
 #define MAX_EDGE_PATH           280
 #define REVERSE_PENALTY        1000
-#define REVERSE_OVERSHOOT       250
+#define REVERSE_OVERSHOOT       170
 
 #define DIR_AHEAD 0
 #define DIR_STRAIGHT 0
@@ -135,15 +135,17 @@ void path_clear(TrackPath *path);
 void path_add_edge(TrackPath *path, TrackEdge *edge);
 TrackNode *path_end(TrackPath *path);
 TrackEdge *path_next_node(TrackPath *path, TrackNode *dest);
-TrackPosition path_reverse_position(TrackPath *path);
+TrackEdge *path_reverse_edge(TrackPath *path);
 TrackPath path_cover_dist(TrackPath *path, uint32_t dist);
 TrackEdgeList path_filter_by_type(TrackPath *path, TrackNodeType type);
+
 uint8_t node_valid(TrackNode *node);
 TrackEdge *node_select_edge(TrackNode *src, uint8_t direction);
 TrackEdge *node_select_next_edge(TrackNode *src);
 TrackEdgeList node_select_adjacent_edge(TrackNode *src);
 
 TrackPath track_search_path(Track *track, const TrackNode *src, const TrackNode *dest);
+TrackPath track_follow_path(TrackNode *src, TrackNode *dest);
 
 void position_clear(TrackPosition *position);
 TrackPosition position_rebase(TrackNode *root, TrackPosition pos, uint32_t step_limit);
