@@ -16,6 +16,7 @@ int test_search_path(int argc, char **argv);
 int test_search_allpath(int argc, char **argv);
 int test_reverse(int argc, char **argv);
 int test_setup(int argc, char **argv);
+int test_collision(int argc, char **argv);
 
 void basic_setup();
 void basic_menu(TestCase *suite, uint32_t size);

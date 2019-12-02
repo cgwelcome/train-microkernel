@@ -79,8 +79,9 @@ void PrintLocation(int io_tid, Train *train) {
     if (pos->node != NULL) {
         uint32_t row = train_id_to_index(train->id);
         Printf(io_tid, COM2,
-                TERM_SAVE_CURSOR TERM_MOVE_CURSOR TERM_ERASE_LINE "%s %u %s %u %s %u %d %d" TERM_UNSAVE_CURSOR,
+                TERM_SAVE_CURSOR TERM_MOVE_CURSOR TERM_ERASE_LINE "%u %u %s %u %s %u %s %u %d %d" TERM_UNSAVE_CURSOR,
                 LINE_LOCATION_START + row, 13,
+                train->speed, train->original_speed,
                 pos->node  == NULL ? "N" : pos->node->name,  pos->offset,
                 stop->node == NULL ? "N" : stop->node->name, stop->offset,
                 reverse->node == NULL ? "N" : reverse->node->name, reverse->offset,

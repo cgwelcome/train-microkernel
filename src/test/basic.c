@@ -5,10 +5,10 @@
 #include <user/train.h>
 #include <user/io.h>
 
-#define TRAIN1_ID       24
+#define TRAIN1_ID       58
 #define NODE1_TRACK_A  "A8"
 #define NODE1_TRACK_B  "A13"
-#define TRAIN_SPEED    10
+#define TRAIN_SPEED     10
 
 extern Track singleton_track;
 int io_tid;

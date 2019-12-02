@@ -1,4 +1,5 @@
 #include <hardware/timer.h>
+#include <train/controller.h>
 #include <train/manager.h>
 #include <train/model.h>
 #include <train/train.h>
@@ -160,7 +161,16 @@ static void train_manager_reserve_branches(Train *train) {
     }
 
     // Reserve the branches on the coming path.
-    TrackPath subpath = path_cover_dist(&train->path, train->stop_distance + PREPARE_AHEAD_DISTANCE);
+    TrackPath subpath;
+    switch (train->mode) {
+        case TRAIN_MODE_PATH:
+            subpath = path_cover_dist(&train->path, train->stop_distance + PREPARE_AHEAD_DISTANCE);
+            break;
+        case TRAIN_MODE_FREE:
+        case TRAIN_MODE_ROAM:
+            subpath = track_cover_dist(train->position.node, train->stop_distance + PREPARE_AHEAD_DISTANCE);
+            break;
+    }
     train_manager_reserve_by_type(train, &subpath, NODE_MERGE);
     train_manager_reserve_by_type(train, &subpath, NODE_BRANCH);
     if (train_manager_will_arrive_reverse(train)) {
@@ -203,13 +213,13 @@ static void train_manager_prepare_ahead(Train *train) {
 static void train_manager_update_routing(Train *train) {
     path_next_node(&train->path, train->position.node);
     train_manager_prepare_ahead(train);
-    if (train->state == TRAIN_STATE_WAIT_TRAFFIC) {
-        uint8_t status = train_manager_navigate_train(train,
-                train->final_position.node, (int32_t)train->final_position.offset);
-        if (status == 0) {
-            driver_handle_reverse(train);
-        }
-    }
+    /*if (train->state == TRAIN_STATE_WAIT_TRAFFIC) {*/
+        /*uint8_t status = train_manager_navigate_train(train,*/
+                /*train->final_position.node, (int32_t)train->final_position.offset);*/
+        /*if (status == 0) {*/
+            /*driver_handle_reverse(train);*/
+        /*}*/
+    /*}*/
 }
 
 void train_manager_issue_directives() {

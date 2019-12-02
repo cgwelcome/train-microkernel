@@ -196,11 +196,11 @@ void driver_speed_entry(Train *train) {
 }
 
 void driver_reverse_entry(Train *train) {
-    if (train->mode == TRAIN_MODE_PATH) {
-        assert(train->reverse_anchor.node != NULL);
-        path_next_node(&train->path, train->reverse_anchor.node->reverse);
-        train_manager_setup_reverse(train);
-    }
+    /*if (train->mode == TRAIN_MODE_PATH) {*/
+        /*assert(train->reverse_anchor.node != NULL);*/
+        /*path_next_node(&train->path, train->reverse_anchor.node->reverse);*/
+        /*train_manager_setup_reverse(train);*/
+    /*}*/
     train->position = position_reverse(train->position);
     controller_speed_one(train->id, TRAIN_STATUS_REVERSE, 0);
 }
