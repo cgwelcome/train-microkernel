@@ -3,18 +3,18 @@
 #include <train/model.h>
 #include <train/train.h>
 #include <train/driver.h>
-#include <user/ui.h>
+#include <user/io.h>
 #include <utils/assert.h>
 #include <utils/queue.h>
 
 #define TRAILLING_DISTANCE      700
 #define PREPARE_AHEAD_DISTANCE  700
-#define REST_POSITION_ERROR     150
+#define REST_POSITION_ERROR     100
 #define TRAIN_AROUND_REVERSE    500
 
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
-
+extern int iotid;
 
 void train_manager_setup_reverse(Train *train) {
     TrackEdge *edge = path_reverse_edge(&train->path);
@@ -190,8 +190,7 @@ static void train_manager_prepare_branches(Train *train, TrackEdgeList *list) {
 
 static void train_manager_prepare_ahead(Train *train) {
     if (train->reverse_anchor.node != NULL) {
-        TrackPosition position = position_move(train->reverse_anchor, -PREPARE_AHEAD_DISTANCE);
-        if (train_manager_will_arrive_position(train, &position)) {
+        if (train_manager_will_arrive_position(train, &train->reverse_anchor)) {
             TrackEdgeList reverse_list = path_filter_by_type(&train->reverse_path, NODE_BRANCH);
             train_manager_prepare_branches(train, &reverse_list);
         }

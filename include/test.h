@@ -2,6 +2,7 @@
 #define __TEST_H__
 
 #include <stdint.h>
+#include <train/track.h>
 
 typedef struct {
     const char *name;
@@ -18,5 +19,6 @@ int test_setup(int argc, char **argv);
 
 void basic_setup();
 void basic_menu(TestCase *suite, uint32_t size);
+void basic_train_setup(uint32_t train_id, TrackNode *node);
 
 #endif /*__TEST_H__*/

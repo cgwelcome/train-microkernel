@@ -11,11 +11,11 @@ extern int train_tid;
 
 extern TrackNode *train1_node;
 extern uint32_t train1_id;
-extern uint32_t train1_speed;
+extern uint32_t train_speed;
 
 static void test_reverse_onspot() {
     TrackNode *node = train1_node->reverse;
-    TrainMove(train_tid, train1_id, train1_speed, node, 0);
+    TrainMove(train_tid, train1_id, train_speed, node, 0);
     Printf(io_tid, COM2, "Check expected position %s\n\r", node->name);
     Printf(io_tid, COM2, "Check orientation %s\n\r", node->name);
 }
@@ -31,7 +31,7 @@ static void test_reverse_simple() {
             node = track_find_node_by_name(&singleton_track, "B16");
             break;
     }
-    TrainMove(train_tid, train1_id, train1_speed, node, 0);
+    TrainMove(train_tid, train1_id, train_speed, node, 0);
     Printf(io_tid, COM2, "Check expected destination %s\n\r", node->name);
 }
 
@@ -54,11 +54,11 @@ static void test_reverse_shortmove() {
     while (option != 'q') {
         if (alternation == 0) {
             Printf(io_tid, COM2, "Check expected destination %s\n\r", node0->name);
-            TrainMove(train_tid, train1_id, train1_speed, node0, 0);
+            TrainMove(train_tid, train1_id, train_speed, node0, 0);
         }
         else {
             Printf(io_tid, COM2, "Check expected destination %s\n\r", node1->name);
-            TrainMove(train_tid, train1_id, train1_speed, node1, 0);
+            TrainMove(train_tid, train1_id, train_speed, node1, 0);
         }
         alternation = alternation ^ 1;
         Getc(io_tid, COM2, &option);
@@ -83,13 +83,13 @@ static void test_reverse_backbranch() {
             break;
     }
     Printf(io_tid, COM2, "Check expected destination %s\n\r", node0->name);
-    TrainMove(train_tid, train1_id, train1_speed, node0, 0);
+    TrainMove(train_tid, train1_id, train_speed, node0, 0);
     Getc(io_tid, COM2, NULL);
     Printf(io_tid, COM2, "Switch: %u\n\r", switch_id);
     TrainSwitch(train_tid, switch_id, DIR_CURVED);
     Getc(io_tid, COM2, NULL);
     Printf(io_tid, COM2, "Check expected destination %s\n\r", node1->name);
-    TrainMove(train_tid, train1_id, train1_speed, node1, 0);
+    TrainMove(train_tid, train1_id, train_speed, node1, 0);
     Getc(io_tid, COM2, NULL);
 }
 

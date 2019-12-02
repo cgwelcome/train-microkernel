@@ -20,6 +20,7 @@
 
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
+int iotid;
 
 static uint32_t last_read_sensor_time;
 static uint32_t last_print_status_time;
@@ -79,7 +80,7 @@ static void train_root_task() {
     TrainSensorList sensorlist;
 
     RegisterAs(SERVER_NAME_TRAIN);
-    int iotid = WhoIs(SERVER_NAME_IO);
+    iotid = WhoIs(SERVER_NAME_IO);
     train_server_init();
     controller_init(iotid);
     controller_go(0);
