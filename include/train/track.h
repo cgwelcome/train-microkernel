@@ -131,7 +131,6 @@ uint8_t edge_direction(TrackEdge *edge);
 TrackNode *edge_select_src(TrackEdge *edge);
 void edgelist_init(TrackEdgeList *list);
 void edgelist_add(TrackEdgeList *edgelist, TrackEdge *edge);
-void edgelist_reverse(TrackEdgeList *edgelist);
 
 void path_clear(TrackPath *path);
 void path_add_edge(TrackPath *path, TrackEdge *edge);
@@ -140,6 +139,7 @@ TrackEdge *path_next_node(TrackPath *path, TrackNode *dest);
 TrackEdge *path_reverse_edge(TrackPath *path);
 TrackPath path_cover_dist(TrackPath *path, uint32_t dist);
 TrackEdgeList path_filter_by_type(TrackPath *path, TrackNodeType type);
+TrackPath path_reverse(TrackPath *path);
 
 uint8_t node_valid(TrackNode *node);
 TrackEdge *node_select_edge(TrackNode *src, uint8_t direction);

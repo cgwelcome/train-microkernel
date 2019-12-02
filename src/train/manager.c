@@ -8,7 +8,7 @@
 #include <utils/queue.h>
 
 #define TRAILLING_DISTANCE      700
-#define PREPARE_AHEAD_DISTANCE  800
+#define PREPARE_AHEAD_DISTANCE  700
 #define REST_POSITION_ERROR     150
 #define TRAIN_AROUND_REVERSE    500
 
@@ -27,8 +27,8 @@ void train_manager_setup_reverse(Train *train) {
     train->reverse_anchor.node = edge->src;
     train->reverse_anchor.offset = 0;
     train->reverse_position = position_move(train->reverse_anchor, REVERSE_OVERSHOOT);
-    assert(train->reverse_position.node != NULL);
-    train->reverse_path = track_follow_path(train->reverse_anchor.node, train->reverse_position.node);
+    train->reverse_path = track_cover_dist(train->reverse_anchor.node, REVERSE_OVERSHOOT);
+    train->reverse_path = path_reverse(&train->reverse_path);
 }
 
 uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offset) {
@@ -189,14 +189,16 @@ static void train_manager_prepare_branches(Train *train, TrackEdgeList *list) {
 }
 
 static void train_manager_prepare_ahead(Train *train) {
+    if (train->reverse_anchor.node != NULL) {
+        TrackPosition position = position_move(train->reverse_anchor, -PREPARE_AHEAD_DISTANCE);
+        if (train_manager_will_arrive_position(train, &position)) {
+            TrackEdgeList reverse_list = path_filter_by_type(&train->reverse_path, NODE_BRANCH);
+            train_manager_prepare_branches(train, &reverse_list);
+        }
+    }
     TrackPath subpath = path_cover_dist(&train->path, train->stop_distance + PREPARE_AHEAD_DISTANCE);
     TrackEdgeList list = path_filter_by_type(&subpath, NODE_BRANCH);
     train_manager_prepare_branches(train, &list);
-    if (train_manager_will_arrive_reverse(train)) {
-        list = path_filter_by_type(&train->reverse_path, NODE_BRANCH);
-        edgelist_reverse(&list);
-        train_manager_prepare_branches(train, &list);
-    }
 }
 
 static void train_manager_update_routing(Train *train) {

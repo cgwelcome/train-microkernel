@@ -6,7 +6,7 @@
 #include <user/io.h>
 
 #define TRAIN_SPEED    10
-#define TRAIN_ID       24
+#define TRAIN_ID       58
 #define NODE_TRACK_A  "A8"
 #define NODE_TRACK_B  "A13"
 
