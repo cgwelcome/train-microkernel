@@ -7,6 +7,11 @@
 #define TRAIN_COUNT 6
 
 typedef enum {
+    TRAIN_DIRECTION_FORWARD,
+    TRAIN_DIRECTION_BACKWARD,
+} TrainDirection;
+
+typedef enum {
     TRAIN_STATE_NONE,
     TRAIN_STATE_CRUISE,
     TRAIN_STATE_BRAKE_COMMAND,
@@ -31,11 +36,14 @@ struct Train {
     uint32_t speed;
     uint32_t original_speed;
 
+    // Physical model
+    TrainDirection direction;
     uint32_t velocity;
     uint32_t stop_distance;
     TrackPosition position;
     uint32_t model_last_update_time;
 
+    // Driver DFA
     TrainState state;
     void (*driver_handle)(Train *);
 
@@ -50,6 +58,10 @@ struct Train {
     // Traffic
     Train *blocked_train;
     TrackNode *blocked_switch;
+
+    // Error detection
+    uint32_t missing_count;
+    TrackNode *missing_sensor;
 };
 
 /**
@@ -78,10 +90,20 @@ uint32_t train_index_to_id(uint32_t index);
 Train *train_find(Train *trains, uint32_t train_id);
 
 /**
+ * Reverse the position of the train.
+ */
+void train_reverse_position(Train *train);
+
+/**
  * If the train is close to a position (within tolerance in mm),
  * returns the distance between the train and the position.
  * Otherwise, returns UINT32_MAX.
  */
 uint32_t train_close_to(Train *train, TrackPosition dest, int32_t tolerance);
+
+/**
+ * Notify that the train has touched a sensor.
+ */
+void train_touch_sensor(Train *train, TrackNode* sensor);
 
 #endif /*__TRAIN_TRAIN_H__*/

@@ -103,8 +103,7 @@ static void train_root_task() {
             controller_speed_one(train->id, 0, 0);
             train_clear(train);
             train->inited = true;
-            train->position.node   = node;
-            train->position.offset = 0;
+            train->position = (TrackPosition) { .node = node, .offset = 0 };
             train->state = TRAIN_STATE_WAIT_COMMAND;
             train->driver_handle = driver_wait_command;
         }

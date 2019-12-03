@@ -218,6 +218,6 @@ void driver_reverse_entry(Train *train) {
         path_next_node(&train->path, train->reverse_anchor.node->reverse);
         train_manager_setup_reverse(train);
     }
-    train->position = position_reverse(train->position);
+    train_reverse_position(train);
     controller_speed_one(train->id, TRAIN_STATUS_REVERSE, 0);
 }

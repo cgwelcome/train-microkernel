@@ -82,10 +82,9 @@ void model_correct_train_status(TrainSensorList *sensorlist) {
     if (!singleton_track.inited) return;
     for (uint32_t i = 0; i < sensorlist->size; i++) {
         TrackNode *sensor = track_find_sensor(&singleton_track, &sensorlist->sensors[i]);
-        uint32_t train_index = find_train_close_to_sensor(sensor);
-        if (train_index != (uint32_t) -1) {
-            singleton_trains[train_index].position.node   = sensor;
-            singleton_trains[train_index].position.offset = 0;
+        uint32_t index = find_train_close_to_sensor(sensor);
+        if (index != (uint32_t) -1) {
+            train_touch_sensor(&singleton_trains[index], sensor);
         }
     }
 }

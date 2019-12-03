@@ -18,12 +18,11 @@ extern Train singleton_trains[TRAIN_COUNT];
 extern int iotid;
 
 static bool train_manager_will_arrive_position(Train *train, TrackPosition *position) {
-    TrackPosition stop_range_start = train->position;
     int32_t offset = train->stop_distance > REST_POSITION_ERROR ? (int32_t)train->stop_distance : REST_POSITION_ERROR;
-    TrackPosition stop_range_end   = position_move(train->position, offset);
+    TrackPosition stop_range_start = train->position;
+    TrackPosition stop_range_end   = position_move(stop_range_start, offset);
     return position_in_range(*position, stop_range_start, stop_range_end);
 }
-
 
 static bool train_manager_reserve_available(Train *train, TrackNode *node) {
     return (node->owner == UINT32_MAX || node->owner == train->id);
@@ -98,6 +97,9 @@ uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offs
 }
 
 static bool train_manager_will_collide(Train *train, Train *other) {
+    assert(train->position.node != NULL);
+    assert(other->position.node != NULL);
+
     TrackPosition detect_range_start, detect_range_end;
     // Case 1: train and other are in the same direction
     detect_range_start = train->position;
@@ -108,7 +110,6 @@ static bool train_manager_will_collide(Train *train, Train *other) {
     // Case 2: train and other are in the opposite direction
     detect_range_start = train->position;
     detect_range_end   = position_move(train->position, (int32_t) (train->stop_distance + other->stop_distance + TRAILLING_DISTANCE));
-    assert(other->position.node != NULL);
     if (position_in_range(position_reverse(other->position), detect_range_start, detect_range_end)) {
         return true;
     }
