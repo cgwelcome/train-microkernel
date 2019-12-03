@@ -88,17 +88,28 @@ void driver_handle_reverse(Train *train) {
 
 void driver_handle_move(Train *train, uint32_t speed) {
     switch (train->state) {
+        case TRAIN_STATE_WAIT_COMMAND:
+            if (train_manager_will_arrive_reverse(train)) {
+                train->original_speed = speed;
+                driver_transition(train, TRAIN_STATE_WAIT_REVERSE);
+            } else if (train_manager_will_arrive_final(train)) {
+                driver_transition(train, TRAIN_STATE_WAIT_COMMAND);
+            } else {
+                train->speed = speed;
+                driver_transition(train, TRAIN_STATE_CRUISE);
+            }
+            break;
+        case TRAIN_STATE_WAIT_TRAFFIC:
+            if (train_manager_will_arrive_reverse(train)) {
+                train->original_speed = speed;
+                driver_transition(train, TRAIN_STATE_WAIT_REVERSE);
+            }
+            break;
         case TRAIN_STATE_CRUISE:
         case TRAIN_STATE_BRAKE_COMMAND:
-        case TRAIN_STATE_WAIT_COMMAND:
-            train->speed = speed;
-            driver_transition(train, TRAIN_STATE_CRUISE);
-            break;
         case TRAIN_STATE_BRAKE_REVERSE:
         case TRAIN_STATE_BRAKE_TRAFFIC:
-        case TRAIN_STATE_WAIT_TRAFFIC:
         case TRAIN_STATE_WAIT_REVERSE:
-            train->original_speed = speed;
             break;
         case TRAIN_STATE_NONE:
             throw("unexpected train state none");
@@ -179,7 +190,7 @@ void driver_wait_traffic(Train *train) {
         train->blocked_train = NULL;
         train->blocked_switch = NULL;
         driver_transition(train, TRAIN_STATE_WAIT_REVERSE);
-    } else if (train_manager_unblocked_train(train) && train_manager_unblocked_switch(train)) {
+    } else if (!train_manager_will_collide_train(train) && !train_manager_will_collide_switch(train)) {
         train->speed = train->original_speed;
         if (train->speed > 0) {
             driver_transition(train, TRAIN_STATE_CRUISE);
@@ -198,11 +209,6 @@ void driver_speed_entry(Train *train) {
 }
 
 void driver_reverse_entry(Train *train) {
-    /*if (train->mode == TRAIN_MODE_PATH) {*/
-        /*assert(train->reverse_anchor.node != NULL);*/
-        /*path_next_node(&train->path, train->reverse_anchor.node->reverse);*/
-        /*train_manager_setup_reverse(train);*/
-    /*}*/
     train->position = position_reverse(train->position);
     controller_speed_one(train->id, TRAIN_STATUS_REVERSE, 0);
 }

@@ -66,27 +66,8 @@ static bool train_manager_will_collide(Train *train, Train *other) {
     return false;
 }
 
-bool train_manager_unblocked_train(Train *train) {
-    if (train->blocked_train == NULL) return true;
-    if (train_manager_will_collide(train, train->blocked_train)) {
-        return false;
-    }
-    train->blocked_train = NULL;
-    return true;
-}
-
 static bool train_manager_reserve_available(Train *train, TrackNode *node) {
     return (node->owner == UINT32_MAX || node->owner == train->id);
-}
-
-
-bool train_manager_unblocked_switch(Train *train) {
-    if (train->blocked_switch == NULL) return true;
-    if (!train_manager_reserve_available(train, train->blocked_switch)) {
-        return false;
-    }
-    train->blocked_switch = NULL;
-    return true;
 }
 
 bool train_manager_will_collide_train(Train *train) {
@@ -97,6 +78,7 @@ bool train_manager_will_collide_train(Train *train) {
             return true;
         }
     }
+    train->blocked_train = NULL;
     return false;
 }
 
@@ -111,6 +93,7 @@ bool train_manager_will_collide_switch(Train *train) {
             return true;
         }
     }
+    train->blocked_switch = NULL;
     return false;
 }
 
