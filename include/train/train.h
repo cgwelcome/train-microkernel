@@ -90,7 +90,12 @@ uint32_t train_index_to_id(uint32_t index);
 Train *train_find(Train *trains, uint32_t train_id);
 
 /**
- * Reverse the position of the train.
+ * Move the estimated position of the train forward.
+ */
+void train_move_forward(Train *train, uint32_t offset);
+
+/**
+ * Reverse the estimated position of the train.
  */
 void train_reverse_position(Train *train);
 

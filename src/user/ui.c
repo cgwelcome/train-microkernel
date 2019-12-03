@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 #include <hardware/timer.h>
 #include <train/manager.h>
 #include <train/controller.h>
@@ -9,11 +6,19 @@
 #include <user/io.h>
 #include <utils/assert.h>
 
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #define TERM_ENABLE_SCROLL "\033[%u;%ur"
 #define TERM_ERASE_LINE    "\033[K"
 #define TERM_MOVE_CURSOR   "\033[%u;%uH"
 #define TERM_SAVE_CURSOR   "\033[s"
 #define TERM_UNSAVE_CURSOR "\033[u"
+
+#define TERM_CURSOR_COLOR_RED  "\033[31m"
+#define TERM_CURSOR_COLOR_NONE "\033[0m"
 
 void PrintBasicInterface(int io_tid) {
     Printf(io_tid, COM2, TERM_MOVE_CURSOR "CPU Idle Rate:"                               , LINE_IDLE              , 1);
@@ -104,4 +109,16 @@ void PrintTerminal(int io_tid, const char *buffer) {
             TERM_SAVE_CURSOR TERM_MOVE_CURSOR TERM_ERASE_LINE "%s█" TERM_UNSAVE_CURSOR,
             LINE_TERMINAL, 3,
             buffer);
+}
+
+void PrintWarning(int io_tid, char *fmt, ...) {
+    va_list va;
+
+    va_start(va, fmt);
+    char buffer[256]; vsnprintf(buffer, 256, fmt, va);
+    Printf(io_tid, COM2,
+            TERM_SAVE_CURSOR TERM_MOVE_CURSOR TERM_ERASE_LINE TERM_CURSOR_COLOR_RED "%s" TERM_CURSOR_COLOR_NONE TERM_UNSAVE_CURSOR,
+            LINE_WARNING, 1,
+            buffer);
+    va_end(va);
 }
