@@ -8,7 +8,7 @@
 #include <utils/assert.h>
 #include <utils/queue.h>
 
-#define TRAILLING_DISTANCE     1000
+#define TRAILLING_DISTANCE      400
 #define PREPARE_AHEAD_DISTANCE  700
 #define REST_POSITION_ERROR     100
 #define TRAIN_AROUND_REVERSE    500
@@ -137,12 +137,15 @@ static void train_manager_reserve_branch(Train *train, TrackNode *node) {
     node->reverse->owner = train->id;
 }
 
-static void train_manager_reserve_by_type(Train *train, TrackPath *path, TrackNodeType type) {
-    TrackEdgeList list = path_filter_by_type(path, type);
-    for (size_t i = 0; i < list.size; i++) {
-        TrackEdge *edge = list.edges[i];
-        if (!train_manager_reserve_available(train, edge->src)) break;
-        train_manager_reserve_branch(train, list.edges[i]->src);
+static void train_manager_reserve_path(Train *train, TrackPath *path) {
+    for (size_t i = path->index; i < path->list.size; i++) {
+        TrackEdge *edge = path->list.edges[i];
+        assert(edge != NULL);
+        TrackNode *dest = edge->dest;
+        if (dest->type == NODE_MERGE || dest->type == NODE_BRANCH) {
+            if (!train_manager_reserve_available(train, dest)) break;
+            train_manager_reserve_branch(train, dest);
+        }
     }
 }
 
@@ -155,7 +158,9 @@ static void train_manager_reserve_branches(Train *train) {
         TrackNode *node = &singleton_track.nodes[i];
         if (node->type == NODE_BRANCH || node->type == NODE_MERGE) {
             if (position_in_range((TrackPosition) { node, 0 }, around_start, around_end)) {
-                train_manager_reserve_branch(train, node);
+                if (train_manager_reserve_available(train, node)) {
+                    train_manager_reserve_branch(train, node);
+                }
             }
         }
     }
@@ -171,11 +176,9 @@ static void train_manager_reserve_branches(Train *train) {
             subpath = track_cover_dist(train->position.node, train->stop_distance + PREPARE_AHEAD_DISTANCE);
             break;
     }
-    train_manager_reserve_by_type(train, &subpath, NODE_MERGE);
-    train_manager_reserve_by_type(train, &subpath, NODE_BRANCH);
+    train_manager_reserve_path(train, &subpath);
     if (train_manager_will_arrive_reverse(train)) {
-        train_manager_reserve_by_type(train, &train->reverse_path, NODE_MERGE);
-        train_manager_reserve_by_type(train, &train->reverse_path, NODE_BRANCH);
+        train_manager_reserve_path(train, &train->reverse_path);
     }
 }
 
@@ -201,7 +204,8 @@ static void train_manager_prepare_branches(Train *train, TrackEdgeList *list) {
 static void train_manager_prepare_ahead(Train *train) {
     if (train->reverse_anchor.node != NULL) {
         if (train_manager_will_arrive_position(train, &train->reverse_anchor)) {
-            TrackEdgeList reverse_list = path_filter_by_type(&train->reverse_path, NODE_BRANCH);
+            TrackPath path = path_reverse(&train->reverse_path);
+            TrackEdgeList reverse_list = path_filter_by_type(&path, NODE_BRANCH);
             train_manager_prepare_branches(train, &reverse_list);
         }
     }

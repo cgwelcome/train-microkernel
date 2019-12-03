@@ -36,11 +36,13 @@ static void test_collision_reset() {
 }
 
 static void test_collision_rest_headon() {
+    test_collision_reset();
     TrainReverse(train_tid, train2_id);
     TrainMove(train_tid, train1_id, 10, train2_node, 0);
 }
 
 static void test_collision_rest_bump() {
+    test_collision_reset();
     TrainMove(train_tid, train1_id, 10, train2_node, 0);
 }
 
@@ -50,6 +52,7 @@ static void test_collision_rest_switch() {
     TrackNode *node2 = track_find_node_by_name(&singleton_track, "D3");
     basic_train_setup(train1_id, node1);
     basic_train_setup(train2_id, node2);
+    Printf(io_tid, COM2, "Wait a GO signal [Enter]!\n\r");
     Getc(io_tid, COM2, NULL);
     Printf(io_tid, COM2, "GO!\n\r");
     TrainSpeed(train_tid, train1_id, 10);
@@ -57,6 +60,7 @@ static void test_collision_rest_switch() {
 }
 
 static void test_collision_congestion() {
+    test_collision_reset();
     TrainSwitch(train_tid, 8, DIR_STRAIGHT);
     TrainSpeed(train_tid, train1_id, 12);
     TrainSpeed(train_tid, train2_id, 10);
@@ -64,12 +68,14 @@ static void test_collision_congestion() {
 
 // Track B
 static void test_collision_reverse_ahead() {
+    test_collision_reset();
     TrainSwitch(train_tid, 8, DIR_STRAIGHT);
     TrainSpeed(train_tid, train1_id, 10);
     TrainSpeed(train_tid, train2_id, 10);
     char c = 0;
     while (c != 'q') {
         Printf(io_tid, COM2, "Reversing\n\r");
+        Printf(io_tid, COM2, "Waiting a reverse signal [Enter]!\n\r");
         Getc(io_tid, COM2, &c);
         TrainReverse(train_tid, train2_id);
     }
@@ -92,7 +98,7 @@ int test_collision(int argc, char **argv) {
     io_tid = WhoIs(SERVER_NAME_IO);
     train_tid = WhoIs(SERVER_NAME_TRAIN);
     uint32_t size = sizeof(collision_suite)/sizeof(collision_suite[0]);
-    test_collision_reset();
+    basic_track_setup();
     basic_menu(collision_suite, size);
     return 0;
 }
