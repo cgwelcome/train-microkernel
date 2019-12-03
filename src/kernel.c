@@ -5,8 +5,6 @@
 #include <hardware/uart.h>
 #include <kern/event.h>
 #include <kern/tasks.h>
-#include <server/clock.h>
-#include <server/io.h>
 #include <server/name.h>
 #include <utils/assert.h>
 #include <utils/bwio.h>

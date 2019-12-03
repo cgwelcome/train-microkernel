@@ -53,25 +53,13 @@ static void ts_try_print_status(int iotid, TrainSensorList *sensorlist) {
         for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
             PrintLocation(iotid, &singleton_trains[i]);
         }
-        // TODO: remove this block once the switch reservation is fixed.
-        // if (singleton_track.inited) {
-        //     for (uint32_t id = 1; id <= 18; id++) {
-        //         TrackNode *branch = track_find_branch(&singleton_track, id);
-        //         if (branch->owner == UINT32_MAX) {
-        //             PrintSwitch(iotid, branch->num, 0);
-        //         } else {
-        //             PrintSwitch(iotid, branch->num, branch->owner);
-        //         }
-        //     }
-        //     for (uint32_t id = 0x99; id <= 0x9C; id++) {
-        //         TrackNode *branch = track_find_branch(&singleton_track, id);
-        //         if (branch->owner == UINT32_MAX) {
-        //             PrintSwitch(iotid, branch->num, 0);
-        //         } else {
-        //             PrintSwitch(iotid, branch->num, branch->owner);
-        //         }
-        //     }
-        // }
+    }
+}
+
+static void ts_check_train_missing(int iotid, Train *train) {
+    if (train->missing_count >= 2) {
+        PrintWarning(iotid, "Train %d is missing at %s", train->id, train->missing_sensor->name);
+        train_clear(train);
     }
 }
 
@@ -113,6 +101,7 @@ static void train_root_task() {
         if (request.type == TRAIN_REQUEST_LOCATE_TRAINS) {
             for (int i = 0; i < TRAIN_COUNT; i++) {
                 model_estimate_train_status(&singleton_trains[i]);
+                ts_check_train_missing(iotid, &singleton_trains[i]);
             }
             sensorlist.size = 0;
             ts_try_read_sensors(&sensorlist);

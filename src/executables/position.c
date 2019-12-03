@@ -12,12 +12,12 @@ void print_position(int io_tid, char *prefix, TrackPosition position) {
     Printf(io_tid, COM2, "%s %s %u\r\n", prefix, position.node->name, position.offset);
 }
 
-int test_position(int argc, char **argv) {
+int exec_position(int argc, char **argv) {
     int io_tid = WhoIs(SERVER_NAME_IO);
     track_init(&singleton_track, TRAIN_TRACK_A);
 
     if (argc != 5) {
-        Printf(io_tid, COM2, "Usage: test position [this train position] [other train position]");
+        Printf(io_tid, COM2, "Usage: exec position [this train position] [other train position]\r\n");
         return 1;
     }
     TrackPosition this_position = {

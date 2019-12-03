@@ -34,7 +34,7 @@ static uint64_t find_dist(TrackNode *start, TrackNode *end) {
     return dist;
 }
 
-int test_build_model(int argc, char **argv) {
+int exec_build_model(int argc, char **argv) {
     int iotid = WhoIs(SERVER_NAME_IO);
     int clocktid = WhoIs(SERVER_NAME_CLOCK);
     int traintid = WhoIs(SERVER_NAME_TRAIN);

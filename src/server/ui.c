@@ -1,6 +1,7 @@
+#include <executable.h>
 #include <kernel.h>
-#include <test.h>
 #include <server/io.h>
+#include <server/taxi.h>
 #include <server/ui.h>
 #include <train/track.h>
 #include <user/io.h>
@@ -137,6 +138,13 @@ static int cmd_mv(int nargc, char **nargv) {
     return 1;
 }
 
+static int cmd_demo(int nargc, char **nargv) {
+    (void)nargc;
+    (void)nargv;
+    CreateTaxiSystem();
+    return 0;
+}
+
 static int cmd_clear(int nargc, char **nargv) {
     (void)nargc;
     (void)nargv;
@@ -159,48 +167,49 @@ static int cmd_quit(int nargc, char **nargv) {
 static struct {
     const char *name;
     int (*func)(int argc, char **argv);
-} testtable[] = {
-    { "helloworld",      test_helloworld        },
-    { "argv",            test_argv              },
-    { "model",           test_build_model       },
-    { "setup",           test_setup             },
-    { "searchpath",      test_search_path       },
-    { "searchallpath",   test_search_allpath    },
-    { "reverse",         test_reverse           },
-    { "collision",       test_collision         },
-    { "position",        test_position          },
+} exec_table[] = {
+    { "helloworld",      exec_helloworld        },
+    { "argv",            exec_argv              },
+    { "model",           exec_build_model       },
+    { "setup",           exec_setup             },
+    { "searchpath",      exec_search_path       },
+    { "searchallpath",   exec_search_allpath    },
+    { "reverse",         exec_reverse           },
+    { "collision",       exec_collision         },
+    { "position",        exec_position          },
     { NULL,              NULL                   },
 };
 
-static int cmd_test(int nargc, char **nargv) {
+static int cmd_exec(int nargc, char **nargv) {
     if (nargc < 2) {
-        PrintWarning(io_tid, "usage: test name [arguments]");
+        PrintWarning(io_tid, "usage: exec name [arguments]");
         return 1;
     }
 
-    for (uint32_t i = 0; testtable[i].name; i ++) {
-        if (!strcmp(nargv[1], testtable[i].name)) {
-            testtable[i].func(nargc-1, nargv+1);
+    for (uint32_t i = 0; exec_table[i].name; i ++) {
+        if (!strcmp(nargv[1], exec_table[i].name)) {
+            exec_table[i].func(nargc-1, nargv+1);
             return 0;
         }
     }
-    PrintWarning(io_tid, "test not found");
+    PrintWarning(io_tid, "executable not found");
     return 1;
 }
 
 static struct {
     const char *name;
     int (*func)(int nargc, char **nargv);
-} cmdtable[] = {
+} cmd_table[] = {
     { "init",   cmd_init  },
     { "tr",     cmd_tr    },
     { "rv",     cmd_rv    },
-    { "mv",     cmd_mv    },
     { "sw",     cmd_sw    },
+    { "mv",     cmd_mv    },
+    { "demo",   cmd_demo  },
     { "clear",  cmd_clear },
     { "q",      cmd_quit  },
     { "quit",   cmd_quit  },
-    { "test",   cmd_test  },
+    { "exec",   cmd_exec  },
     { NULL,     NULL      },
 };
 
@@ -216,14 +225,11 @@ static int dispatch_command(char *cmd) {
         }
         nargv[nargc++] = word;
     }
-    /** No input from user */
-    if (nargc == 0) {
-        return 0;
-    }
-    for (uint32_t i = 0; cmdtable[i].name; i ++) {
-        if (!strcmp(nargv[0], cmdtable[i].name)) {
-            int returncode = cmdtable[i].func(nargc, nargv);
-            return returncode;
+
+    if (nargc == 0) return 0; // no input from user
+    for (uint32_t i = 0; cmd_table[i].name; i ++) {
+        if (!strcmp(nargv[0], cmd_table[i].name)) {
+            return cmd_table[i].func(nargc, nargv);
         }
     }
     PrintWarning(io_tid, "command not found");

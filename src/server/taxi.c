@@ -80,8 +80,9 @@ static void taxi_system_root_task() {
             case TAXI_NOTIFY_CUSTOMER:
                 if (singleton_track.inited) {
                     uint32_t idle_train = TrainFindIdle(traintid);
-                    if (idle_train != 0) {
+                    while (idle_train != 0) {
                         taxi_check_next_step(traintid, idle_train);
+                        idle_train = TrainFindIdle(traintid);
                     }
                 }
                 break;
