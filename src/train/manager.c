@@ -10,7 +10,7 @@
 
 extern int iotid;
 
-#define TRAILLING_DISTANCE      600
+#define TRAILLING_DISTANCE      550
 #define PREPARE_AHEAD_DISTANCE  700
 #define REST_POSITION_ERROR     100
 #define TRAIN_AROUND_REVERSE    500
@@ -114,7 +114,7 @@ static bool train_manager_will_collide(Train *train, Train *other) {
     }
     // Case 2: train and other are in the opposite direction
     detect_range_start = train->position;
-    detect_range_end   = position_move(train->position, (int32_t) (train->stop_distance + other->stop_distance + TRAILLING_DISTANCE));
+    detect_range_end   = position_move(train->position, (int32_t) (train->stop_distance + other->stop_distance + TRAILLING_DISTANCE) + 100);
     if (position_in_range(position_reverse(other->position), detect_range_start, detect_range_end)) {
         return true;
     }
