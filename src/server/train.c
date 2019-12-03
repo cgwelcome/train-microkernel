@@ -53,24 +53,25 @@ static void ts_try_print_status(int iotid, TrainSensorList *sensorlist) {
         for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
             PrintLocation(iotid, &singleton_trains[i]);
         }
-        if (singleton_track.inited) {
-            for (uint32_t id = 1; id <= 18; id++) {
-                TrackNode *branch = track_find_branch(&singleton_track, id);
-                if (branch->owner == UINT32_MAX) {
-                    PrintSwitch(iotid, branch->num, 0);
-                } else {
-                    PrintSwitch(iotid, branch->num, branch->owner);
-                }
-            }
-            for (uint32_t id = 0x99; id <= 0x9C; id++) {
-                TrackNode *branch = track_find_branch(&singleton_track, id);
-                if (branch->owner == UINT32_MAX) {
-                    PrintSwitch(iotid, branch->num, 0);
-                } else {
-                    PrintSwitch(iotid, branch->num, branch->owner);
-                }
-            }
-        }
+        // TODO: remove this block once the switch reservation is fixed.
+        // if (singleton_track.inited) {
+        //     for (uint32_t id = 1; id <= 18; id++) {
+        //         TrackNode *branch = track_find_branch(&singleton_track, id);
+        //         if (branch->owner == UINT32_MAX) {
+        //             PrintSwitch(iotid, branch->num, 0);
+        //         } else {
+        //             PrintSwitch(iotid, branch->num, branch->owner);
+        //         }
+        //     }
+        //     for (uint32_t id = 0x99; id <= 0x9C; id++) {
+        //         TrackNode *branch = track_find_branch(&singleton_track, id);
+        //         if (branch->owner == UINT32_MAX) {
+        //             PrintSwitch(iotid, branch->num, 0);
+        //         } else {
+        //             PrintSwitch(iotid, branch->num, branch->owner);
+        //         }
+        //     }
+        // }
     }
 }
 
