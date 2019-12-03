@@ -19,6 +19,7 @@ int exec_reverse(int argc, char **argv);
 int exec_setup(int argc, char **argv);
 int exec_collision(int argc, char **argv);
 int exec_position(int argc, char **argv);
+int exec_routing(int argc, char **argv);
 
 void basic_track_setup();
 void basic_setup();

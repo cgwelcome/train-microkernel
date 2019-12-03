@@ -204,6 +204,7 @@ void driver_wait_traffic(Train *train) {
 }
 
 void driver_wait_entry(Train *train) {
+    train->mode = TRAIN_MODE_FREE;
     position_clear(&train->final_position);
 }
 

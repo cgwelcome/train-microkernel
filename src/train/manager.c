@@ -8,6 +8,8 @@
 #include <utils/assert.h>
 #include <utils/queue.h>
 
+extern int iotid;
+
 #define TRAILLING_DISTANCE      600
 #define PREPARE_AHEAD_DISTANCE  700
 #define REST_POSITION_ERROR     100
@@ -60,7 +62,7 @@ uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offs
     for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
         train_types[i] = NODE_NONE;
         Train *other = &singleton_trains[i];
-        if (other->inited && other->id != train->id) {
+        if (other->inited && other->id != train->id && train_manager_reserve_available(train, other->position.node)) {
             train_types[i] = other->position.node->type;
             other->position.node->type = NODE_NONE;
         }
@@ -76,7 +78,7 @@ uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offs
     TrackPath path = track_search_path(&singleton_track, train->position.node, destination.node);
     for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
         Train *other = &singleton_trains[i];
-        if (other->inited && other->id != train->id) {
+        if (other->inited && other->id != train->id && train_manager_reserve_available(train, other->position.node)) {
             other->position.node->type = train_types[i];
         }
     }
@@ -85,6 +87,10 @@ uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offs
         if (!train_manager_reserve_available(train, node)) {
             node->type = branch_types[i];
         }
+    }
+    for (uint32_t i = 0; i < singleton_track.node_count; i++) {
+        TrackNode *node = &singleton_track.nodes[i];
+        assert(node->type != NODE_NONE);
     }
     if (path.dist == 0) return 1;
     train->mode = TRAIN_MODE_PATH;
