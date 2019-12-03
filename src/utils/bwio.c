@@ -84,13 +84,11 @@ int bwputc( int channel, char c ) {
     }
     while( ( *flags & TXFF_MASK ) ) ;
     *data = c;
-    while( ( *flags & TXFF_MASK ) ) ;
     return 0;
 }
 
 int bwgetc( int channel ) {
     volatile int *flags, *data;
-    unsigned char c;
 
     switch( channel ) {
     case COM1:
@@ -106,9 +104,7 @@ int bwgetc( int channel ) {
         break;
     }
     while ( !( *flags & RXFF_MASK ) ) ;
-    c = (unsigned char) *data;
-    while ( !( *flags & RXFF_MASK ) ) ;
-    return c;
+    return *data;
 }
 
 int bwputw( int channel, char *str ) {
