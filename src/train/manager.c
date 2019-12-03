@@ -37,9 +37,25 @@ uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offs
 
     TrackPosition destination = position_move((TrackPosition) {dest, 0}, offset);
     if (destination.node == NULL) return 1;
-    TrackPath path = track_search_path(&singleton_track, train->position.node, destination.node);
-    if (path.dist == 0) return 1;
 
+    TrackNodeType types[TRAIN_COUNT];
+    for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
+        types[i] = NODE_NONE;
+        Train *other = &singleton_trains[i];
+        if (other->inited && other->id != train->id) {
+            types[i] = other->position.node->type;
+            other->position.node->type = NODE_NONE;
+        }
+    }
+    TrackPath path = track_search_path(&singleton_track, train->position.node, destination.node);
+    for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
+        Train *other = &singleton_trains[i];
+        if (other->inited && other->id != train->id) {
+            other->position.node->type = types[i];
+        }
+    }
+
+    if (path.dist == 0) return 1;
     train->mode = TRAIN_MODE_PATH;
     train->path = path;
 
