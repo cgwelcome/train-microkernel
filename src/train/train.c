@@ -43,7 +43,7 @@ uint32_t train_id_to_index(uint32_t train_id) {
     if (train_id == 74) return 3;
     if (train_id == 78) return 4;
     if (train_id == 79) return 5;
-    throw("unknown train id");
+    throw("unknown train id %u", train_id);
 }
 
 uint32_t train_index_to_id(uint32_t index) {

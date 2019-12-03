@@ -53,24 +53,25 @@ static void ts_try_print_status(int iotid, TrainSensorList *sensorlist) {
         for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
             PrintLocation(iotid, &singleton_trains[i]);
         }
-        if (singleton_track.inited) {
-            for (uint32_t id = 1; id <= 18; id++) {
-                TrackNode *branch = track_find_branch(&singleton_track, id);
-                if (branch->owner == UINT32_MAX) {
-                    PrintSwitch(iotid, branch->num, 0);
-                } else {
-                    PrintSwitch(iotid, branch->num, branch->owner);
-                }
-            }
-            for (uint32_t id = 0x99; id <= 0x9C; id++) {
-                TrackNode *branch = track_find_branch(&singleton_track, id);
-                if (branch->owner == UINT32_MAX) {
-                    PrintSwitch(iotid, branch->num, 0);
-                } else {
-                    PrintSwitch(iotid, branch->num, branch->owner);
-                }
-            }
-        }
+        // TODO: remove this block once the switch reservation is fixed.
+        // if (singleton_track.inited) {
+        //     for (uint32_t id = 1; id <= 18; id++) {
+        //         TrackNode *branch = track_find_branch(&singleton_track, id);
+        //         if (branch->owner == UINT32_MAX) {
+        //             PrintSwitch(iotid, branch->num, 0);
+        //         } else {
+        //             PrintSwitch(iotid, branch->num, branch->owner);
+        //         }
+        //     }
+        //     for (uint32_t id = 0x99; id <= 0x9C; id++) {
+        //         TrackNode *branch = track_find_branch(&singleton_track, id);
+        //         if (branch->owner == UINT32_MAX) {
+        //             PrintSwitch(iotid, branch->num, 0);
+        //         } else {
+        //             PrintSwitch(iotid, branch->num, branch->owner);
+        //         }
+        //     }
+        // }
     }
 }
 
@@ -149,6 +150,22 @@ static void train_root_task() {
             uint32_t direction = request.args[1];
             controller_switch_one(switch_id, direction, 0);
         }
+        if (request.type == TRAIN_REQUEST_LIGHT) {
+            bool turn_on = (bool) request.args[0];
+            controller_set_light(turn_on);
+        }
+        if (request.type == TRAIN_REQUEST_FIND_IDLE) {
+            uint32_t id = 0;
+            for (int i = 0; i < TRAIN_COUNT; i++) {
+                Train *train = &singleton_trains[i];
+                if (train->inited && train->state == TRAIN_STATE_WAIT_COMMAND) {
+                    id = train->id;
+                    break;
+                }
+            }
+            Reply(tid, (char *) &id, sizeof(id));
+            continue;
+        }
         if (request.type == TRAIN_REQUEST_EXIT) {
             controller_speed_all(0, 0);
         }
@@ -156,7 +173,7 @@ static void train_root_task() {
     }
 }
 
-void train_notifier_task() {
+static void train_notifier_task() {
     int clocktid = WhoIs(SERVER_NAME_CLOCK);
     int traintid = WhoIs(SERVER_NAME_TRAIN);
 

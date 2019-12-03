@@ -17,6 +17,7 @@ int test_search_allpath(int argc, char **argv);
 int test_reverse(int argc, char **argv);
 int test_setup(int argc, char **argv);
 int test_collision(int argc, char **argv);
+int test_position(int argc, char **argv);
 
 void basic_track_setup();
 void basic_setup();

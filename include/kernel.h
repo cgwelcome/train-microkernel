@@ -65,6 +65,7 @@
 
 #define SERVER_NAME_RPS         "RPS"
 #define SERVER_NAME_TRAIN       "TS"
+#define SERVER_NAME_TAXI        "TAXI"
 
 /**
  * Default priorities for important servers
@@ -79,10 +80,13 @@
 #define PRIORITY_SERVER_RPS         2000
 #define PRIORITY_SERVER_UI          2000
 #define PRIORITY_SERVER_TRAIN       3000
+#define PRIORITY_SERVER_TAXI        2000
 
 #define PRIORITY_NOTIFIER_CLOCK         2500
 #define PRIORITY_NOTIFIER_IO_COM1       2500
 #define PRIORITY_NOTIFIER_IO_COM2       2500
 #define PRIORITY_NOTIFIER_TRAIN         2500
+#define PRIORITY_NOTIFIER_TAXI_SUNTIME  2500
+#define PRIORITY_NOTIFIER_TAXI_CUSTOMER 2500
 
 #endif /*__KERNEL_H__*/

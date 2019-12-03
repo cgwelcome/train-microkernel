@@ -56,6 +56,23 @@ void TrainSwitch(int tid, uint32_t switch_id, int8_t direction) {
     assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
+void TrainLight(int tid, bool turn_on) {
+    TrainRequest request = {
+        .type    = TRAIN_REQUEST_LIGHT,
+        .args[0] = (uint32_t) turn_on,
+    };
+    assert(Send(tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
+}
+
+uint32_t TrainFindIdle(int tid) {
+    TrainRequest request = {
+        .type = TRAIN_REQUEST_FIND_IDLE,
+    };
+    uint32_t train_id;
+    assert(Send(tid, (char *)&request, sizeof(request), (char *)&train_id, sizeof(train_id)) >= 0);
+    return train_id;
+}
+
 void TrainExit(int tid) {
     TrainRequest request = {
         .type = TRAIN_REQUEST_EXIT,

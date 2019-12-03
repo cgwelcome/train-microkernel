@@ -39,6 +39,8 @@ void controller_go();
 
 void controller_stop();
 
+void controller_set_light(bool turn_on);
+
 void controller_speed_one(uint32_t train_id, uint32_t speed, uint32_t delay /*in ms*/);
 
 void controller_speed_all(uint32_t speed, uint32_t delay /*in ms*/);

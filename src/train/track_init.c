@@ -3440,7 +3440,6 @@ void track_init(Track *track, TrackName name) {
     default:
         throw("unknown track");
     }
-    track->inited = true;
     for (size_t i = 0; i < track->node_count; i++) {
         TrackNode *node = &track->nodes[i];
         if (node->type != NODE_BRANCH && node->type != NODE_MERGE) {
@@ -3449,4 +3448,5 @@ void track_init(Track *track, TrackName name) {
             node->edge[DIR_REVERSE].dist = REVERSE_PENALTY;
         }
     }
+    track->inited = true; // NOTE: this line must always be the last line.
 }
