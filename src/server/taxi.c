@@ -100,7 +100,7 @@ static void taxi_system_notifier_suntime() {
     TaxiNotification suntime_notification = TAXI_NOTIFY_SUNRISE;
 
     for (;;) {
-        Delay(clocktid, 18000); // 3 minutes
+        Delay(clocktid, 6000); // 60 s
         if (suntime_notification == TAXI_NOTIFY_SUNRISE) {
             suntime_notification = TAXI_NOTIFY_SUNSET;
         } else {

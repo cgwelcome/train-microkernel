@@ -31,6 +31,7 @@ static void exec_routing_taxi() {
         }
         TrackNode *node = track_find_node_by_name(&singleton_track, trip_pool[cursor]);
         TrainMove(train_tid, 24, 10, node, 0);
+        cursor++;
     }
 }
 

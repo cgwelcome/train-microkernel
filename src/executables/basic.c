@@ -95,3 +95,21 @@ int exec_setup(int argc, char **argv) {
     return 0;
 }
 
+int exec_trackb(int argc, char **argv) {
+    (void)argc;
+    (void)argv;
+    io_tid = WhoIs(SERVER_NAME_IO);
+    train_tid = WhoIs(SERVER_NAME_TRAIN);
+    if (!singleton_track.inited) {
+        basic_track_setup();
+    }
+    TrackNode *node;
+    node = track_find_node_by_name(&singleton_track, "A13");
+    TrainInitTrain(train_tid, 24, node);
+    Printf(io_tid, COM2, "Initialize train %u on %s\n\r", 24, node->name);
+
+    node = track_find_node_by_name(&singleton_track, "A1");
+    TrainInitTrain(train_tid, 1, node);
+    Printf(io_tid, COM2, "Initialize train %u on %s\n\r", 1, node->name);
+    return 0;
+}

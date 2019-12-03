@@ -92,7 +92,10 @@ void driver_handle_reverse(Train *train) {
 void driver_handle_move(Train *train, uint32_t speed) {
     switch (train->state) {
         case TRAIN_STATE_WAIT_COMMAND:
-            if (train_manager_will_arrive_reverse(train)) {
+            if (train_manager_will_collide_train(train) || train_manager_will_collide_switch(train)) {
+                train->original_speed = speed;
+                driver_transition(train, TRAIN_STATE_WAIT_TRAFFIC);
+            } else if (train_manager_will_arrive_reverse(train)) {
                 train->original_speed = speed;
                 driver_transition(train, TRAIN_STATE_WAIT_REVERSE);
             } else if (train_manager_will_arrive_final(train)) {
