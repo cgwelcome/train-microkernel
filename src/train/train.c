@@ -57,6 +57,22 @@ Train *train_find(Train *trains, uint32_t train_id) {
     return &trains[train_id_to_index(train_id)];
 }
 
+void train_move_forward(Train *train, uint32_t offset) {
+    assert(train->position.node != NULL);
+
+    TrackNode *last_node = train->position.node;
+    train->position = position_move(train->position, (int32_t) offset);
+    TrackNode *curr_node = train->position.node;
+
+    // Miss a sensor hit, record it for error handling
+    if (last_node != curr_node && curr_node->type == NODE_SENSOR) {
+        train->missing_count += 1;
+        if (train->missing_sensor == NULL) {
+            train->missing_sensor = curr_node;
+        }
+    }
+}
+
 void train_reverse_position(Train *train) {
     if (train->direction == TRAIN_DIRECTION_FORWARD) {
         train->direction = TRAIN_DIRECTION_BACKWARD;
@@ -87,6 +103,8 @@ uint32_t train_close_to(Train *train, TrackPosition dest, int32_t tolerance) {
 }
 
 void train_touch_sensor(Train *train, TrackNode* sensor) {
+    train->missing_count = 0;
+    train->missing_sensor = NULL;
     train->position = (TrackPosition) {
         .node   = sensor,
         .offset = 0,

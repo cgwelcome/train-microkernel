@@ -58,7 +58,7 @@ void model_estimate_train_status(Train *train) {
         // Update position
         uint32_t dd = (v0 + vt) * dt / 2000;
         if (train->position.node != NULL) {
-            train->position = position_move(train->position, (int32_t) dd);
+            train_move_forward(train, dd);
         }
     }
 }
