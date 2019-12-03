@@ -21,15 +21,13 @@ typedef enum {
 
 typedef struct {
     char *   pickup_node;
-    uint32_t pickup_offset;
     char *   dropoff_node;
-    uint32_t dropoff_offset;
 } TaxiTripCandidate;
 
 typedef struct {
     TaxiState state;
-    TrackPosition pickup;
-    TrackPosition dropoff;
+    TrackNode *pickup_node;
+    TrackNode *dropoff_node;
 } TaxiRecord;
 
 void CreateTaxiSystem();

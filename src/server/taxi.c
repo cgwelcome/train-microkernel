@@ -13,27 +13,21 @@ extern Track singleton_track;
 
 static TaxiRecord records[TRAIN_COUNT];
 static const TaxiTripCandidate trip_pool[TAXI_TRIP_POOL_SIZE] = {
-    {"B15", 0, "D16", 0},
-    {"C9" , 0, "E7" , 0},
-    {"C5" , 0, "D13", 0},
-    {"D1" , 0, "D11", 0},
-    {"E5" , 0, "E2" , 0},
-    {"C13", 0, "E15", 0},
-    {"D11", 0, "E16", 0},
-    {"E5" , 0, "A3" , 0},
+    {"B15", "D16"},
+    {"C9" , "E7" },
+    {"C5" , "D13"},
+    {"D1" , "D11"},
+    {"E5" , "E2" },
+    {"C13", "E15"},
+    {"D11", "E16"},
+    {"E5" , "A3" },
 };
 
 static void taxi_schedule_trip(TaxiRecord *record) {
     uint64_t now = timer_read_raw(TIMER3);
     const TaxiTripCandidate *candidate = &trip_pool[now % TAXI_TRIP_POOL_SIZE];
-    record->pickup  = (TrackPosition) {
-        .node   = track_find_node_by_name(&singleton_track, candidate->pickup_node),
-        .offset = candidate->pickup_offset,
-    };
-    record->dropoff = (TrackPosition) {
-        .node   = track_find_node_by_name(&singleton_track, candidate->dropoff_node),
-        .offset = candidate->dropoff_offset,
-    };
+    record->pickup_node  = track_find_node_by_name(&singleton_track, candidate->pickup_node);
+    record->dropoff_node = track_find_node_by_name(&singleton_track, candidate->dropoff_node);
 }
 
 static void taxi_check_next_step(int traintid, uint32_t idle_train) {
@@ -43,11 +37,11 @@ static void taxi_check_next_step(int traintid, uint32_t idle_train) {
     }
     switch (record->state) {
         case TAXI_STATE_IDLE:
-            TrainMove(traintid, idle_train, 10, record->pickup.node, (int32_t) record->pickup.offset);
+            TrainMove(traintid, idle_train, 10, record->pickup_node, 0);
             record->state = TAXI_STATE_PICKING;
             break;
         case TAXI_STATE_PICKING:
-            TrainMove(traintid, idle_train, 10, record->dropoff.node, (int32_t) record->dropoff.offset);
+            TrainMove(traintid, idle_train, 10, record->dropoff_node, 0);
             record->state = TAXI_STATE_DROPPING;
             break;
         case TAXI_STATE_DROPPING:
