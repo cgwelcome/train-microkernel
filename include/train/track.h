@@ -79,7 +79,7 @@ typedef struct PathNode {
 } TrackNode;
 
 typedef struct {
-    TrackNode *node;
+    TrackEdge *edge;
     uint32_t offset;
 } TrackPosition;
 
@@ -151,9 +151,8 @@ TrackPath track_follow_path(TrackNode *src, TrackNode *dest);
 TrackPath track_cover_dist(TrackNode *src, uint32_t dist);
 
 void position_clear(TrackPosition *position);
-TrackPosition position_rebase(TrackNode *root, TrackPosition pos, uint32_t step_limit);
 TrackPosition position_reverse(TrackPosition current);
 TrackPosition position_move(TrackPosition current, int32_t offset);
-bool position_in_range(TrackPosition pos, TrackPosition range_start, TrackPosition range_end);
+uint32_t position_dist(TrackPosition src, TrackPosition dest, uint32_t limit);
 
 #endif /*__TRAIN_TRACK_H__*/

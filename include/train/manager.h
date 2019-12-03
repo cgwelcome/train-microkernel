@@ -18,6 +18,6 @@ bool train_manager_will_arrive_reverse(Train *train);
 
 void train_manager_setup_reverse(Train *train);
 
-uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offset);
+uint8_t train_manager_navigate_train(Train *train, TrackEdge *edge, int32_t offset);
 
 #endif /*__TRAIN_MANAGER_H__*/

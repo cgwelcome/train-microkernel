@@ -213,8 +213,8 @@ void driver_speed_entry(Train *train) {
 
 void driver_reverse_entry(Train *train) {
     if (train->mode == TRAIN_MODE_PATH) {
-        assert(train->reverse_anchor.node != NULL);
-        path_next_node(&train->path, train->reverse_anchor.node->reverse);
+        assert(train->reverse_anchor.edge != NULL);
+        path_next_node(&train->path, train->reverse_anchor.edge->src->reverse);
         train_manager_setup_reverse(train);
     }
     train_reverse_position(train);

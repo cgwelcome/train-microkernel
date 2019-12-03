@@ -81,17 +81,18 @@ void PrintLocation(int io_tid, Train *train) {
     TrackPosition *pos  = &train->position;
     TrackPosition *stop = &train->final_position;
     TrackPosition *reverse = &train->reverse_position;
-    if (pos->node != NULL) {
+    if (pos->edge != NULL) {
         uint32_t row = train_id_to_index(train->id);
         Printf(io_tid, COM2,
-                TERM_SAVE_CURSOR TERM_MOVE_CURSOR TERM_ERASE_LINE "%u %u %s %u %s %u %s %u %d %d" TERM_UNSAVE_CURSOR,
+                TERM_SAVE_CURSOR TERM_MOVE_CURSOR TERM_ERASE_LINE "%u %s %u %u %s %u %s %u %s %u %d %d" TERM_UNSAVE_CURSOR,
                 LINE_LOCATION_START + row, 13,
+                train->miss_count, train->missed_sensor == NULL ? "N" : train->missed_sensor->name,
                 train->speed, train->original_speed,
-                pos->node  == NULL ? "N" : pos->node->name,  pos->offset,
-                stop->node == NULL ? "N" : stop->node->name, stop->offset,
-                reverse->node == NULL ? "N" : reverse->node->name, reverse->offset,
+                pos->edge     == NULL ? "N" : pos->edge->src->name,  pos->offset,
+                stop->edge    == NULL ? "N" : stop->edge->src->name, stop->offset,
+                reverse->edge == NULL ? "N" : reverse->edge->src->name, reverse->offset,
                 train->state,
-                stop->node == NULL ? 0 : train_close_to(train, *stop, 200));
+                stop->edge == NULL ? 0 : train_close_to(train, *stop, 200));
     }
 }
 

@@ -58,7 +58,8 @@ static void ts_try_print_status(int iotid, TrainSensorList *sensorlist) {
 
 static void ts_check_train_missing(int iotid, Train *train) {
     if (train->miss_count >= 3) {
-        PrintWarning(iotid, "Train %d is missing at %s", train->id, train->missed_sensor->name);
+        TrackNode *missed_sensor = train->missed_sensor;
+        PrintWarning(iotid, "Train %d is missing at %s", train->id, missed_sensor == NULL ? "unknown sensor" : missed_sensor->name);
         train_clear(train);
         controller_speed_one(train->id, 0, 0);
     }
@@ -92,7 +93,7 @@ static void train_root_task() {
             controller_speed_one(train->id, 0, 0);
             train_clear(train);
             train->inited = true;
-            train->position = (TrackPosition) { .node = node, .offset = 0 };
+            train->position = (TrackPosition) { node_select_next_edge(node), 0 };
             train->state = TRAIN_STATE_WAIT_COMMAND;
             train->driver_handle = driver_wait_command;
         }
@@ -129,7 +130,8 @@ static void train_root_task() {
             TrackNode *sensor = (TrackNode *) request.args[2];
             int32_t offset    = (int32_t)     request.args[3];
             Train *train = train_find(singleton_trains, train_id);
-            uint8_t status = train_manager_navigate_train(train, sensor, offset);
+            TrackEdge *edge = node_select_next_edge(sensor);
+            uint8_t status = train_manager_navigate_train(train, edge, offset);
             if (status == 0) {
                 driver_handle_move(train, speed);
             }

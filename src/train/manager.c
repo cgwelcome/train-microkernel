@@ -18,10 +18,8 @@ extern Train singleton_trains[TRAIN_COUNT];
 extern int iotid;
 
 static bool train_manager_will_arrive_position(Train *train, TrackPosition *position) {
-    int32_t offset = train->stop_distance > REST_POSITION_ERROR ? (int32_t)train->stop_distance : REST_POSITION_ERROR;
-    TrackPosition stop_range_start = train->position;
-    TrackPosition stop_range_end   = position_move(stop_range_start, offset);
-    return position_in_range(*position, stop_range_start, stop_range_end);
+    uint32_t offset = train->stop_distance > REST_POSITION_ERROR ? train->stop_distance : REST_POSITION_ERROR;
+    return (position_dist(train->position, *position, offset) != UINT32_MAX);
 }
 
 static bool train_manager_reserve_available(Train *train, TrackNode *node) {
@@ -36,7 +34,7 @@ void train_manager_setup_reverse(Train *train) {
         path_clear(&train->reverse_path);
         return;
     };
-    train->reverse_anchor.node = edge->src;
+    train->reverse_anchor.edge = edge;
     train->reverse_anchor.offset = 0;
 
     uint32_t overshoot;
@@ -46,14 +44,14 @@ void train_manager_setup_reverse(Train *train) {
         overshoot = REVERSE_OVERSHOOT;
     }
     train->reverse_position = position_move(train->reverse_anchor, (int32_t)overshoot);
-    train->reverse_path = track_cover_dist(train->reverse_anchor.node, overshoot);
+    train->reverse_path = track_cover_dist(train->reverse_anchor.edge->src, overshoot);
 }
 
-uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offset) {
+uint8_t train_manager_navigate_train(Train *train, TrackEdge *edge, int32_t offset) {
     if (!singleton_track.inited || !train->inited) return 1;
 
-    TrackPosition destination = position_move((TrackPosition) {dest, 0}, offset);
-    if (destination.node == NULL) return 1;
+    TrackPosition destination = position_move((TrackPosition) {edge, 0}, offset);
+    if (destination.edge == NULL) return 1;
 
     TrackNodeType train_types[TRAIN_COUNT];
     TrackNodeType branch_types[MAX_NODE_PER_TRACK];
@@ -61,8 +59,8 @@ uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offs
         train_types[i] = NODE_NONE;
         Train *other = &singleton_trains[i];
         if (other->inited && other->id != train->id) {
-            train_types[i] = other->position.node->type;
-            other->position.node->type = NODE_NONE;
+            train_types[i] = other->position.edge->src->type;
+            other->position.edge->src->type = NODE_NONE;
         }
     }
     for (uint32_t i = 0; i < singleton_track.node_count; i++) {
@@ -73,11 +71,11 @@ uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offs
             node->type = NODE_NONE;
         }
     }
-    TrackPath path = track_search_path(&singleton_track, train->position.node, destination.node);
+    TrackPath path = track_search_path(&singleton_track, train->position.edge->src, destination.edge->src);
     for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
         Train *other = &singleton_trains[i];
         if (other->inited && other->id != train->id) {
-            other->position.node->type = train_types[i];
+            other->position.edge->src->type = train_types[i];
         }
     }
     for (uint32_t i = 0; i < singleton_track.node_count; i++) {
@@ -96,20 +94,18 @@ uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offs
 }
 
 static bool train_manager_will_collide(Train *train, Train *other) {
-    assert(train->position.node != NULL);
-    assert(other->position.node != NULL);
+    assert(train->position.edge != NULL);
+    assert(other->position.edge != NULL);
 
-    TrackPosition detect_range_start, detect_range_end;
+    uint32_t limit;
     // Case 1: train and other are in the same direction
-    detect_range_start = train->position;
-    detect_range_end   = position_move(train->position, (int32_t) (train->stop_distance + TRAILLING_DISTANCE));
-    if (position_in_range(other->position, detect_range_start, detect_range_end)) {
+    limit = train->stop_distance + TRAILLING_DISTANCE;
+    if (position_dist(train->position, other->position, limit) != UINT32_MAX) {
         return true;
     }
     // Case 2: train and other are in the opposite direction
-    detect_range_start = train->position;
-    detect_range_end   = position_move(train->position, (int32_t) (train->stop_distance + other->stop_distance + TRAILLING_DISTANCE));
-    if (position_in_range(position_reverse(other->position), detect_range_start, detect_range_end)) {
+    limit = train->stop_distance + other->stop_distance + TRAILLING_DISTANCE;
+    if (position_dist(train->position, position_reverse(other->position), limit) != UINT32_MAX) {
         return true;
     }
     return false;
@@ -128,7 +124,7 @@ bool train_manager_will_collide_train(Train *train) {
 }
 
 bool train_manager_will_collide_switch(Train *train) {
-    TrackPath path = track_cover_dist(train->position.node, train->stop_distance + TRAILLING_DISTANCE);
+    TrackPath path = track_cover_dist(train->position.edge->src, train->stop_distance + TRAILLING_DISTANCE);
     for (size_t i = 0; i < path.list.size; i++) {
         TrackEdge *edge = path.list.edges[i];
         TrackNode *dest = edge->dest;
@@ -143,12 +139,12 @@ bool train_manager_will_collide_switch(Train *train) {
 }
 
 bool train_manager_will_arrive_final(Train *train) {
-    return (train->final_position.node != NULL) &&
+    return (train->final_position.edge != NULL) &&
         train_manager_will_arrive_position(train, &train->final_position);
 }
 
 bool train_manager_will_arrive_reverse(Train *train) {
-    return (train->reverse_position.node != NULL) &&
+    return (train->reverse_position.edge != NULL) &&
         train_manager_will_arrive_position(train, &train->reverse_position);
 }
 
@@ -172,13 +168,13 @@ static void train_manager_reserve_path(Train *train, TrackPath *path) {
 
 static void train_manager_reserve_branches(Train *train) {
     // Reserve the branches around the train.
-    TrackPosition around_start = position_move(train->position, -TRAIN_AROUND_REVERSE);
-    TrackPosition around_end   = position_move(train->position,  TRAIN_AROUND_REVERSE);
-    assert(around_start.node != NULL && around_end.node != NULL);
     for (size_t i = 0; i < singleton_track.node_count; i++) {
         TrackNode *node = &singleton_track.nodes[i];
+        TrackPosition position = { node_select_next_edge(node), 0 };
         if (node->type == NODE_BRANCH || node->type == NODE_MERGE) {
-            if (position_in_range((TrackPosition) { node, 0 }, around_start, around_end)) {
+            uint32_t dist_front  = position_dist(train->position, position, TRAIN_AROUND_REVERSE);
+            uint32_t dist_behind = position_dist(position_reverse(train->position), position, TRAIN_AROUND_REVERSE);
+            if (dist_front != UINT32_MAX || dist_behind != UINT32_MAX) {
                 if (train_manager_reserve_available(train, node)) {
                     train_manager_reserve_branch(train, node);
                 }
@@ -194,7 +190,7 @@ static void train_manager_reserve_branches(Train *train) {
             break;
         case TRAIN_MODE_FREE:
         case TRAIN_MODE_ROAM:
-            subpath = track_cover_dist(train->position.node, train->stop_distance + PREPARE_AHEAD_DISTANCE);
+            subpath = track_cover_dist(train->position.edge->src, train->stop_distance + PREPARE_AHEAD_DISTANCE);
             break;
     }
     train_manager_reserve_path(train, &subpath);
@@ -223,7 +219,7 @@ static void train_manager_prepare_branches(Train *train, TrackEdgeList *list) {
 }
 
 static void train_manager_prepare_ahead(Train *train) {
-    if (train->reverse_anchor.node != NULL) {
+    if (train->reverse_anchor.edge != NULL) {
         if (train_manager_will_arrive_position(train, &train->reverse_anchor)) {
             TrackPath path = path_reverse(&train->reverse_path);
             TrackEdgeList reverse_list = path_filter_by_type(&path, NODE_BRANCH);
@@ -236,11 +232,11 @@ static void train_manager_prepare_ahead(Train *train) {
 }
 
 static void train_manager_update_routing(Train *train) {
-    path_next_node(&train->path, train->position.node);
+    path_next_node(&train->path, train->position.edge->src);
     train_manager_prepare_ahead(train);
     if (train->state == TRAIN_STATE_WAIT_TRAFFIC) {
         uint8_t status = train_manager_navigate_train(train,
-                train->final_position.node, (int32_t)train->final_position.offset);
+                train->final_position.edge, (int32_t)train->final_position.offset);
         if (status == 0) {
             driver_handle_move(train, train->original_speed);
         }

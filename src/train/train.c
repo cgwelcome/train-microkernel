@@ -59,18 +59,19 @@ Train *train_find(Train *trains, uint32_t train_id) {
 }
 
 void train_move_forward(Train *train, uint32_t offset) {
-    assert(train->position.node != NULL);
+    assert(train->position.edge != NULL);
 
-    TrackNode *last_node = train->position.node;
+    TrackEdge *last_edge = train->position.edge;
     train->position = position_move(train->position, (int32_t) offset);
-    TrackNode *curr_node = train->position.node;
+    TrackEdge *curr_edge = train->position.edge;
 
     // Miss a sensor hit, record it for error handling
-    if (last_node != curr_node && curr_node->type == NODE_SENSOR) {
-        if (train->recent_sensor == curr_node) return;
-        train->miss_count += 1;
-        if (train->missed_sensor == NULL) {
-            train->missed_sensor = curr_node;
+    if (last_edge != curr_edge && curr_edge->src->type == NODE_SENSOR) {
+        if (train->recent_sensor != curr_edge->src && train->recent_sensor != curr_edge->src->reverse) {
+            train->miss_count += 1;
+            if (train->missed_sensor == NULL) {
+                train->missed_sensor = curr_edge->src;
+            }
         }
     }
 }
@@ -84,24 +85,15 @@ void train_reverse_position(Train *train) {
     train->position = position_reverse(train->position);
 }
 
-uint32_t train_close_to(Train *train, TrackPosition dest, int32_t tolerance) {
+uint32_t train_close_to(Train *train, TrackPosition dest, uint32_t tolerance) {
     assert(train->inited);
-    assert(tolerance >= 0);
-    if (dest.node == NULL) return UINT32_MAX;
 
-    TrackPosition range_start = position_move(train->position, -tolerance);
-    TrackPosition range_end   = position_move(train->position,  tolerance);
-    if (position_in_range(dest, range_start, range_end)) {
-        TrackPosition rebased_dest = position_rebase(range_start.node, dest, 10);
-        assert(rebased_dest.node != NULL);
-        uint32_t train_offset = range_start.offset + 200;
-        if (rebased_dest.offset > train_offset) {
-            return rebased_dest.offset - train_offset;
-        } else {
-            return train_offset - rebased_dest.offset;
-        }
+    if (dest.edge == NULL) {
+        return UINT32_MAX;
     }
-    return UINT32_MAX;
+    uint32_t dist_front  = position_dist(train->position, dest, tolerance);
+    uint32_t dist_behind = position_dist(position_reverse(train->position), dest, tolerance);
+    return dist_front < dist_behind ? dist_front : dist_behind;
 }
 
 void train_touch_sensor(Train *train, TrackNode* sensor) {
@@ -110,7 +102,7 @@ void train_touch_sensor(Train *train, TrackNode* sensor) {
     train->missed_sensor = NULL;
 
     train->position = (TrackPosition) {
-        .node   = sensor,
+        .edge   = node_select_next_edge(sensor),
         .offset = 0,
     };
     if (train->direction == TRAIN_DIRECTION_FORWARD) {

@@ -1,8 +1,9 @@
-#include <string.h>
 #include <train/track.h>
 #include <utils/assert.h>
 #include <utils/ppqueue.h>
 #include <user/io.h>
+
+#include <string.h>
 
 Track singleton_track;
 
@@ -278,80 +279,92 @@ TrackPath track_cover_dist(TrackNode *src, uint32_t dist) {
 
 
 void position_clear(TrackPosition *position) {
-    position->node = NULL;
+    position->edge = NULL;
     position->offset = 0;
 }
 
-TrackPosition position_rebase(TrackNode *root, TrackPosition pos, uint32_t step_limit) {
-    assert(root != NULL);
-    assert(pos.node != NULL);
-
-    uint32_t step = 0;
-    uint32_t offset = pos.offset;
-    while (root != pos.node) {
-        if (root->type == NODE_EXIT) {
-            return (TrackPosition) { .node = NULL, .offset = 0 };
+static TrackEdge *edge_reverse(TrackEdge *edge) {
+    TrackNode *src = edge->dest->reverse;
+    assert(src->type != NODE_EXIT);
+    if (src->type == NODE_BRANCH) {
+        if (src->edge[DIR_STRAIGHT].dest->reverse == edge->src) {
+            return &src->edge[DIR_STRAIGHT];
         }
-        if ((step++) >= step_limit) {
-            return (TrackPosition) { .node = NULL, .offset = 0 };
+        if (src->edge[DIR_CURVED].dest->reverse == edge->src) {
+            return &src->edge[DIR_CURVED];
         }
-        offset += root->edge[root->direction].dist;
-        root    = root->edge[root->direction].dest;
+        throw("The edge from %s to %s failed to find reverse", edge->src->name, edge->dest->name);
+    } else {
+        return &src->edge[src->direction];
     }
-    return (TrackPosition) { .node = root, .offset = offset };
 }
 
 TrackPosition position_reverse(TrackPosition current) {
-    assert(current.node != NULL);
+    assert(current.edge != NULL);
 
-    TrackEdge *edge = node_select_next_edge(current.node);
-    while (edge != NULL && current.offset > edge->dist) {
-        current.offset -= edge->dist;
-        current.node    = edge->dest;
-        edge = node_select_next_edge(current.node);
+    if (current.edge->dist < current.offset) {
+        throw("corrupted position %s - %s: %u", current.edge->src->name, current.edge->dest->name, current.offset);
     }
-    if (edge == NULL) {
-        assert(current.node->type == NODE_EXIT && current.offset == 0);
-        return (TrackPosition) { current.node->reverse, 0 };
-    } else {
-        return (TrackPosition) { edge->dest->reverse, edge->dist - current.offset };
-    }
+    return (TrackPosition) { edge_reverse(current.edge), current.edge->dist - current.offset };
 }
 
 TrackPosition position_move(TrackPosition current, int32_t offset) {
-    assert(current.node != NULL);
+    assert(current.edge != NULL);
 
-    if (current.node->type == NODE_EXIT || offset == 0) return current;
+    if (offset == 0) return current;
     if (offset < 0) {
         current = position_reverse(current);
         current = position_move(current, -offset);
         current = position_reverse(current);
     } else {
         current.offset += (uint32_t)offset;
-        TrackEdge *edge = node_select_next_edge(current.node);
-        while (edge != NULL && current.offset >= edge->dist) {
-            current.node    = edge->dest;
-            current.offset -= edge->dist;
-            edge = node_select_next_edge(current.node);
-        }
-        if (current.node->type == NODE_EXIT) {
-            current.offset = 0;
+        while (current.offset >= current.edge->dist) {
+            if (current.edge->dest->type == NODE_EXIT) {
+                current.offset = current.edge->dist;
+                break;
+            }
+            current.offset -= current.edge->dist;
+            current.edge    = node_select_next_edge(current.edge->dest);
         }
     }
 
-    assert(current.node != NULL);
+    assert(current.edge != NULL);
     return current;
 }
 
-bool position_in_range(TrackPosition pos, TrackPosition range_start, TrackPosition range_end) {
-    assert(pos.node != NULL);
-    assert(range_start.node != NULL);
-    assert(range_end.node != NULL);
+uint32_t position_dist(TrackPosition src, TrackPosition dest, uint32_t limit) {
+    assert(src.edge != NULL);
+    assert(dest.edge != NULL);
 
-    pos       = position_rebase(range_start.node, pos, 10);
-    range_end = position_rebase(range_start.node, range_end, 10);
-    if (pos.node != NULL && range_end.node != NULL) {
-        return range_start.offset <= pos.offset && pos.offset <= range_end.offset;
+    if (src.edge == dest.edge) {
+        if ((src.offset <= dest.offset) && (dest.offset <= src.offset + limit)) {
+            return dest.offset - src.offset;
+        } else {
+            return UINT32_MAX;
+        }
     }
-    return false;
+
+    src.offset += limit;
+    if (src.offset >= src.edge->dist) {
+        if (src.edge->dest->type == NODE_EXIT) {
+            return UINT32_MAX;
+        }
+        uint32_t dist = 0;
+        TrackNode *node = src.edge->dest;
+        uint32_t offset = src.offset - src.edge->dist;
+        if (node->type == NODE_BRANCH) {
+            TrackPosition straight = {&node->edge[DIR_STRAIGHT], 0};
+            TrackPosition curved   = {&node->edge[DIR_CURVED],   0};
+            uint32_t straight_dist = position_dist(straight, dest, offset);
+            uint32_t curved_dist   = position_dist(curved, dest, offset);
+            dist = straight_dist < curved_dist ? straight_dist : curved_dist;
+            if (dist == UINT32_MAX) return UINT32_MAX;
+        } else {
+            TrackPosition ahead = {&node->edge[node->direction], 0};
+            dist = position_dist(ahead, dest, offset);
+            if (dist == UINT32_MAX) return UINT32_MAX;
+        }
+        return dist + src.edge->dist;
+    }
+    return UINT32_MAX;
 }

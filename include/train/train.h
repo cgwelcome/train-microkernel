@@ -105,7 +105,7 @@ void train_reverse_position(Train *train);
  * returns the distance between the train and the position.
  * Otherwise, returns UINT32_MAX.
  */
-uint32_t train_close_to(Train *train, TrackPosition dest, int32_t tolerance);
+uint32_t train_close_to(Train *train, TrackPosition dest, uint32_t tolerance);
 
 /**
  * Notify that the train has touched a sensor.

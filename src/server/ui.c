@@ -148,12 +148,10 @@ static int cmd_demo(int nargc, char **nargv) {
 static int cmd_clear(int nargc, char **nargv) {
     (void)nargc;
     (void)nargv;
-    // Clear log region
-    Printf(io_tid, COM2, "\033[%u;%uH", LINE_LOG_START, 1);
-    Printf(io_tid, COM2, "\033[J", LINE_LOG_START, 1);
+    Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[K\033[u", LINE_WARNING, 1);   // clear warning
+    Printf(io_tid, COM2, "\033[s\033[%u;%uH\033[J\033[u", LINE_LOG_START, 1); // clear log region
     return 0;
 }
-
 
 static int cmd_quit(int nargc, char **nargv) {
     (void)nargc;
