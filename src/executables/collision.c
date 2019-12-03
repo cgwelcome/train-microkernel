@@ -1,10 +1,11 @@
-#include <ctype.h>
+#include <executable.h>
 #include <kernel.h>
 #include <user/name.h>
 #include <user/train.h>
 #include <user/io.h>
 #include <user/clock.h>
-#include <test.h>
+
+#include <ctype.h>
 
 #define TRAIN2_ID         1
 #define NODE2_TRACK_A  "E11"
@@ -21,7 +22,7 @@ extern uint32_t train1_id;
 static TrackNode *train2_node;
 static uint32_t train2_id;
 
-static void test_collision_reset() {
+static void exec_collision_reset() {
     train2_id = TRAIN2_ID;
     basic_setup();
     switch (singleton_track.name) {
@@ -35,19 +36,19 @@ static void test_collision_reset() {
     basic_train_setup(train2_id, train2_node);
 }
 
-static void test_collision_rest_headon() {
-    test_collision_reset();
+static void exec_collision_rest_headon() {
+    exec_collision_reset();
     TrainReverse(train_tid, train2_id);
     TrainMove(train_tid, train1_id, 10, train2_node, 0);
 }
 
-static void test_collision_rest_bump() {
-    test_collision_reset();
+static void exec_collision_rest_bump() {
+    exec_collision_reset();
     TrainMove(train_tid, train1_id, 10, train2_node, 0);
 }
 
 // Track B
-static void test_collision_rest_switch() {
+static void exec_collision_rest_switch() {
     TrackNode *node1 = track_find_node_by_name(&singleton_track, "E7");
     TrackNode *node2 = track_find_node_by_name(&singleton_track, "D3");
     basic_train_setup(train1_id, node1);
@@ -59,16 +60,16 @@ static void test_collision_rest_switch() {
     TrainSpeed(train_tid, train2_id, 10);
 }
 
-static void test_collision_congestion() {
-    test_collision_reset();
+static void exec_collision_congestion() {
+    exec_collision_reset();
     TrainSwitch(train_tid, 8, DIR_STRAIGHT);
     TrainSpeed(train_tid, train1_id, 12);
     TrainSpeed(train_tid, train2_id, 10);
 }
 
 // Track B
-static void test_collision_reverse_ahead() {
-    test_collision_reset();
+static void exec_collision_reverse_ahead() {
+    exec_collision_reset();
     TrainSwitch(train_tid, 8, DIR_STRAIGHT);
     TrainSpeed(train_tid, train1_id, 10);
     TrainSpeed(train_tid, train2_id, 10);
@@ -82,17 +83,17 @@ static void test_collision_reverse_ahead() {
 }
 
 
-static TestCase collision_suite[] = {
-    { "Head-on Rest Collision",   test_collision_rest_headon   },
-    { "Bump Rest Collision",      test_collision_rest_bump     },
-    { "Switch Rest Collision",    test_collision_rest_switch   },
-    { "Reverse Ahead Collision",  test_collision_reverse_ahead },
-    { "Congestion Collision",     test_collision_congestion    },
-    { "Reset Collision",          test_collision_reset         },
+static Executable collision_suite[] = {
+    { "Head-on Rest Collision",   exec_collision_rest_headon   },
+    { "Bump Rest Collision",      exec_collision_rest_bump     },
+    { "Switch Rest Collision",    exec_collision_rest_switch   },
+    { "Reverse Ahead Collision",  exec_collision_reverse_ahead },
+    { "Congestion Collision",     exec_collision_congestion    },
+    { "Reset Collision",          exec_collision_reset         },
     { NULL,                       NULL                         },
 };
 
-int test_collision(int argc, char **argv) {
+int exec_collision(int argc, char **argv) {
     (void)argc;
     (void)argv;
     io_tid = WhoIs(SERVER_NAME_IO);

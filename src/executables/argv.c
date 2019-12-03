@@ -2,7 +2,7 @@
 #include <user/name.h>
 #include <user/io.h>
 
-int test_argv(int argc, char **argv) {
+int exec_argv(int argc, char **argv) {
     (void)argc;
     (void)argv;
     int iotid = WhoIs(SERVER_NAME_IO);

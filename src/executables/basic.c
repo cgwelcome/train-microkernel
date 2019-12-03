@@ -1,9 +1,10 @@
-#include <ctype.h>
+#include <executable.h>
 #include <kernel.h>
-#include <test.h>
 #include <user/name.h>
 #include <user/train.h>
 #include <user/io.h>
+
+#include <ctype.h>
 
 #define TRAIN1_ID       24
 #define NODE1_TRACK_A  "A8"
@@ -53,25 +54,25 @@ void basic_setup() {
     basic_train_setup(train1_id, train1_node);
 }
 
-static void basic_print_menu(TestCase *suite) {
-    for (uint32_t i = 0; suite[i].name; i++) {
-        Printf(io_tid, COM2, "[%u] : %s\n\r", i, suite[i].name);
+static void basic_print_menu(Executable *executables) {
+    for (uint32_t i = 0; executables[i].name; i++) {
+        Printf(io_tid, COM2, "[%u] : %s\n\r", i, executables[i].name);
     }
     Printf(io_tid, COM2, "[b] : boomerang\n\r");
     Printf(io_tid, COM2, "[r] : reset\n\r");
     Printf(io_tid, COM2, "[q] : quit\n\r");
 }
 
-void basic_menu(TestCase *suite, uint32_t size) {
+void basic_menu(Executable *executables, uint32_t size) {
     char option = 0;
     for (;;) {
-        basic_print_menu(suite);
+        basic_print_menu(executables);
         Printf(io_tid, COM2, "Please enter your choice:\n\r");
         Getc(io_tid, COM2, &option);
         if ('0' <= option && option <= '0'+size-1) {
             uint32_t i = (uint32_t)option-'0';
-            Printf(io_tid, COM2, "Excuting test %u: %s\n\r", i, suite[i].name);
-            suite[i].func();
+            Printf(io_tid, COM2, "Excuting test %u: %s\n\r", i, executables[i].name);
+            executables[i].func();
         } else if (option == 'b') {
             TrainMove(train_tid, train1_id, train_speed, train1_node, 0);
         } else if (option == 'r') {
@@ -85,7 +86,7 @@ void basic_menu(TestCase *suite, uint32_t size) {
     Printf(io_tid, COM2, "Exit Test Program...\n\r");
 }
 
-int test_setup(int argc, char **argv) {
+int exec_setup(int argc, char **argv) {
     (void)argc;
     (void)argv;
     io_tid = WhoIs(SERVER_NAME_IO);

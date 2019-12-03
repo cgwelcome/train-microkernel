@@ -1,9 +1,10 @@
-#include <stdlib.h>
 #include <kernel.h>
 #include <train/track.h>
 #include <user/name.h>
 #include <user/io.h>
 #include <user/ui.h>
+
+#include <stdlib.h>
 
 static void print_path(int iotid, TrackPath *path) {
     if (path->dist == 0) {
@@ -18,7 +19,7 @@ static void print_path(int iotid, TrackPath *path) {
     Printf(iotid, COM2, "%d mm\n\r", path->dist);
 }
 
-int test_search_path(int argc, char **argv) {
+int exec_search_path(int argc, char **argv) {
     int iotid = WhoIs(SERVER_NAME_IO);
     if (argc != 3) {
         Printf(iotid, COM2, "Missing src dest\n\r");
@@ -42,7 +43,7 @@ int test_search_path(int argc, char **argv) {
     return 0;
 }
 
-int test_search_allpath(int argc, char **argv) {
+int exec_search_allpath(int argc, char **argv) {
     (void)argv;
     int iotid = WhoIs(SERVER_NAME_IO);
     if (argc != 1) {

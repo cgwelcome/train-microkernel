@@ -1,9 +1,10 @@
-#include <ctype.h>
+#include <executable.h>
 #include <kernel.h>
 #include <user/name.h>
 #include <user/train.h>
 #include <user/io.h>
-#include <test.h>
+
+#include <ctype.h>
 
 extern Track singleton_track;
 extern int io_tid;
@@ -13,14 +14,14 @@ extern TrackNode *train1_node;
 extern uint32_t train1_id;
 extern uint32_t train_speed;
 
-static void test_reverse_onspot() {
+static void exec_reverse_onspot() {
     TrackNode *node = train1_node->reverse;
     TrainMove(train_tid, train1_id, train_speed, node, 0);
     Printf(io_tid, COM2, "Check expected position %s\n\r", node->name);
     Printf(io_tid, COM2, "Check orientation %s\n\r", node->name);
 }
 
-static void test_reverse_simple() {
+static void exec_reverse_simple() {
     if (!singleton_track.inited) return;
     TrackNode *node = NULL;
     switch (singleton_track.name) {
@@ -35,7 +36,7 @@ static void test_reverse_simple() {
     Printf(io_tid, COM2, "Check expected destination %s\n\r", node->name);
 }
 
-static void test_reverse_shortmove() {
+static void exec_reverse_shortmove() {
     if (!singleton_track.inited) return;
     TrackNode *node0 = NULL;
     TrackNode *node1 = NULL;
@@ -65,7 +66,7 @@ static void test_reverse_shortmove() {
     }
 }
 
-static void test_reverse_backbranch() {
+static void exec_reverse_backbranch() {
     if (!singleton_track.inited) return;
     TrackNode *node0 = NULL;
     TrackNode *node1 = NULL;
@@ -94,15 +95,15 @@ static void test_reverse_backbranch() {
 }
 
 
-static TestCase reverse_suite[] = {
-    { "Reverse onspot",      test_reverse_onspot      },
-    { "Reverse simple",      test_reverse_simple      },
-    { "Reverse shortmove",   test_reverse_shortmove   },
-    { "Reverse backbranch",  test_reverse_backbranch  },
+static Executable reverse_suite[] = {
+    { "Reverse onspot",      exec_reverse_onspot      },
+    { "Reverse simple",      exec_reverse_simple      },
+    { "Reverse shortmove",   exec_reverse_shortmove   },
+    { "Reverse backbranch",  exec_reverse_backbranch  },
     { NULL,                  NULL                     },
 };
 
-int test_reverse(int argc, char **argv) {
+int exec_reverse(int argc, char **argv) {
     (void)argc;
     (void)argv;
     io_tid = WhoIs(SERVER_NAME_IO);
