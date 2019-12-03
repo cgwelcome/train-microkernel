@@ -30,10 +30,24 @@ static void taxi_schedule_trip(TaxiRecord *record) {
     record->dropoff_node = track_find_node_by_name(&singleton_track, candidate->dropoff_node);
 }
 
+static bool taxi_schedule_has_conflict(TaxiRecord *record) {
+    for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
+        if (records + i == record) continue;
+        if (records[i].state == TAXI_STATE_IDLE) continue;
+        if (records[i].pickup_node  == record->pickup_node)  return true;
+        if (records[i].pickup_node  == record->dropoff_node) return true;
+        if (records[i].dropoff_node == record->pickup_node)  return true;
+        if (records[i].dropoff_node == record->dropoff_node) return true;
+    }
+    return false;
+}
+
 static void taxi_check_next_step(int traintid, uint32_t idle_train) {
     TaxiRecord *record = &records[train_id_to_index(idle_train)];
     if (record->state == TAXI_STATE_IDLE) {
-        taxi_schedule_trip(record);
+        do {
+            taxi_schedule_trip(record);
+        } while(taxi_schedule_has_conflict(record));
     }
     switch (record->state) {
         case TAXI_STATE_IDLE:
@@ -94,7 +108,7 @@ static void taxi_system_notifier_suntime() {
     TaxiNotification suntime_notification = TAXI_NOTIFY_SUNRISE;
 
     for (;;) {
-        Delay(clocktid, 6000); // 60 s
+        Delay(clocktid, 6000); // 60 seconds
         if (suntime_notification == TAXI_NOTIFY_SUNRISE) {
             suntime_notification = TAXI_NOTIFY_SUNSET;
         } else {
