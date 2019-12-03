@@ -17,6 +17,8 @@ void TrainMove(int tid, uint32_t train_id, uint32_t speed, TrackNode *node, int3
 
 void TrainSwitch(int tid, uint32_t switch_id, int8_t status);
 
+void TrainLight(int tid, bool turn_on);
+
 void TrainExit(int tid);
 
 #endif /*__USER_TRAIN_H__*/

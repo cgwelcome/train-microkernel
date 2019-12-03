@@ -16,12 +16,14 @@ extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
 
 static int iotid;
+static uint32_t light_switch;
 static uint32_t last_switch_time;
 static PQueue directive_queue;
 static TrainDirective directives[CONTROLLER_DIRECTIVE_LIMIT];
 
 void controller_init(int tid) {
     iotid = tid;
+    light_switch = 0;
     last_switch_time = (uint32_t) -1;
     pqueue_init(&directive_queue);
     for (int i = 0; i < CONTROLLER_DIRECTIVE_LIMIT; i++) {
@@ -42,7 +44,7 @@ static int controller_schedule_next_directive(TrainDirective *directive) {
 static void controller_handle_directive(TrainDirective *directive) {
     switch (directive->type) {
         case TRAIN_DIRECTIVE_SPEED:
-            Printf(iotid, COM1, "%c%c", (char) directive->data, (char) directive->id);
+            Printf(iotid, COM1, "%c%c", (char) (directive->data + light_switch), (char) directive->id);
             if (directive->data != TRAIN_STATUS_REVERSE) {
                 train_find(singleton_trains, directive->id)->speed = directive->data;
             }
@@ -104,6 +106,18 @@ void controller_go() {
 
 void controller_stop() {
     Putc(iotid, COM1, TRAIN_CODE_STOP);
+}
+
+void controller_set_light(bool turn_on) {
+    if (turn_on) {
+        light_switch = TRAIN_STATUS_LIGHT;
+    } else {
+        light_switch = 0;
+    }
+    for (int i = 0; i < TRAIN_COUNT; i++) {
+        Train *train = &singleton_trains[i];
+        controller_speed_one(train->id, train->speed, 0);
+    }
 }
 
 void controller_speed_one(uint32_t train_id, uint32_t speed, uint32_t delay) {

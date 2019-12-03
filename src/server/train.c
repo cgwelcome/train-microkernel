@@ -150,6 +150,10 @@ static void train_root_task() {
             uint32_t direction = request.args[1];
             controller_switch_one(switch_id, direction, 0);
         }
+        if (request.type == TRAIN_REQUEST_LIGHT) {
+            bool turn_on = (bool) request.args[0];
+            controller_set_light(turn_on);
+        }
         if (request.type == TRAIN_REQUEST_EXIT) {
             controller_speed_all(0, 0);
         }
@@ -157,7 +161,7 @@ static void train_root_task() {
     }
 }
 
-void train_notifier_task() {
+static void train_notifier_task() {
     int clocktid = WhoIs(SERVER_NAME_CLOCK);
     int traintid = WhoIs(SERVER_NAME_TRAIN);
 
