@@ -25,8 +25,8 @@ static struct {
 static void driver_transition(Train *train, TrainState state) {
     for (uint32_t i = 0; train_transition[i].state != TRAIN_STATE_NONE; i++) {
         if (train_transition[i].state == state) {
-            Printf(iotid, COM2, "%u-%u\n\r", train->id, train->state);
             train->state = train_transition[i].state;
+            Printf(iotid, COM2, "%u-%u\n\r", train->id, train->state);
             train->driver_handle = train_transition[i].driver_handle;
             if (train_transition[i].entry != NULL) {
                 train_transition[i].entry(train);
@@ -213,6 +213,11 @@ void driver_speed_entry(Train *train) {
 }
 
 void driver_reverse_entry(Train *train) {
+    if (train->mode == TRAIN_MODE_PATH) {
+        assert(train->reverse_anchor.node != NULL);
+        path_next_node(&train->path, train->reverse_anchor.node->reverse);
+        train_manager_setup_reverse(train);
+    }
     train_reverse_position(train);
     controller_speed_one(train->id, TRAIN_STATUS_REVERSE, 0);
 }
