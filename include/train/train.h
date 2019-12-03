@@ -60,8 +60,9 @@ struct Train {
     TrackNode *blocked_switch;
 
     // Error detection
-    uint32_t missing_count;
-    TrackNode *missing_sensor;
+    uint32_t miss_count;
+    TrackNode *recent_sensor;
+    TrackNode *missed_sensor;
 };
 
 /**

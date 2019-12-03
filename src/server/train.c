@@ -57,9 +57,10 @@ static void ts_try_print_status(int iotid, TrainSensorList *sensorlist) {
 }
 
 static void ts_check_train_missing(int iotid, Train *train) {
-    if (train->missing_count >= 2) {
-        PrintWarning(iotid, "Train %d is missing at %s", train->id, train->missing_sensor->name);
+    if (train->miss_count >= 3) {
+        PrintWarning(iotid, "Train %d is missing at %s", train->id, train->missed_sensor->name);
         train_clear(train);
+        controller_speed_one(train->id, 0, 0);
     }
 }
 
