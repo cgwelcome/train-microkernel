@@ -37,9 +37,25 @@ uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offs
 
     TrackPosition destination = position_move((TrackPosition) {dest, 0}, offset);
     if (destination.node == NULL) return 1;
-    TrackPath path = track_search_path(&singleton_track, train->position.node, destination.node);
-    if (path.dist == 0) return 1;
 
+    TrackNodeType types[TRAIN_COUNT];
+    for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
+        types[i] = NODE_NONE;
+        Train *other = &singleton_trains[i];
+        if (other->inited && other->id != train->id) {
+            types[i] = other->position.node->type;
+            other->position.node->type = NODE_NONE;
+        }
+    }
+    TrackPath path = track_search_path(&singleton_track, train->position.node, destination.node);
+    for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
+        Train *other = &singleton_trains[i];
+        if (other->inited && other->id != train->id) {
+            other->position.node->type = types[i];
+        }
+    }
+
+    if (path.dist == 0) return 1;
     train->mode = TRAIN_MODE_PATH;
     train->path = path;
 
@@ -66,26 +82,8 @@ static bool train_manager_will_collide(Train *train, Train *other) {
     return false;
 }
 
-bool train_manager_unblocked_train(Train *train) {
-    if (train->blocked_train == NULL) return true;
-    if (train_manager_will_collide(train, train->blocked_train)) {
-        return false;
-    }
-    train->blocked_train = NULL;
-    return true;
-}
-
 static bool train_manager_reserve_available(Train *train, TrackNode *node) {
     return (node->owner == UINT32_MAX || node->owner == train->id);
-}
-
-bool train_manager_unblocked_switch(Train *train) {
-    if (train->blocked_switch == NULL) return true;
-    if (!train_manager_reserve_available(train, train->blocked_switch)) {
-        return false;
-    }
-    train->blocked_switch = NULL;
-    return true;
 }
 
 bool train_manager_will_collide_train(Train *train) {
@@ -96,6 +94,7 @@ bool train_manager_will_collide_train(Train *train) {
             return true;
         }
     }
+    train->blocked_train = NULL;
     return false;
 }
 
@@ -110,6 +109,7 @@ bool train_manager_will_collide_switch(Train *train) {
             return true;
         }
     }
+    train->blocked_switch = NULL;
     return false;
 }
 
@@ -216,13 +216,13 @@ static void train_manager_prepare_ahead(Train *train) {
 static void train_manager_update_routing(Train *train) {
     path_next_node(&train->path, train->position.node);
     train_manager_prepare_ahead(train);
-    /*if (train->state == TRAIN_STATE_WAIT_TRAFFIC) {*/
-        /*uint8_t status = train_manager_navigate_train(train,*/
-                /*train->final_position.node, (int32_t)train->final_position.offset);*/
-        /*if (status == 0) {*/
-            /*driver_handle_reverse(train);*/
-        /*}*/
-    /*}*/
+    if (train->state == TRAIN_STATE_WAIT_TRAFFIC) {
+        uint8_t status = train_manager_navigate_train(train,
+                train->final_position.node, (int32_t)train->final_position.offset);
+        if (status == 0) {
+            driver_handle_move(train, train->original_speed);
+        }
+    }
 }
 
 void train_manager_issue_directives() {

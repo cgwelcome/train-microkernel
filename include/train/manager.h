@@ -8,11 +8,7 @@ void train_manager_initialize_train(Train *train);
 
 void train_manager_issue_directives();
 
-bool train_manager_unblocked_switch(Train *train);
-
 bool train_manager_will_collide_switch(Train *train);
-
-bool train_manager_unblocked_train(Train *train);
 
 bool train_manager_will_collide_train(Train *train);
 
