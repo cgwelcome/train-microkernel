@@ -1,6 +1,7 @@
 #include <executable.h>
 #include <kernel.h>
 #include <server/io.h>
+#include <server/taxi.h>
 #include <server/ui.h>
 #include <train/track.h>
 #include <user/io.h>
@@ -137,6 +138,13 @@ static int cmd_mv(int nargc, char **nargv) {
     return 1;
 }
 
+static int cmd_demo(int nargc, char **nargv) {
+    (void)nargc;
+    (void)nargv;
+    CreateTaxiSystem();
+    return 0;
+}
+
 static int cmd_clear(int nargc, char **nargv) {
     (void)nargc;
     (void)nargv;
@@ -195,8 +203,9 @@ static struct {
     { "init",   cmd_init  },
     { "tr",     cmd_tr    },
     { "rv",     cmd_rv    },
-    { "mv",     cmd_mv    },
     { "sw",     cmd_sw    },
+    { "mv",     cmd_mv    },
+    { "demo",   cmd_demo  },
     { "clear",  cmd_clear },
     { "q",      cmd_quit  },
     { "quit",   cmd_quit  },
