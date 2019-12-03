@@ -67,7 +67,7 @@ void PrintSwitch(int io_tid, unsigned int code, uint8_t direction) {
         col = code - 0x99;
     }
     Printf(io_tid, COM2,
-            TERM_SAVE_CURSOR TERM_MOVE_CURSOR "%02d" TERM_UNSAVE_CURSOR,
+            TERM_SAVE_CURSOR TERM_MOVE_CURSOR "%c" TERM_UNSAVE_CURSOR,
             LINE_SWITCH_START + row, 7 + col * 7,
             status);
 }
