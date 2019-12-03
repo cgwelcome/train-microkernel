@@ -17,7 +17,6 @@ extern int iotid;
 
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
-extern int iotid;
 
 static bool train_manager_will_arrive_position(Train *train, TrackPosition *position) {
     uint32_t offset = train->stop_distance > REST_POSITION_ERROR ? train->stop_distance : REST_POSITION_ERROR;
@@ -36,7 +35,7 @@ void train_manager_setup_reverse(Train *train) {
         path_clear(&train->reverse_path);
         return;
     };
-    train->reverse_anchor.edge = edge;
+    train->reverse_anchor.edge = &edge->src->edge[DIR_AHEAD];
     train->reverse_anchor.offset = 0;
 
     uint32_t overshoot;
