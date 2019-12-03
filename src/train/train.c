@@ -31,6 +31,9 @@ void train_clear(Train *train) {
     position_clear(&train->reverse_position);
     path_clear(&train->reverse_path);
     position_clear(&train->final_position);
+
+    train->blocked_train = NULL;
+    train->blocked_switch = NULL;
 }
 
 uint32_t train_id_to_index(uint32_t train_id) {
