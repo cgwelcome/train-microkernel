@@ -16,6 +16,7 @@ void train_clear(Train *train) {
     train->speed = 0;
     train->original_speed = 0;
 
+    train->direction = TRAIN_DIRECTION_FORWARD;
     train->velocity = 0;
     train->stop_distance = 0;
     position_clear(&train->position);
@@ -56,6 +57,15 @@ Train *train_find(Train *trains, uint32_t train_id) {
     return &trains[train_id_to_index(train_id)];
 }
 
+void train_reverse_position(Train *train) {
+    if (train->direction == TRAIN_DIRECTION_FORWARD) {
+        train->direction = TRAIN_DIRECTION_BACKWARD;
+    } else {
+        train->direction = TRAIN_DIRECTION_FORWARD;
+    }
+    train->position = position_reverse(train->position);
+}
+
 uint32_t train_close_to(Train *train, TrackPosition dest, int32_t tolerance) {
     assert(train->inited);
     assert(tolerance >= 0);
@@ -74,4 +84,16 @@ uint32_t train_close_to(Train *train, TrackPosition dest, int32_t tolerance) {
         }
     }
     return UINT32_MAX;
+}
+
+void train_touch_sensor(Train *train, TrackNode* sensor) {
+    train->position = (TrackPosition) {
+        .node   = sensor,
+        .offset = 0,
+    };
+    if (train->direction == TRAIN_DIRECTION_FORWARD) {
+        train->position = position_move(train->position, -50);
+    } else {
+        train->position = position_move(train->position,  50);
+    }
 }

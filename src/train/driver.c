@@ -213,6 +213,6 @@ void driver_speed_entry(Train *train) {
 }
 
 void driver_reverse_entry(Train *train) {
-    train->position = position_reverse(train->position);
+    train_reverse_position(train);
     controller_speed_one(train->id, TRAIN_STATUS_REVERSE, 0);
 }
