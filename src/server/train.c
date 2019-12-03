@@ -157,8 +157,9 @@ static void train_root_task() {
         if (request.type == TRAIN_REQUEST_FIND_IDLE) {
             uint32_t id = 0;
             for (int i = 0; i < TRAIN_COUNT; i++) {
-                if (singleton_trains[i].state == TRAIN_STATE_WAIT_COMMAND) {
-                    id = singleton_trains[i].id;
+                Train *train = &singleton_trains[i];
+                if (train->inited && train->state == TRAIN_STATE_WAIT_COMMAND) {
+                    id = train->id;
                     break;
                 }
             }
