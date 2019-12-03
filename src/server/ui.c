@@ -170,6 +170,7 @@ static struct {
     { "searchallpath",   test_search_allpath    },
     { "reverse",         test_reverse           },
     { "collision",       test_collision         },
+    { "position",        test_position          },
     { NULL,              NULL                   },
 };
 
