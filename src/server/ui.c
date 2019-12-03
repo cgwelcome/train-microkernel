@@ -175,6 +175,8 @@ static struct {
     { "reverse",         exec_reverse           },
     { "collision",       exec_collision         },
     { "position",        exec_position          },
+    { "routing",         exec_routing           },
+    { "trackb",          exec_trackb            },
     { NULL,              NULL                   },
 };
 

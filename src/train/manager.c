@@ -8,7 +8,9 @@
 #include <utils/assert.h>
 #include <utils/queue.h>
 
-#define TRAILLING_DISTANCE      600
+extern int iotid;
+
+#define TRAILLING_DISTANCE      550
 #define PREPARE_AHEAD_DISTANCE  700
 #define REST_POSITION_ERROR     100
 #define TRAIN_AROUND_REVERSE    500
@@ -58,7 +60,7 @@ uint8_t train_manager_navigate_train(Train *train, TrackEdge *edge, int32_t offs
     for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
         train_types[i] = NODE_NONE;
         Train *other = &singleton_trains[i];
-        if (other->inited && other->id != train->id) {
+        if (other->inited && other->id != train->id && train_manager_reserve_available(train, other->position.edge->src)) {
             train_types[i] = other->position.edge->src->type;
             other->position.edge->src->type = NODE_NONE;
         }
@@ -74,7 +76,7 @@ uint8_t train_manager_navigate_train(Train *train, TrackEdge *edge, int32_t offs
     TrackPath path = track_search_path(&singleton_track, train->position.edge->src, destination.edge->src);
     for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
         Train *other = &singleton_trains[i];
-        if (other->inited && other->id != train->id) {
+        if (other->inited && other->id != train->id && train_manager_reserve_available(train, other->position.edge->src)) {
             other->position.edge->src->type = train_types[i];
         }
     }
@@ -83,6 +85,10 @@ uint8_t train_manager_navigate_train(Train *train, TrackEdge *edge, int32_t offs
         if (!train_manager_reserve_available(train, node)) {
             node->type = branch_types[i];
         }
+    }
+    for (uint32_t i = 0; i < singleton_track.node_count; i++) {
+        TrackNode *node = &singleton_track.nodes[i];
+        assert(node->type != NODE_NONE);
     }
     if (path.dist == 0) return 1;
     train->mode = TRAIN_MODE_PATH;
@@ -104,7 +110,7 @@ static bool train_manager_will_collide(Train *train, Train *other) {
         return true;
     }
     // Case 2: train and other are in the opposite direction
-    limit = train->stop_distance + other->stop_distance + TRAILLING_DISTANCE;
+    limit = train->stop_distance + other->stop_distance + TRAILLING_DISTANCE + 100;
     if (position_dist(train->position, position_reverse(other->position), limit) != UINT32_MAX) {
         return true;
     }

@@ -123,3 +123,17 @@ void PrintWarning(int io_tid, char *fmt, ...) {
             buffer);
     va_end(va);
 }
+
+void PrintPath(int io_tid, TrackPath *path) {
+    if (path->dist == 0) {
+        Printf(io_tid, COM2, "Path not found\n\r");
+        return;
+    }
+    Printf(io_tid, COM2, "%s -> ", path->list.edges[0]->src->name);
+    for (uint32_t i = 0; i < path->list.size-1; i++) {
+        Printf(io_tid, COM2, "%s -> ", path->list.edges[i]->dest->name);
+    }
+    Printf(io_tid, COM2, "%s\n\r", path->list.edges[path->list.size-1]->dest->name);
+    Printf(io_tid, COM2, "%d mm\n\r", path->dist);
+}
+
