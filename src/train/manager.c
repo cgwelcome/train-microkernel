@@ -216,13 +216,13 @@ static void train_manager_prepare_ahead(Train *train) {
 static void train_manager_update_routing(Train *train) {
     path_next_node(&train->path, train->position.node);
     train_manager_prepare_ahead(train);
-    /*if (train->state == TRAIN_STATE_WAIT_TRAFFIC) {*/
-        /*uint8_t status = train_manager_navigate_train(train,*/
-                /*train->final_position.node, (int32_t)train->final_position.offset);*/
-        /*if (status == 0) {*/
-            /*driver_handle_reverse(train);*/
-        /*}*/
-    /*}*/
+    if (train->state == TRAIN_STATE_WAIT_TRAFFIC) {
+        uint8_t status = train_manager_navigate_train(train,
+                train->final_position.node, (int32_t)train->final_position.offset);
+        if (status == 0) {
+            driver_handle_move(train, train->original_speed);
+        }
+    }
 }
 
 void train_manager_issue_directives() {
