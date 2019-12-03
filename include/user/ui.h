@@ -15,6 +15,7 @@
 #define LINE_SENSOR_START   16
 #define LINE_SENSOR_END     21
 #define LINE_TERMINAL       22
+#define LINE_WARNING        23
 #define LINE_LOG_START      24
 #define LINE_LOG_END       128
 
@@ -33,5 +34,7 @@ void PrintLocation(int io_tid, Train *train);
 void PrintSensor(int io_tid, TrainSensor *sensor, uint32_t time);
 
 void PrintTerminal(int io_tid, const char *cmd_buffer);
+
+void PrintWarning(int io_tid, char *fmt, ...);
 
 #endif /*__USER_TRAIN_H__*/

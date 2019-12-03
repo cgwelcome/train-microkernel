@@ -46,12 +46,12 @@ static int cmd_init(int nargc, char **nargv) {
             TrainInitTrack(train_tid, TRAIN_TRACK_B);
             return 0;
         }
-        PrintTerminal(io_tid, "invalid track");
+        PrintWarning(io_tid, "invalid track");
         return 1;
     }
     if (nargc == 4 && !strcmp(nargv[1], "train")) {
         if (!singleton_track.inited) {
-            PrintTerminal(io_tid, "initialize track first!");
+            PrintWarning(io_tid, "initialize track first!");
             return 1;
         }
         uint32_t train_id = (uint32_t)atoi(nargv[2]);
@@ -60,16 +60,16 @@ static int cmd_init(int nargc, char **nargv) {
             TrainInitTrain(train_tid, train_id, node);
             return 0;
         }
-        PrintTerminal(io_tid, "invalid train id/node name");
+        PrintWarning(io_tid, "invalid train id or node name");
         return 1;
     }
-    PrintTerminal(io_tid, "usage: init track track_name | init train id node");
+    PrintWarning(io_tid, "usage: init track track_name | init train id node");
     return 1;
 }
 
 static int cmd_tr(int nargc, char **nargv) {
     if (nargc != 3) {
-        PrintTerminal(io_tid, "usage: tr train_id speed");
+        PrintWarning(io_tid, "usage: tr train_id speed");
         return 1;
     }
     uint32_t train_id = (uint32_t)atoi(nargv[1]);
@@ -78,13 +78,13 @@ static int cmd_tr(int nargc, char **nargv) {
         TrainSpeed(train_tid, train_id, speed);
         return 0;
     }
-    PrintTerminal(io_tid, "invalid train id/speed");
+    PrintWarning(io_tid, "invalid train id or speed");
     return 1;
 }
 
 static int cmd_rv(int nargs, char **nargv) {
     if (nargs != 2) {
-        PrintTerminal(io_tid, "usage: rv train_id");
+        PrintWarning(io_tid, "usage: rv train_id");
         return 1;
     }
     uint32_t train_id = (uint32_t)atoi(nargv[1]);
@@ -92,13 +92,13 @@ static int cmd_rv(int nargs, char **nargv) {
         TrainReverse(train_tid, train_id);
         return 0;
     }
-    PrintTerminal(io_tid, "invalid train id");
+    PrintWarning(io_tid, "invalid train id");
     return 1;
 }
 
 static int cmd_sw(int nargc, char **nargv) {
     if (nargc != 3) {
-        PrintTerminal(io_tid, "usage: sw switch_id direction");
+        PrintWarning(io_tid, "usage: sw switch_id direction");
         return 1;
     }
     uint32_t switch_id = (uint32_t)atoi(nargv[1]);
@@ -114,13 +114,13 @@ static int cmd_sw(int nargc, char **nargv) {
         TrainSwitch(train_tid, switch_id, DIR_STRAIGHT);
         return 0;
     }
-    PrintTerminal(io_tid, "invalid direction");
+    PrintWarning(io_tid, "invalid direction");
     return 1;
 }
 
 static int cmd_mv(int nargc, char **nargv) {
     if (nargc != 3 && nargc != 4) {
-        PrintTerminal(io_tid, "usage: mv train_id node [offset]");
+        PrintWarning(io_tid, "usage: mv train_id node [offset]");
         return 1;
     }
     uint32_t train_id = (uint32_t)atoi(nargv[1]);
@@ -133,7 +133,7 @@ static int cmd_mv(int nargc, char **nargv) {
         TrainMove(train_tid, train_id, 10, node, offset);
         return 0;
     }
-    PrintTerminal(io_tid, "Invalid train id/node name");
+    PrintWarning(io_tid, "invalid train id or node name");
     return 1;
 }
 
@@ -174,7 +174,7 @@ static struct {
 
 static int cmd_test(int nargc, char **nargv) {
     if (nargc < 2) {
-        PrintTerminal(io_tid, "usage: test name [arguments]");
+        PrintWarning(io_tid, "usage: test name [arguments]");
         return 1;
     }
 
@@ -184,7 +184,7 @@ static int cmd_test(int nargc, char **nargv) {
             return 0;
         }
     }
-    PrintTerminal(io_tid, "test not found");
+    PrintWarning(io_tid, "test not found");
     return 1;
 }
 
@@ -211,7 +211,7 @@ static int dispatch_command(char *cmd) {
 
     for (word = strtok(cmd, " \t"); word != NULL; word = strtok(NULL, " \t")) {
         if (nargc >= MAX_NUM_ARGS) {
-            PrintTerminal(io_tid, "maximum arguments exceeded");
+            PrintWarning(io_tid, "maximum arguments exceeded");
             return 1;
         }
         nargv[nargc++] = word;
@@ -226,7 +226,7 @@ static int dispatch_command(char *cmd) {
             return returncode;
         }
     }
-    PrintTerminal(io_tid, "command not found");
+    PrintWarning(io_tid, "command not found");
     return 1;
 }
 
@@ -241,7 +241,6 @@ static void ui_clock_task() {
 }
 
 static void ui_keyboard_task() {
-    int return_code;
     uint32_t cmd_len = 0;
     char cmd_buffer[CMD_BUFFER_SIZE];
 
@@ -253,10 +252,10 @@ static void ui_keyboard_task() {
         Getc(io_tid, COM2, &in);
         switch (in) {
             case '\r':                         // execute command if get "ENTER"
-                return_code = dispatch_command(cmd_buffer);
+                dispatch_command(cmd_buffer);
                 cmd_len = 0;
                 cmd_buffer[cmd_len] = '\0';
-                if (!return_code) PrintTerminal(io_tid, cmd_buffer);
+                PrintTerminal(io_tid, cmd_buffer);
                 break;
             case '\b':                         // delete character if get "BACKSPACE"
                 if (cmd_len != 0) {
