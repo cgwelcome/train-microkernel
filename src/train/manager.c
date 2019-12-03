@@ -79,7 +79,6 @@ static bool train_manager_reserve_available(Train *train, TrackNode *node) {
     return (node->owner == UINT32_MAX || node->owner == train->id);
 }
 
-
 bool train_manager_unblocked_switch(Train *train) {
     if (train->blocked_switch == NULL) return true;
     if (!train_manager_reserve_available(train, train->blocked_switch)) {

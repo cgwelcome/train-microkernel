@@ -21,7 +21,6 @@ void train_clear(Train *train) {
     position_clear(&train->position);
     train->model_last_update_time = 0;
 
-
     train->state = TRAIN_STATE_NONE;
     train->driver_handle = NULL;
 
@@ -34,6 +33,9 @@ void train_clear(Train *train) {
 
     train->blocked_train = NULL;
     train->blocked_switch = NULL;
+
+    train->missing_count = 0;
+    train->missing_sensor = NULL;
 }
 
 uint32_t train_id_to_index(uint32_t train_id) {

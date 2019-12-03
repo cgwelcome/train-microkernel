@@ -112,10 +112,6 @@ void controller_set_light(bool turn_on) {
     } else {
         light_switch = 0;
     }
-    for (int i = 0; i < TRAIN_COUNT; i++) {
-        Train *train = &singleton_trains[i];
-        controller_speed_one(train->id, train->speed, 0);
-    }
 }
 
 void controller_speed_one(uint32_t train_id, uint32_t speed, uint32_t delay) {

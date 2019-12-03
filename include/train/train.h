@@ -31,11 +31,13 @@ struct Train {
     uint32_t speed;
     uint32_t original_speed;
 
+    // Physical model
     uint32_t velocity;
     uint32_t stop_distance;
     TrackPosition position;
     uint32_t model_last_update_time;
 
+    // Driver DFA
     TrainState state;
     void (*driver_handle)(Train *);
 
@@ -50,6 +52,10 @@ struct Train {
     // Traffic
     Train *blocked_train;
     TrackNode *blocked_switch;
+
+    // Error detection
+    uint32_t missing_count;
+    TrackNode *missing_sensor;
 };
 
 /**
