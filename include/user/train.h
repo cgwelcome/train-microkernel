@@ -19,6 +19,8 @@ void TrainSwitch(int tid, uint32_t switch_id, int8_t status);
 
 void TrainLight(int tid, bool turn_on);
 
+uint32_t TrainFindIdle(int tid);
+
 void TrainExit(int tid);
 
 #endif /*__USER_TRAIN_H__*/

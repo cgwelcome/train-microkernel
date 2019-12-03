@@ -154,6 +154,17 @@ static void train_root_task() {
             bool turn_on = (bool) request.args[0];
             controller_set_light(turn_on);
         }
+        if (request.type == TRAIN_REQUEST_FIND_IDLE) {
+            uint32_t id = 0;
+            for (int i = 0; i < TRAIN_COUNT; i++) {
+                if (singleton_trains[i].state == TRAIN_STATE_WAIT_COMMAND) {
+                    id = singleton_trains[i].id;
+                    break;
+                }
+            }
+            Reply(tid, (char *) &id, sizeof(id));
+            continue;
+        }
         if (request.type == TRAIN_REQUEST_EXIT) {
             controller_speed_all(0, 0);
         }
