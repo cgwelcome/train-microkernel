@@ -40,14 +40,13 @@ void train_manager_setup_reverse(Train *train) {
     train->reverse_anchor.offset = 0;
 
     uint32_t overshoot;
-    if (train_manager_will_arrive_position(train, &train->reverse_anchor)) {
+    if (train->state == TRAIN_STATE_WAIT_COMMAND && train_manager_will_arrive_position(train, &train->reverse_anchor)) {
         overshoot = 0;
     } else {
         overshoot = REVERSE_OVERSHOOT;
     }
     train->reverse_position = position_move(train->reverse_anchor, (int32_t)overshoot);
     train->reverse_path = track_cover_dist(train->reverse_anchor.node, overshoot);
-    train->reverse_path = path_reverse(&train->reverse_path);
 }
 
 uint8_t train_manager_navigate_train(Train *train, TrackNode *dest, int32_t offset) {

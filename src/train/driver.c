@@ -21,7 +21,6 @@ static struct {
     { TRAIN_STATE_NONE,          NULL,                 NULL                 },
 };
 
-
 static void driver_transition(Train *train, TrainState state) {
     for (uint32_t i = 0; train_transition[i].state != TRAIN_STATE_NONE; i++) {
         if (train_transition[i].state == state) {
