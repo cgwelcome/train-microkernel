@@ -10,8 +10,6 @@
 #include <utils/assert.h>
 #include <utils/pqueue.h>
 
-extern const uint32_t train_ids[TRAIN_COUNT];
-
 extern Track singleton_track;
 extern Train singleton_trains[TRAIN_COUNT];
 
@@ -126,7 +124,7 @@ void controller_speed_one(uint32_t train_id, uint32_t speed, uint32_t delay) {
 
 void controller_speed_all(uint32_t speed, uint32_t delay) {
     for (int i = 0; i < TRAIN_COUNT; i++) {
-        controller_speed_one(train_ids[i], speed, delay);
+        controller_speed_one(singleton_trains[i].id, speed, delay);
     }
 }
 

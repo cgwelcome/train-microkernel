@@ -22,9 +22,7 @@ extern const uint32_t train_ids[TRAIN_COUNT];
 
 static uint8_t is_train(uint32_t train_id) {
     for (uint32_t i = 0; i < TRAIN_COUNT; i++) {
-        if (train_ids[i] == train_id) {
-            return 1;
-        }
+        if (train_ids[i] == train_id) return 1;
     }
     return 0;
 }

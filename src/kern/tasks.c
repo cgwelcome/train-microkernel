@@ -26,7 +26,7 @@ Task *task_at(int tid) {
 
 int task_create(int ptid, uint32_t priority, void (*entry)(), uint32_t arg) {
     if (priority == 0 || priority > MAX_TASK_PRIORITY) {
-        throw("invalid priority");
+        throw("invalid priority %u", priority);
     }
     if (total_task_count == MAX_TASK_NUM) {
         throw("out of task descriptors");
