@@ -11,7 +11,7 @@
  */
 
 #define MAX_NAME_SIZE 64
-#define MAX_NAMERECORD_NUM 248
+#define MAX_NAMERECORD_NUM 16
 
 typedef enum {
     NS_REGISTER,
@@ -23,15 +23,7 @@ typedef struct {
     char name[MAX_NAME_SIZE];
 } NSRequest;
 
-/**
- * Initialize some global counters for the Name Server.
- */
-void InitNameServer();
-
-/**
- * Creates a global Name Server
- */
-int CreateNameServer(uint32_t priority);
+void name_server_root_task();
 
 /** @}*/
 

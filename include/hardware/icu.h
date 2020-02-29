@@ -1,6 +1,8 @@
 #ifndef __HARDWARE_ICU_H__
 #define __HARDWARE_ICU_H__
 
+#include <stdint.h>
+
 /**
  * @defgroup icu
  * @ingroup hardware

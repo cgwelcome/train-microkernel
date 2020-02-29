@@ -16,9 +16,9 @@ typedef struct {
 } PQueue;
 
 void pqueue_init(PQueue *pqueue);
+uint32_t pqueue_size(PQueue *pqueue);
 int pqueue_pop(PQueue *pqueue);
 void pqueue_insert(PQueue *pqueue, int id, int priority);
 int pqueue_peek(PQueue *pqueue);
-uint32_t pqueue_size(PQueue *pqueue);
 
 #endif

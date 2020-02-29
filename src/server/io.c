@@ -1,14 +1,15 @@
-#include <event.h>
+#include <kernel.h>
 #include <hardware/uart.h>
+#include <hardware/timer.h>
 #include <server/idle.h>
 #include <server/io.h>
 #include <user/event.h>
 #include <user/ipc.h>
 #include <user/name.h>
 #include <user/tasks.h>
+#include <utils/assert.h>
 #include <utils/queue.h>
 
-static int io_server_tid, com1_notifier_tid, com2_notifier_tid;
 static IOChannel com1_channel;
 static IOChannel com2_channel;
 
@@ -28,11 +29,12 @@ static void io_init_uart(int uart) {
             interrupts = UARTEN_MASK | RTIEN_MASK;
             break;
         default:
-            return;
+            throw("unknown uart");
     }
-    uart_setspeed(uart, speed);
-    uart_setbitconfig(uart, bitconfig);
-    uart_enableintr(uart, interrupts);
+    uart_set_speed(uart, speed);
+    uart_set_bitconfig(uart, bitconfig);
+    uart_clean_buffer(uart);
+    uart_enable_interrupts(uart, interrupts);
 }
 
 static void io_init_channel(int uart) {
@@ -48,8 +50,9 @@ static void io_init_channel(int uart) {
             iochannel->fifo = true;
             break;
         default:
-            return;
+            throw("unknown uart");
     }
+    queue_init(&iochannel->send_queue);
     queue_init(&iochannel->recv_queue);
     queue_init(&iochannel->send_buffer);
     queue_init(&iochannel->recv_buffer);
@@ -65,7 +68,7 @@ static IOChannel *iochannel(int uart) {
         case COM2:
             return &com2_channel;
         default:
-            return NULL;
+            throw("unknown uart");
     }
 }
 
@@ -73,126 +76,139 @@ static bool iochannel_haltable(IOChannel *channel) {
     return queue_size(&channel->send_buffer) == 0;
 }
 
+static size_t iochannel_buffer_put(IOChannel *channel, char *buffer, size_t size) {
+    assert(size <= QUEUE_SIZE);
+    if (queue_size(&channel->send_buffer) + size <= QUEUE_SIZE) {
+        for (size_t i = 0; i < size; i++) {
+            queue_push(&channel->send_buffer, (int) buffer[i]);
+        }
+        return size;
+    }
+    return 0;
+}
+
+static size_t iochannel_buffer_get(IOChannel *channel, char *buffer, size_t size) {
+    assert(size <= QUEUE_SIZE);
+    if (queue_size(&channel->recv_buffer) >= size) {
+        for (size_t i = 0; i < size; i++) {
+            buffer[i] = (char) queue_pop(&channel->recv_buffer);
+        }
+        return size;
+    }
+    return 0;
+}
+
 static void iochannel_flush_send(IOChannel *channel) {
+    // Flush send buffer
     int send_count = channel->fifo ? 8 : 1;
     for (int i = 0; i < send_count && queue_size(&channel->send_buffer) > 0; i++) {
         uart_putc(channel->uart, (char)queue_pop(&channel->send_buffer));
     }
+    // Flush send queue
+    IORequest request;
+    while (queue_size(&channel->send_queue) > 0 && queue_size(&channel->send_buffer) < QUEUE_SIZE) {
+        int tid = queue_peek(&channel->send_queue);
+        Peek(tid, (char *)&request, sizeof(request));
+
+        size_t len = iochannel_buffer_put(channel, (char *)request.data, request.size);
+        if (len > 0) {
+            queue_pop(&channel->send_queue);
+            Reply(tid, NULL, 0);
+        } else {
+            break;
+        }
+    }
 }
 
 static void iochannel_flush_recv(IOChannel *channel) {
+    // Flush recv buffer
     int recv_count = channel->fifo ? 8 : 1;
-    for (int i = 0; i < recv_count; i++) {
+    for (int i = 0; i < recv_count && queue_size(&channel->recv_buffer) < QUEUE_SIZE; i++) {
         int c = uart_getc(channel->uart);
         if (c == -1) break;
-        if (queue_size(&channel->recv_queue) > 0) {
-            int tid = queue_pop(&channel->recv_queue);
-            Reply(tid, (char *)&c, sizeof(c));
+        queue_push(&channel->recv_buffer, c);
+    }
+    // Flush recv queue
+    IORequest request;
+    while (queue_size(&channel->recv_queue) > 0 && queue_size(&channel->recv_buffer) != 0) {
+        int tid = queue_peek(&channel->recv_queue);
+        Peek(tid, (char *)&request, sizeof(request));
+
+        size_t len = iochannel_buffer_get(channel, (char *)request.data, request.size);
+        if (len > 0) {
+            queue_pop(&channel->recv_queue);
+            Reply(tid, NULL, 0);
         } else {
-            queue_push(&channel->recv_buffer, c);
-        }
-    }
-}
-
-static void io_server_update_send(IOChannel *channel) {
-    if (channel->tx_flag == IO_TXUP && queue_size(&channel->send_buffer) > 0) {
-        if (channel->uart == COM1 && channel->cts_flag == IO_CTSCOMPLETED) {
-            iochannel_flush_send(channel);
-            channel->tx_flag = IO_TXDOWN;
-            channel->cts_flag = IO_CTSINIT;
-            uart_enableintr(channel->uart, TIEN_MASK | MSIEN_MASK);
-        }
-        if (channel->uart == COM2) {
-            iochannel_flush_send(channel);
-            channel->tx_flag = IO_TXDOWN;
-            uart_enableintr(channel->uart, TIEN_MASK);
-        }
-    }
-}
-
-static void io_server_update_recv(IOChannel *channel) {
-    if (channel->rx_flag == IO_RXDOWN) {
-        iochannel_flush_recv(channel);
-        channel->rx_flag = IO_RXUP;
-        if (channel->uart == COM1) {
-            uart_enableintr(channel->uart, RIEN_MASK);
-        }
-        if (channel->uart == COM2) {
-            uart_enableintr(channel->uart, RIEN_MASK | RTIEN_MASK);
+            break;
         }
     }
 }
 
 static void io_server_update_flag(IOChannel *channel, uint32_t flag) {
     if (channel->uart == COM1 && (flag & MIS_MASK)) {
-        uart_clearmsintr(channel->uart);
-        int uartstatus = uart_readflag(channel->uart);
+        int uartstatus = uart_read_flags(channel->uart);
         if (!(uartstatus & CTS_MASK) && channel->cts_flag == IO_CTSINIT) {
             channel->cts_flag = IO_CTSDOWN;
         }
         else if (uartstatus & CTS_MASK && channel->cts_flag == IO_CTSDOWN) {
             channel->cts_flag = IO_CTSCOMPLETED;
-            uart_disableintr(channel->uart, MSIEN_MASK);
+            uart_disable_interrupts(channel->uart, MSIEN_MASK);
         }
     }
     if (channel->uart == COM2 && (flag & RTIS_MASK)) {
         channel->rx_flag = IO_RXDOWN;
-        uart_disableintr(channel->uart, RTIEN_MASK);
+        uart_disable_interrupts(channel->uart, RTIEN_MASK);
     }
     if (flag & RIS_MASK) {
         channel->rx_flag = IO_RXDOWN;
-        uart_disableintr(channel->uart, RIEN_MASK);
+        uart_disable_interrupts(channel->uart, RIEN_MASK);
     }
     if (flag & TIS_MASK) {
         channel->tx_flag = IO_TXUP;
-        uart_disableintr(channel->uart, TIEN_MASK);
+        uart_disable_interrupts(channel->uart, TIEN_MASK);
     }
 }
 
 static void io_server_update_channel(IOChannel *channel) {
-    io_server_update_send(channel);
-    io_server_update_recv(channel);
-}
-
-static void io_server_putc(IOChannel *channel, int tid, int c) {
-    queue_push(&channel->send_buffer, c);
-    io_server_update_channel(channel);
-    Reply(tid, NULL, 0);
-}
-
-static void io_server_putw(IOChannel *channel, int tid, char *str) {
-    int c = 0;
-    while ((c = *str++)) {
-        queue_push(&channel->send_buffer, c);
+    // Handle send logic
+    if (channel->tx_flag == IO_TXUP && queue_size(&channel->send_buffer) > 0) {
+        if (channel->uart == COM1 && channel->cts_flag == IO_CTSCOMPLETED) {
+            iochannel_flush_send(channel);
+            channel->tx_flag = IO_TXDOWN;
+            channel->cts_flag = IO_CTSINIT;
+            uart_enable_interrupts(channel->uart, TIEN_MASK | MSIEN_MASK);
+        }
+        if (channel->uart == COM2) {
+            iochannel_flush_send(channel);
+            channel->tx_flag = IO_TXDOWN;
+            uart_enable_interrupts(channel->uart, TIEN_MASK);
+        }
     }
-    io_server_update_channel(channel);
-    Reply(tid, NULL, 0);
-}
-
-static void io_server_getc(IOChannel *channel, int tid) {
-    if (queue_size(&channel->recv_buffer) != 0) {
-        int c = queue_pop(&channel->recv_buffer);
-        Reply(tid, (char *)&c, sizeof(c));
-    } else {
-        queue_push(&channel->recv_queue, tid);
-        uart_enableintr(channel->uart, RIEN_MASK);
+    // Handle recv logic
+    if (channel->rx_flag == IO_RXDOWN) {
+        iochannel_flush_recv(channel);
+        channel->rx_flag = IO_RXUP;
+        if (channel->uart == COM1) {
+            uart_enable_interrupts(channel->uart, RIEN_MASK);
+        }
+        if (channel->uart == COM2) {
+            uart_enable_interrupts(channel->uart, RIEN_MASK | RTIEN_MASK);
+        }
     }
 }
 
 void io_server_task() {
-    int tid; IORequest request; IOChannel *channel;
-    bool is_halting = false; int halting_error = -1;
+    int tid; IORequest request; IOChannel *channel; size_t len;
+    bool is_halting = false; uint64_t halting_start = 0;
     Queue halting_queue; queue_init(&halting_queue);
 
-    RegisterAs(IO_SERVER_NAME);
+    RegisterAs(SERVER_NAME_IO);
+    io_init_uart(COM1);
+    io_init_uart(COM2);
+    io_init_channel(COM1);
+    io_init_channel(COM2);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
-        if (is_halting) {
-            if (request.type != IO_REQUEST_INT_UART && request.type != IO_REQUEST_SHUTDOWN) {
-                Reply(tid, (char *) &halting_error, sizeof(halting_error));
-                continue;
-            }
-        }
         switch (request.type) {
             case IO_REQUEST_INT_UART:
                 channel = iochannel(request.uart);
@@ -200,32 +216,50 @@ void io_server_task() {
                 io_server_update_channel(channel);
                 Reply(tid, NULL, 0);
                 break;
-            case IO_REQUEST_PUTC:
+            case IO_REQUEST_PUT:
                 channel = iochannel(request.uart);
-                io_server_putc(channel, tid, (int)request.data);
-                break;
-            case IO_REQUEST_PUTW:
-                channel = iochannel(request.uart);
-                io_server_putw(channel, tid, (char *)request.data);
-                break;
-            case IO_REQUEST_GETC:
-                channel = iochannel(request.uart);
-                io_server_getc(channel, tid);
-                break;
-            case IO_REQUEST_SHUTDOWN:
-                if (iochannel_haltable(&com1_channel) && iochannel_haltable(&com2_channel)) {
-                    is_halting = true;
+                if (queue_size(&channel->send_queue) > 0) {
+                    queue_push(&channel->send_queue, tid);
+                    break;
+                }
+                len = iochannel_buffer_put(channel, (char *)request.data, request.size);
+                if (len > 0) {
                     Reply(tid, NULL, 0);
                 } else {
-                    is_halting = true;
+                    queue_push(&channel->send_queue, tid);
+                }
+                uart_enable_interrupts(channel->uart, TIEN_MASK);
+                break;
+            case IO_REQUEST_GET:
+                channel = iochannel(request.uart);
+                if (queue_size(&channel->recv_queue) > 0) {
+                    queue_push(&channel->recv_queue, tid);
+                    break;
+                }
+                len = iochannel_buffer_get(channel, (char *)request.data, request.size);
+                if (len > 0) {
+                    Reply(tid, NULL, 0);
+                } else {
+                    queue_push(&channel->recv_queue, tid);
+                    uart_enable_interrupts(channel->uart, RIEN_MASK);
+                }
+                break;
+            case IO_REQUEST_SHUTDOWN:
+                is_halting = true;
+                halting_start = timer_read(TIMER3);
+                if (iochannel_haltable(&com1_channel) && iochannel_haltable(&com2_channel)) {
+                    Reply(tid, NULL, 0);
+                } else {
                     queue_push(&halting_queue, tid);
                 }
                 break;
             default:
-                break;
+                throw("unknown request");
         }
         if (is_halting) {
-            if (iochannel_haltable(&com1_channel) && iochannel_haltable(&com2_channel)) {
+            uint64_t now = timer_read(TIMER3);
+            bool haltable = iochannel_haltable(&com1_channel) && iochannel_haltable(&com2_channel);
+            if (now - halting_start > 5000 || haltable) { // ensure the IO server get halted in 1 second.
                 while (queue_size(&halting_queue)) {
                     int tid = queue_pop(&halting_queue);
                     Reply(tid, NULL, 0);
@@ -236,59 +270,33 @@ void io_server_task() {
     }
 }
 
-static void io_com1_notifier_task() {
-    int event = INT_UART1;
+static void io_notifier_task(uint32_t uart) {
+    assert(uart == COM1 || uart == COM2);
+
+    int io_server_tid = WhoIs(SERVER_NAME_IO);
+    int event = (uart == COM1 ? INT_UART1 : INT_UART2);
     IORequest request = {
         .type = IO_REQUEST_INT_UART,
-        .uart = COM1
+        .uart = (int) uart,
     };
     for (;;) {
-        int uartintr = AwaitEvent(event);
-        request.data = (uint32_t) uartintr;
-        Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0);
+        uint32_t interrupts = (uint32_t) AwaitEvent(event);
+        uart_clear_interrupts((int) uart);
+        request.data = interrupts;
+        assert(Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
     }
 }
 
-static void io_com2_notifier_task() {
-    int event = INT_UART2;
-    IORequest request = {
-        .type = IO_REQUEST_INT_UART,
-        .uart = COM2
-    };
-    for (;;) {
-        int uartintr = AwaitEvent(event);
-        request.data = (uint32_t) uartintr;
-        Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0);
-    }
-}
-
-void InitIOServer() {
-    io_server_tid = -1;
-    com1_notifier_tid = -1;
-    com2_notifier_tid = -1;
-
-    io_init_uart(COM1);
-    io_init_uart(COM2);
-    io_init_channel(COM1);
-    io_init_channel(COM2);
-}
-
-int CreateIOServer(uint32_t server_priority, uint32_t com1_priority, uint32_t com2_priority) {
-    if (io_server_tid < 0) {
-        io_server_tid = Create(server_priority, &io_server_task);
-    }
-    if (com1_notifier_tid < 0) {
-        com1_notifier_tid = Create(com1_priority, &io_com1_notifier_task);
-    }
-    if (com2_notifier_tid < 0) {
-        com2_notifier_tid = Create(com2_priority, &io_com2_notifier_task);
-    }
-    return io_server_tid;
+void CreateIOServer() {
+    Create(PRIORITY_SERVER_IO, &io_server_task);
+    CreateWithArg(PRIORITY_NOTIFIER_IO_COM1, &io_notifier_task, COM1);
+    CreateWithArg(PRIORITY_NOTIFIER_IO_COM2, &io_notifier_task, COM2);
 }
 
 void ShutdownIOServer() {
     IORequest request = {
         .type = IO_REQUEST_SHUTDOWN
     };
-    Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0);
+    int io_server_tid = WhoIs(SERVER_NAME_IO);
+    assert(Send(io_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }

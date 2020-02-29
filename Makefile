@@ -62,4 +62,4 @@ doc:
 
 .PHONY: clean
 clean:
-	rm -r $(BINDIR) $(OBJDIR) $(DOCDIR)/doxygen
+	rm -rf $(BINDIR) $(OBJDIR) $(DOCDIR)/doxygen

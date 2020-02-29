@@ -2,39 +2,35 @@
 #include <server/name.h>
 #include <user/ipc.h>
 #include <user/name.h>
+#include <user/tasks.h>
+#include <utils/assert.h>
 
-extern int name_server_tid;
+static int InvokeNameServer() {
+    register int ret asm("r0");
+    SYSCALL_INVOKE(SYSCALL_NS_INVOKE);
+    return ret;
+}
 
-int RegisterAs(const char *name) {
-    int result;
+void RegisterAs(const char *name) {
+    assert(strlen(name) <= MAX_NAME_SIZE);
+
     NSRequest request;
-
-    // Name too long to be stored
-    if (strlen(name) > MAX_NAME_SIZE) {
-        return -2;
-    }
     request.type = NS_REGISTER;
     strcpy(request.name, name);
-    int retval = Send(name_server_tid, (char *)&request, sizeof(request), (char *)&result, sizeof(result));
-    if (retval == -1) {
-        return -1;
-    }
-    return result;
+
+    int name_server_tid = InvokeNameServer();
+    assert(Send(name_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
 }
 
 int WhoIs(const char *name) {
-    int result;
-    NSRequest request;
+    assert(strlen(name) <= MAX_NAME_SIZE);
 
-    // Name too long to be stored
-    if (strlen(name) > MAX_NAME_SIZE) {
-        return -2;
-    }
+    NSRequest request;
     request.type = NS_WHOIS;
     strcpy(request.name, name);
-    int retval = Send(name_server_tid, (char *)&request, sizeof(request), (char *)&result, sizeof(result));
-    if (retval == -1) {
-        return -1;
-    }
+
+    int result;
+    int name_server_tid = InvokeNameServer();
+    assert(Send(name_server_tid, (char *)&request, sizeof(request), (char *)&result, sizeof(result)) >= 0);
     return result;
 }

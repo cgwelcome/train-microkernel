@@ -1,7 +1,9 @@
+#include <kernel.h>
 #include <server/rps.h>
 #include <user/ipc.h>
 #include <user/name.h>
 #include <user/tasks.h>
+#include <utils/assert.h>
 
 static uint32_t rpsmatch_count;
 static RPSMatch rpsmatches[MAX_MATCH_NUM];
@@ -115,7 +117,7 @@ static void rps_quit(int tid) {
     }
 }
 
-static void rsp_task() {
+static void rps_task() {
     int tid;
     RPSRequest request;
 
@@ -124,7 +126,7 @@ static void rsp_task() {
         rpsmatches[i].status = RPS_UNUSED;
     }
 
-    RegisterAs(RPS_SERVER_NAME);
+    RegisterAs(SERVER_NAME_RPS);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {
@@ -138,11 +140,11 @@ static void rsp_task() {
                 rps_quit(tid);
                 break;
             default:
-                break;
+                throw("unknown request");
         }
     }
 }
 
-int CreateRPS(uint32_t priority) {
-    return Create(priority, &rsp_task);
+int CreateRPS() {
+    return Create(PRIORITY_SERVER_RPS, &rps_task);
 }

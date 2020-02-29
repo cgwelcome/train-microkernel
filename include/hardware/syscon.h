@@ -18,9 +18,6 @@
     #define SWLOCK_ON       0x00
     #define SWLOCK_OFF      0xAA
 
-#define ON  1
-#define OFF 0
-
 /**
  * Toggles lock of the system controller
  */

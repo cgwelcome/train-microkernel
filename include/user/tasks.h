@@ -15,11 +15,19 @@
  * Parameters:
  * @param[in] priority A positive integer from 1 to 1024.
  * @param[in] entry    A function pointer to the entry of the creating task.
- * @return the allocated tid if the task has been created successfully,
- * or -1 the priority is invalid,
- * or -2 the kernel is out of task descriptors.
+ * @return the allocated tid if the task has been created successfully.
  */
 int Create(uint32_t priority, void (*entry)());
+
+/**
+ * Asks kernel to create a new task with an argument.
+ * Parameters:
+ * @param[in] priority A positive integer from 1 to 1024.
+ * @param[in] entry    A function pointer to the entry of the creating task.
+ * @param[in] arg      An argument passed to the entry of the creating task.
+ * @return the allocated tid if the task has been created successfully.
+ */
+int CreateWithArg(uint32_t priority, void (*entry)(uint32_t), uint32_t arg);
 
 /**
  * Skips this time slice, force the kernel to pick next task.

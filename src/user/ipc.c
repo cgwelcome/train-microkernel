@@ -15,6 +15,12 @@ int Receive(int *tid, char *msg, size_t msglen) {
     return ret;
 }
 
+int Peek(int tid, char *msg, size_t msglen) {
+    register int ret asm("r0");
+    SYSCALL_INVOKE(SYSCALL_IPC_PEEK);
+    return ret;
+}
+
 int Reply(int tid, const char *reply, size_t rplen) {
     register int ret asm("r0");
     SYSCALL_INVOKE(SYSCALL_IPC_REPLY);

@@ -11,7 +11,6 @@
  */
 
 #define MAX_MATCH_NUM 128
-#define RPS_SERVER_NAME "RPS"
 
 typedef enum {
     RPS_UNUSED,
@@ -54,7 +53,7 @@ typedef struct {
 /**
  * Creates a Rock Paper Server
  */
-int CreateRPS(uint32_t priority);
+int CreateRPS();
 
 /** @}*/
 

@@ -1,5 +1,5 @@
 #include <hardware/icu.h>
-#include <stdint.h>
+#include <utils/assert.h>
 
 void icu_init() {
     volatile uint32_t *flag;
@@ -17,7 +17,7 @@ void icu_activate(int event) {
     volatile uint32_t *flag;
     uint32_t mask;
 
-    if (event >= 64) return;
+    assert(event >= 0 && event < 64);
     if (event < 32) {
         flag = (uint32_t *) (VIC1_BASE + INTENABLE_OFFSET);
         mask = 1U << event;
@@ -32,7 +32,7 @@ void icu_softirq(int event) {
     volatile uint32_t *flag;
     uint32_t mask;
 
-    if (event >= 64) return;
+    assert(event >= 0 && event < 64);
     if (event < 32) {
         flag = (uint32_t *) (VIC1_BASE + SOFTINT_OFFSET);
         mask = 1U << event;
@@ -61,7 +61,7 @@ void icu_disable(int event) {
     volatile uint32_t *flag;
     uint32_t mask;
 
-    if (event >= 64) return;
+    assert(event >= 0 && event < 64);
     if (event < 32) {
         flag = (uint32_t *) (VIC1_BASE + INTENCLEAR_OFFSET);
         mask = 1U << event;

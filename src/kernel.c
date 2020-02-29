@@ -1,17 +1,16 @@
+#include <init.h>
 #include <kernel.h>
-#include <application.h>
-#include <stdint.h>
 #include <hardware/icu.h>
 #include <hardware/timer.h>
 #include <hardware/uart.h>
 #include <kern/event.h>
 #include <kern/tasks.h>
-#include <server/clock.h>
-#include <server/io.h>
 #include <server/name.h>
+#include <utils/assert.h>
 #include <utils/bwio.h>
 
-uint64_t boot_time, halt_time;
+static uint64_t boot_time, halt_time;
+static int name_server_tid;
 
 void initialize() {
     // Enable L1I/L1D cache
@@ -28,12 +27,10 @@ void initialize() {
     // Initialize software and hardware handlers
     swi_handler_init();
     hwi_handler_init();
-    // Initialize global variables for servers
-    InitIOServer();
-    InitNameServer();
-    InitClockServer();
+    // Prepare for the name server
+    name_server_tid = -1;
     // Create first user task.
-    task_create(-1, 500, &k4_root_task);
+    task_create(-1, PRIORITY_ROOT_TASK, &k4_root_task, 0);
 }
 
 void handle_request(int tid, uint32_t request) {
@@ -43,8 +40,9 @@ void handle_request(int tid, uint32_t request) {
     }
     else if (request == SYSCALL_TASK_CREATE) {
         uint32_t priority = (uint32_t) current_task->tf->r0;
-        void *entry       = (void *)       current_task->tf->r1;
-        current_task->tf->r0 = (uint32_t) task_create(tid, priority, entry);
+        void *   entry    = (void *)   current_task->tf->r1;
+        uint32_t arg      = (uint32_t) current_task->tf->r2;
+        current_task->tf->r0 = (uint32_t) task_create(tid, priority, entry, arg);
     }
     else if (request == SYSCALL_TASK_EXIT) {
         task_kill(tid);
@@ -64,28 +62,46 @@ void handle_request(int tid, uint32_t request) {
         task_shutdown();
     }
     else if (request == SYSCALL_IPC_SEND) {
-        int recvtid   = (int)    current_task->tf->r0;
-        char *msg     = (char *) current_task->tf->r1;
-        size_t msglen = (size_t) current_task->tf->r2;
-        char *reply   = (char *) current_task->tf->r3;
-        size_t rplen  = (size_t) current_task->tf->r4;
+        int    recvtid = (int)    current_task->tf->r0;
+        char * msg     = (char *) current_task->tf->r1;
+        size_t msglen  = (size_t) current_task->tf->r2;
+        char * reply   = (char *) current_task->tf->r3;
+        size_t rplen   = (size_t) current_task->tf->r4;
         ipc_send(tid, recvtid, msg, msglen, reply, rplen);
     }
     else if (request == SYSCALL_IPC_RECV) {
-        int *sendtid  = (int *)  current_task->tf->r0;
-        char *msg     = (char *) current_task->tf->r1;
-        size_t msglen = (size_t) current_task->tf->r2;
+        int *  sendtid = (int *)  current_task->tf->r0;
+        char * msg     = (char *) current_task->tf->r1;
+        size_t msglen  = (size_t) current_task->tf->r2;
         ipc_receive(tid, sendtid, msg, msglen);
     }
+    else if (request == SYSCALL_IPC_PEEK) {
+        int    peektid = (int)    current_task->tf->r0;
+        char * msg     = (char *) current_task->tf->r1;
+        size_t msglen  = (size_t) current_task->tf->r2;
+        ipc_peek(tid, peektid, msg, msglen);
+    }
     else if (request == SYSCALL_IPC_REPLY) {
-        int replytid = (int)    current_task->tf->r0;
-        char *reply  = (char *) current_task->tf->r1;
-        size_t rplen = (size_t) current_task->tf->r2;
+        int    replytid = (int)    current_task->tf->r0;
+        char * reply    = (char *) current_task->tf->r1;
+        size_t rplen    = (size_t) current_task->tf->r2;
         ipc_reply(tid, replytid, reply, rplen);
     }
     else if (request == SYSCALL_IRQ_AWAITEVENT) {
         int event = (int) current_task->tf->r0;
         event_await(tid, event);
+    }
+    else if (request == SYSCALL_NS_INVOKE) {
+        if (name_server_tid == -1) {
+            name_server_tid = task_create(-1, PRIORITY_SERVER_NAME, &name_server_root_task, 0);
+        }
+        current_task->tf->r0 = (uint32_t) name_server_tid;
+    }
+    else if (request == SYSCALL_PANIC) {
+        char * file = (char *) current_task->tf->r0;
+        int    line = (int)    current_task->tf->r1;
+        char * msg  = (char *) current_task->tf->r2;
+        panic(file, line, msg);
     }
 }
 
@@ -99,8 +115,9 @@ void kernel_entry() {
         handle_request(nextTID, request);
     }
     halt_time = timer_read_raw(TIMER3);
-    /*bwprintf(COM2, "Kernel terminates after %u ms.", (halt_time - boot_time)/TIMER_HIGHFREQ);*/
+    bwprintf(COM2, "\033[30;1HKernel terminates after %u ms.", (halt_time - boot_time)/TIMER_HIGHFREQ);
+
     icu_disableall();
-    uart_disableall(COM1);
-    uart_disableall(COM2);
+    uart_disable_all_interrupts(COM1);
+    uart_disable_all_interrupts(COM2);
 }

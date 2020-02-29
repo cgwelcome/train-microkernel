@@ -10,14 +10,13 @@
  * @{
  */
 
-#define CLOCK_NOTIFY_INTERVAL 10
-#define CLOCK_SERVER_NAME "CS"
+#define CLOCK_TICK_INTERVAL 10
 
 typedef enum {
-    CS_TICKUPDATE,
+    CS_NOTIFY,
+    CS_TIME,
     CS_DELAY,
     CS_DELAYUNTIL,
-    CS_TIME,
 } CSRequestType;
 
 typedef struct {
@@ -33,7 +32,7 @@ void InitClockServer();
 /**
  * Creates a global Clock Server
  */
-int CreateClockServer(uint32_t priority);
+void CreateClockServer();
 
 /** @}*/
 

@@ -96,12 +96,13 @@ Task *task_at(int tid);
  *  ptid: parent tid, which is -1 if the task is started by kernel itself.
  *  priority: a positive integer from 1 to 1024.
  *  function: a function pointer to the entry of the creating task.
+ *  arg: an argument passed to the entry of the creating task.
  * Return Values:
  *  tid: the allocated tid if the task has been created successfully.
  *  -1: the priority is invalid.
  *  -2: the kernel is out of task descriptors.
  */
-int task_create(int ptid, uint32_t priority, void (*function)());
+int task_create(int ptid, uint32_t priority, void (*function)(), uint32_t arg);
 
 /**
  * Returns next task tid to activate.

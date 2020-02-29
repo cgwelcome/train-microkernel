@@ -1,8 +1,8 @@
 #include <arm.h>
 #include <kernel.h>
-#include <stddef.h>
 #include <hardware/timer.h>
 #include <kern/tasks.h>
+#include <utils/assert.h>
 #include <utils/queue.h>
 
 static uint32_t total_task_count;
@@ -20,18 +20,16 @@ void task_init() {
 }
 
 Task *task_at(int tid) {
-    if (tid < 0 || tid >= MAX_TASK_NUM) {
-        return NULL;
-    }
+    assert(tid >= 0 && tid < MAX_TASK_NUM);
     return (tasks + tid);
 }
 
-int task_create(int ptid, uint32_t priority, void (*entry)()) {
+int task_create(int ptid, uint32_t priority, void (*entry)(), uint32_t arg) {
     if (priority == 0 || priority > MAX_TASK_PRIORITY) {
-        return -1; // invalid priority
+        throw("invalid priority %u", priority);
     }
     if (total_task_count == MAX_TASK_NUM) {
-        return -2; // out of task descriptors.
+        throw("out of task descriptors");
     }
 
     // Initialize task descriptor
@@ -50,6 +48,7 @@ int task_create(int ptid, uint32_t priority, void (*entry)()) {
     asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SYS)); // enter system mode
         asm("mov sp, %0" : : "r" (ADDR_KERNEL_STACK_TOP - (uint32_t) tid * TASK_STACK_SIZE));
         asm("mov lr, #0x00"); // assume all the tasks will call Exit at the end.
+        asm("mov r0, %0" : : "r" (arg));
         asm("push {r0-r12, lr}");
         asm("str sp, %0" : : "m" (new_task.tf));
     asm("msr cpsr, %0" : : "I" (PSR_INT_DISABLED | PSR_FINT_DISABLED | PSR_MODE_SVC)); // back to supervisor mode
@@ -94,13 +93,19 @@ uint32_t task_activate(int tid) {
 }
 
 void task_kill(int tid) {
-    tasks[tid].status = ZOMBIE;
-    alive_task_count -= 1;
-    total_task_priority -= tasks[tid].priority;
+    Task *task = task_at(tid);
+
+    if (task->status == UNUSED) return;
+    if (task->status != ZOMBIE) {
+        task->status = ZOMBIE;
+        alive_task_count -= 1;
+        total_task_priority -= task->priority;
+    }
 }
 
 void task_shutdown() {
     for (int tid = 0; tid < MAX_TASK_NUM; tid++) {
+        if (tasks[tid].status == UNUSED) break;
         task_kill(tid);
     }
 }

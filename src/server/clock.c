@@ -1,25 +1,27 @@
-#include <stddef.h>
-#include <event.h>
+#include <kernel.h>
 #include <hardware/timer.h>
 #include <server/clock.h>
 #include <user/event.h>
 #include <user/ipc.h>
 #include <user/name.h>
 #include <user/tasks.h>
+#include <utils/assert.h>
 #include <utils/pqueue.h>
 
-static int clock_server_tid, clock_notifier_tid;
-static int clockticks;
-static PQueue pqdelay;
+static PQueue delay_queue;
 
-static void clock_time(int tid) {
-    Reply(tid, (char *)&clockticks, sizeof(clockticks));
+static int clock_ticks() {
+    return (int) (timer_read(TIMER3) / CLOCK_TICK_INTERVAL);
 }
 
-static void clock_updatetick() {
-    clockticks++;
-    while (pqueue_size(&pqdelay) > 0 && pqueue_peek(&pqdelay) <= clockticks) {
-        int tid = pqueue_pop(&pqdelay);
+static void clock_time(int tid) {
+    int now = clock_ticks();
+    Reply(tid, (char *)&now, sizeof(now));
+}
+
+static void clock_notify() {
+    while (pqueue_size(&delay_queue) > 0 && pqueue_peek(&delay_queue) <= clock_ticks()) {
+        int tid = pqueue_pop(&delay_queue);
         clock_time(tid);
     }
 }
@@ -28,15 +30,15 @@ static void clock_delay(int tid, int ticks) {
     if (ticks == 0) {
         clock_time(tid);
     } else {
-        pqueue_insert(&pqdelay, tid, clockticks + ticks);
+        pqueue_insert(&delay_queue, tid, clock_ticks() + ticks);
     }
 }
 
 static void clock_delayuntil(int tid, int ticks) {
-    if (ticks <= clockticks) {
+    if (ticks <= clock_ticks()) {
         clock_time(tid);
     } else {
-        pqueue_insert(&pqdelay, tid, ticks);
+        pqueue_insert(&delay_queue, tid, ticks);
     }
 }
 
@@ -44,13 +46,14 @@ void clock_server_task() {
     int tid;
     CSRequest request;
 
-    RegisterAs(CLOCK_SERVER_NAME);
+    RegisterAs(SERVER_NAME_CLOCK);
+    pqueue_init(&delay_queue);
     for (;;) {
         Receive(&tid, (char *)&request, sizeof(request));
         switch (request.type) {
-            case CS_TICKUPDATE:
-                clock_updatetick();
+            case CS_NOTIFY:
                 Reply(tid, NULL, 0);
+                clock_notify();
                 break;
             case CS_TIME:
                 clock_time(tid);
@@ -62,36 +65,23 @@ void clock_server_task() {
                 clock_delayuntil(tid, request.data);
                 break;
             default:
-                break;
+                throw("unknown request");
         }
     }
 }
 
 void clock_notifier_task() {
-    timer_init(TIMER2, CLOCK_NOTIFY_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
-    CSRequest request = {
-        .type = CS_TICKUPDATE
-    };
+    int clock_server_tid = WhoIs(SERVER_NAME_CLOCK);
+    timer_init(TIMER2, CLOCK_TICK_INTERVAL * TIMER_LOWFREQ, TIMER_LOWFREQ);
+    CSRequest request = { .type = CS_NOTIFY };
     for (;;) {
         timer_clear(TIMER2);
         AwaitEvent(TC2UI_EVENT);
-        Send(clock_server_tid, (char *)&request, sizeof(request), NULL, 0);
+        assert(Send(clock_server_tid, (char *)&request, sizeof(request), NULL, 0) >= 0);
     }
 }
 
-void InitClockServer() {
-    clock_server_tid = -1;
-    clock_notifier_tid = -1;
-    clockticks = 0;
-    pqueue_init(&pqdelay);
-}
-
-int CreateClockServer(uint32_t priority) {
-    if (clock_server_tid < 0) {
-        clock_server_tid = Create(priority, &clock_server_task);
-    }
-    if (clock_notifier_tid < 0) {
-        clock_notifier_tid = Create(priority - 1000, &clock_notifier_task);
-    }
-    return clock_server_tid;
+void CreateClockServer() {
+    Create(PRIORITY_SERVER_CLOCK, &clock_server_task);
+    Create(PRIORITY_NOTIFIER_CLOCK, &clock_notifier_task);
 }

@@ -1,16 +1,17 @@
 #include <hardware/syscon.h>
+#include <utils/assert.h>
 
 void syscon_lock(int state) {
     volatile uint32_t *flag = (uint32_t *)(SYSCON_BASE + SWLOCK_OFFSET);
     switch (state) {
-        case ON:
-            *flag = SWLOCK_ON;
-            break;
-        case OFF:
-            *flag = SWLOCK_OFF;
-            break;
-        default:
-            break;
+    case ON:
+        *flag = SWLOCK_ON;
+        break;
+    case OFF:
+        *flag = SWLOCK_OFF;
+        break;
+    default:
+        throw("unknown state");
     }
 }
 
